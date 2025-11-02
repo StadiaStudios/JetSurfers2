@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JetSurfers 2 - Jet Shop</title>
+    <link rel="icon" href="rec/xmas-icon.jpg" type="image/png">
+    <link rel="manifest" href="manifest.json">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Styles copied from index.html for consistency */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0d1117; /* Dark background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            user-select: none;
+            padding: 20px;
+        }
+
+        /* Use modal style as the main container for the shop */
+        .shop-container {
+            background: rgba(17, 24, 39, 0.98);
+            padding: 30px 40px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.8);
+            border: 2px solid #3b82f6;
+            pointer-events: auto;
+            max-width: 90%;
+            width: 450px; /* Matched game container width */
+            max-height: 90vh;
+            overflow-y: auto;
+            color: white;
+        }
+        
+        /* Menu button style for the "Back" link */
+        .menu-button {
+            display: block;
+            width: 100%;
+            padding: 12px 0;
+            margin: 8px 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #f3f4f6;
+            background-color: #1f2937;
+            border: 2px solid #3b82f6;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
+            box-shadow: 0 4px #111827;
+            text-decoration: none;
+            text-align: center;
+        }
+        .menu-button:hover {
+            background-color: #374151;
+        }
+        .menu-button:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px #111827;
+        }
+
+        /* --- START: Jet Shop Styles --- */
+        .jet-item {
+            background: #1f2937; /* Darker blue/gray */
+            border: 2px solid #3b82f6;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+        }
+        .jet-image {
+            width: 100%;
+            height: 100px; /* Fixed height for consistency */
+            object-fit: contain; /* Keep aspect ratio */
+            margin-bottom: 8px;
+        }
+        .jet-buy-button {
+            width: 100%;
+            padding: 8px 0;
+            margin-top: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #f3f4f6;
+            background-color: #3b82f6; /* Blue */
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .jet-buy-button:hover:not(:disabled) {
+            background-color: #2563eb;
+        }
+        .jet-buy-button.selected {
+            background-color: #10b981; /* Green */
+            cursor: not-allowed;
+        }
+        .jet-buy-button.disabled {
+            background-color: #4b5563; /* Gray */
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        /* --- END: Jet Shop Styles --- */
+    </style>
+</head>
+<body>
+
+    <div class="shop-container">
+        <h2 class="text-3xl font-extrabold mb-4 text-white">JET SHOP</h2>
+        <div class="text-lg mb-6">
+            Total Coins: <span id="jetShopCoinsValue" class="font-bold text-yellow-400">0</span>
+        </div>
+        
+        <!-- Grid for Jet Items -->
+        <div id="jetShopGrid" class="grid grid-cols-2 gap-4">
+            <!-- Jet items will be populated by JavaScript -->
+        </div>
+
+        <!-- This is now a link back to the game -->
+        <a href="index.html" id="jetShopBackButton" class="menu-button mt-6">BACK TO GAME</a>
+    </div>
+
+<script>
+    // --- Local Storage Setup (Shared Keys) ---
+    // These MUST match the keys in index.html
+    const COIN_STORAGE_KEY = 'jetSurferTotalCoins';
+    const JET_OWNED_KEY = 'jetSurferOwnedJets';
+    const JET_SELECTED_KEY = 'jetSurferSelectedJet';
+    // NOTE: MAGNET_LEVEL_KEY is not needed on this page
+
+    // --- START: Jet Definitions ---
+    // This array MUST match the one in index.html
+    const JETS = [
+        { id: 'default', name: 'Standard Issue', price: 0, img: 'rec/motor/default.png' },
+        { id: 'blue_streak', name: 'Blue Streak', price: 500, img: 'rec/motor/jet_blue.png' },
+        { id: 'red_comet', name: 'Nightwing', price: 1000, img: 'rec/motor/nightwing.png' },
+        { id: 'gold_wing', name: 'Premium Jet', price: 5000, img: 'rec/motor/premium-jet.png' }
+    ];
+    const DEFAULT_JET_ID = 'default';
+    
+    let totalCoins = 0;
+    let ownedJets = [DEFAULT_JET_ID];
+    let selectedJetId = DEFAULT_JET_ID;
+    // --- END: Jet Definitions ---
+
+    // --- UI Elements ---
+    const jetShopCoinsValue = document.getElementById('jetShopCoinsValue');
+    const jetShopGrid = document.getElementById('jetShopGrid');
+    
+    // --- Data Functions ---
+
+    function loadShopData() {
+        const storedCoins = localStorage.getItem(COIN_STORAGE_KEY);
+        totalCoins = storedCoins ? parseInt(storedCoins, 10) : 0;
+        
+        const storedOwnedJets = localStorage.getItem(JET_OWNED_KEY);
+        ownedJets = storedOwnedJets ? JSON.parse(storedOwnedJets) : [DEFAULT_JET_ID];
+
+        const storedSelectedJet = localStorage.getItem(JET_SELECTED_KEY);
+        selectedJetId = storedSelectedJet ? storedSelectedJet : DEFAULT_JET_ID;
+        
+        // Update coin display
+        jetShopCoinsValue.textContent = totalCoins.toLocaleString();
+    }
+
+    function spendCoins(amount) {
+        if (totalCoins >= amount) {
+            totalCoins -= amount;
+            localStorage.setItem(COIN_STORAGE_KEY, totalCoins);
+            jetShopCoinsValue.textContent = totalCoins.toLocaleString();
+            return true; // Purchase successful
+        }
+        return false; // Not enough coins
+    }
+
+    function saveOwnedJets() {
+        localStorage.setItem(JET_OWNED_KEY, JSON.stringify(ownedJets));
+    }
+
+    function saveSelectedJet() {
+        localStorage.setItem(JET_SELECTED_KEY, selectedJetId);
+    }
+
+    // --- Jet Shop Logic (Copied from index.html) ---
+    function populateJetShop() {
+        jetShopGrid.innerHTML = ''; // Clear existing items
+        jetShopCoinsValue.textContent = totalCoins.toLocaleString(); // Ensure coins are up-to-date
+
+        JETS.forEach(jet => {
+            const isOwned = ownedJets.includes(jet.id);
+            const isSelected = (jet.id === selectedJetId);
+
+            const item = document.createElement('div');
+            item.className = 'jet-item';
+            
+            let buttonHtml = '';
+            if (isSelected) {
+                buttonHtml = `<button class="jet-buy-button selected" disabled>Selected</button>`;
+            } else if (isOwned) {
+                buttonHtml = `<button class="jet-buy-button" data-jet-id="${jet.id}" data-action="select">Select</button>`;
+            } else {
+                const canAfford = totalCoins >= jet.price;
+                buttonHtml = `<button class="jet-buy-button ${!canAfford ? 'disabled' : ''}" data-jet-id="${jet.id}" data-action="buy" ${!canAfford ? 'disabled' : ''}>
+                                Buy (<span class="text-yellow-300">${jet.price.toLocaleString()} ★</span>)
+                              </button>`;
+            }
+
+            item.innerHTML = `
+                <img src="${jet.img}" alt="${jet.name}" class="jet-image" onerror="this.src='rec/motor/default.png'">
+                <p class="font-bold text-white">${jet.name}</p>
+                ${buttonHtml}
+            `;
+            jetShopGrid.appendChild(item);
+        });
+    }
+
+    // Event handler for clicks inside the jet shop grid
+    function handleJetShopClick(e) {
+        const button = e.target.closest('.jet-buy-button');
+        if (!button || button.disabled) return; // Ignore clicks on disabled buttons
+
+        const jetId = button.dataset.jetId;
+        const action = button.dataset.action;
+        const jet = JETS.find(j => j.id === jetId);
+
+        if (!jet) return;
+
+        if (action === 'buy') {
+            if (spendCoins(jet.price)) {
+                // Purchase successful
+                ownedJets.push(jet.id);
+                saveOwnedJets();
+                
+                // Automatically select the new jet
+                selectedJetId = jet.id;
+                saveSelectedJet();
+
+                // Repopulate the shop to update buttons
+                populateJetShop();
+            } else {
+                // Not enough coins
+                console.log("Not enough coins");
+            }
+        } else if (action === 'select') {
+            selectedJetId = jet.id;
+            saveSelectedJet();
+            // Repopulate the shop to update buttons
+            populateJetShop();
+        }
+    }
+
+    // --- Event Listeners & Initialization ---
+
+    // 1. Handle shop clicks
+    jetShopGrid.addEventListener('click', handleJetShopClick);
+
+    // 2. Load data and populate shop on page load
+    window.onload = function() {
+        loadShopData();
+        populateJetShop();
+    };
+
+</script>
+</body>
+</html>

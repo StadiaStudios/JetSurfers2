@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JetSurfers 2 - Upgrades Shop</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="rec/xmas-icon.jpg" type="image/png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom Styles for Shop Page */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0d1117; /* Dark background */
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Align to the top, not center (for scrolling) */
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px 0;
+        }
+
+        .shop-container {
+            width: 100%;
+            max-width: 600px;
+            background: #111827;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.4);
+            border: 2px solid #3b82f6;
+            text-align: center;
+        }
+
+        .coin-icon {
+            margin-left: 6px;
+            color: #facc15; /* Yellow star/coin color */
+        }
+        
+        .game-button {
+            padding: 10px 25px;
+            margin-top: 20px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: white;
+            background-color: #3b82f6;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            box-shadow: 0 4px #1e40af;
+        }
+        .game-button:hover {
+            background-color: #2563eb;
+        }
+        .game-button:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px #1e40af;
+        }
+
+        /* --- Upgrade Card Styles --- */
+        .upgrade-card {
+            background-color: #1f2937;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            text-align: left;
+            border: 1px solid #3b82f6;
+        }
+        .upgrade-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #60a5fa;
+            margin-bottom: 5px;
+        }
+        .upgrade-info {
+            font-size: 0.9rem;
+            color: #ccc;
+        }
+        .buy-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 15px;
+            margin-top: 10px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 6px;
+            transition: background-color 0.15s;
+            box-shadow: 0 3px;
+        }
+        .buy-button.can-buy {
+            background-color: #4ade80; /* Green */
+            color: #166534;
+            border: 1px solid #16a34a;
+            box-shadow: 0 3px #15803d;
+        }
+        .buy-button.can-buy:hover {
+            background-color: #22c55e;
+        }
+        .buy-button.max-level {
+            background-color: #9ca3af; /* Gray */
+            color: #4b5563;
+            box-shadow: none;
+            cursor: default;
+        }
+        .buy-button.disabled {
+            background-color: #fca5a5; /* Reddish */
+            color: #991b1b;
+            box-shadow: 0 3px #dc2626;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+<div class="shop-container">
+    <h1 class="text-4xl font-extrabold mb-4 text-cyan-400">JET SURFERS SHOP</h1>
+    
+    <p class="text-xl mb-6 text-yellow-400">
+        Your Total Coins: <span id="shopTotalCoinsValue">0</span> <span class="coin-icon">★</span>
+    </p>
+
+    <!-- Upgrade Slot: Magnet Duration -->
+    <div id="magnetDurationUpgradeCard" class="upgrade-card">
+        <div class="upgrade-title">Magnet Duration</div>
+        <div class="upgrade-info">
+            Extends the time the coin magnet power-up lasts, Level Five Triples Coins!.
+        </div>
+        <div class="flex justify-between items-center mt-3">
+            <span id="magnetDurationLevel" class="text-lg font-semibold text-gray-300">Level 0/5</span>
+            <button id="buyMagnetDuration" class="buy-button">
+                <span id="magnetDurationCost">300</span> <span class="coin-icon">★</span>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Add future upgrades here -->
+    <div class="upgrade-card opacity-50 cursor-not-allowed">
+        <div class="upgrade-title">Coming Soon...</div>
+        <div class="upgrade-info">
+            More powerful upgrades are currently in development.
+        </div>
+        <div class="flex justify-end items-center mt-3">
+            <button class="buy-button disabled" disabled>
+                Locked
+            </button>
+        </div>
+    </div>
+    
+
+    <a href="index.html" class="game-button inline-block mt-8">RETURN TO GAME</a>
+
+</div>
+
+<script>
+    // --- Local Storage Setup (Shared Keys) ---
+    const COIN_STORAGE_KEY = 'jetSurferTotalCoins';
+    const MAGNET_LEVEL_KEY = 'jetSurferMagnetLevel'; 
+
+    let totalCoins = 0; 
+    let magnetLevel = 0; 
+
+    // --- Shop Constants ---
+    const MAGNET_MAX_LEVEL = 5;
+    const MAGNET_UPGRADE_COST = 300;
+    const MAGNET_DURATION_SECONDS_BASE = 10;
+    const MAGNET_DURATION_BONUS_PER_LEVEL = 2;
+
+    // --- DOM Elements ---
+    const shopTotalCoinsValueElement = document.getElementById('shopTotalCoinsValue');
+    const buyMagnetDurationButton = document.getElementById('buyMagnetDuration');
+    const magnetDurationCostElement = document.getElementById('magnetDurationCost');
+    const magnetDurationLevelElement = document.getElementById('magnetDurationLevel');
+
+    // Load persistent data from localStorage
+    function loadGameData() {
+        const storedCoins = localStorage.getItem(COIN_STORAGE_KEY);
+        totalCoins = storedCoins ? parseInt(storedCoins, 10) : 0;
+        
+        const storedMagnetLevel = localStorage.getItem(MAGNET_LEVEL_KEY);
+        magnetLevel = storedMagnetLevel ? parseInt(storedMagnetLevel, 10) : 0;
+    }
+
+    // Save the persistent coin count
+    function saveCoins() {
+        localStorage.setItem(COIN_STORAGE_KEY, totalCoins);
+    }
+    
+    // Save the new magnet level
+    function saveMagnetLevel(newLevel) {
+        magnetLevel = newLevel;
+        localStorage.setItem(MAGNET_LEVEL_KEY, magnetLevel);
+    }
+
+    // Update the shop UI to reflect current levels and costs
+    function updateShopUI() {
+        shopTotalCoinsValueElement.textContent = totalCoins.toLocaleString();
+
+        // Magnet Duration Upgrade
+        const currentLevel = magnetLevel;
+        const maxLevel = MAGNET_MAX_LEVEL;
+        const cost = MAGNET_UPGRADE_COST;
+        
+        // Calculate current duration for display
+        const currentDuration = MAGNET_DURATION_SECONDS_BASE + (currentLevel * MAGNET_DURATION_BONUS_PER_LEVEL);
+        
+        magnetDurationLevelElement.textContent = `Level ${currentLevel}/${maxLevel} (Duration: ${currentDuration}s)`;
+        magnetDurationCostElement.textContent = cost.toLocaleString();
+
+        // Reset button state
+        buyMagnetDurationButton.classList.remove('can-buy', 'max-level', 'disabled');
+        buyMagnetDurationButton.disabled = true; 
+
+        if (currentLevel >= maxLevel) {
+            buyMagnetDurationButton.innerHTML = "MAX LEVEL";
+            buyMagnetDurationButton.classList.add('max-level');
+        } else if (totalCoins >= cost) {
+            buyMagnetDurationButton.innerHTML = `${cost.toLocaleString()} <span class="coin-icon">★</span>`;
+            buyMagnetDurationButton.classList.add('can-buy');
+            buyMagnetDurationButton.disabled = false;
+        } else {
+            buyMagnetDurationButton.innerHTML = `${cost.toLocaleString()} <span class="coin-icon">★</span> (Need More)`;
+            buyMagnetDurationButton.classList.add('disabled');
+        }
+    }
+
+    // Logic for purchasing the Magnet Duration upgrade
+    function buyMagnetDuration() {
+        if (magnetLevel >= MAGNET_MAX_LEVEL) return;
+
+        if (totalCoins >= MAGNET_UPGRADE_COST) {
+            // Deduct cost
+            totalCoins -= MAGNET_UPGRADE_COST;
+            saveCoins(); 
+            
+            // Increment and save new level
+            saveMagnetLevel(magnetLevel + 1); 
+            
+            // Success feedback (simple console log for now)
+            console.log(`Magnet Duration upgraded to Level ${magnetLevel}!`);
+            
+            // Refresh the UI
+            updateShopUI(); 
+        } else {
+            console.error("Not enough coins to purchase!");
+        }
+    }
+
+    // Initialization and Event Listeners
+    window.onload = function() {
+        loadGameData(); 
+        updateShopUI(); 
+        
+        // Add click listener for the purchase button
+        buyMagnetDurationButton.addEventListener('click', buyMagnetDuration);
+    };
+
+</script>
+</body>
+</html>
