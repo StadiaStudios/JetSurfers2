@@ -1,4 +1,0 @@
-Cheat ONE | COINS - - -
-totalCoins = 10000;
-saveCoins();
-updateShopUI();
