@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JetSurfers 2</title>
     <script src="weather/snowfall_effect.js"></script>
-    <script src="day_night_cycle.js"></script>
     <script src="weather/rain_effect.js"></script> <!-- Added rain effect script -->
     <link rel="icon" href="rec/xmas-icon.jpg" type="image/png">
     <link rel="manifest" href="manifest.json">
@@ -31,7 +30,7 @@
             width: 100%;
             max-width: 450px; /* Default for mobile/small screen */
             aspect-ratio: 9/16; /* Standard mobile aspect ratio */
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0);
             border-radius: 12px;
             overflow: hidden;
             background: linear-gradient(180deg, #1f2937 0%, #111827 100%); /* Darker gradient for the structure */
@@ -84,14 +83,18 @@
             position: absolute;
             top: 15px;
             /* Use full width and let padding handle spacing */
-            width: 100%; 
+            width: 100%;
             display: flex;
-            justify-content: space-between; /* Distribute items */
+            flex-wrap: wrap; /* Allow items to wrap on small screens */
+            justify-content: space-between;
             align-items: center;
             color: #f3f4f6;
             font-weight: bold;
             font-size: 1rem;
             padding: 0 15px; /* Padding on both sides */
+        }
+        .top-bar > div {
+            flex-shrink: 0; /* Prevent flex items from shrinking */
         }
         .score-box {
             background: rgba(0, 0, 0, 0.6);
@@ -101,8 +104,12 @@
             align-items: center;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
             min-width: 80px; /* Ensure boxes are readable */
-            justify-content: center;
-            margin-left: 10px; /* Spacing between the three score/coin boxes */
+            justify-content: flex-start; /* Align content to the left */
+            margin: 2px 4px; /* Add small margin for spacing when wrapped */
+        }
+        .score-box.score-main {
+            flex-grow: 1; /* Allow score to take up space */
+            justify-content: center; /* Center the main score text */
         }
         .coin-icon {
             /* Now an image, not a star text */
@@ -200,7 +207,7 @@
         /* --- Pause Button Styles --- */
         .pause-button {
             pointer-events: auto; /* Allow clicks */
-            background: #41b3ff;
+            background: #ff5100;
             padding: 8px;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
@@ -285,23 +292,23 @@
         <!-- Top Bar for Score and Coins -->
         <div class="top-bar">
             <!-- Left-aligned items -->
-            <div class="flex items-center">
+            <div class="flex items-center" style="margin-left: 45px;">
                 <!-- Headstart Inventory Display (New) -->
-                <div id="headstartInventoryBox" class="score-box" style="min-width: unset; pointer-events: auto; margin-left: 45px;">
+                <div id="headstartInventoryBox" class="score-box" style="min-width: unset; pointer-events: auto;">
                     <img src="rec/items/headstart.png" alt="Headstart" class="coin-icon" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZHRoPSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMjEgMTBIM3oiLz48cGF0aCBkPSJNMjEgMTZIMyIvPjwvc3ZnPg=='">
                     <span id="headstartCount">0</span>
                 </div>
             </div>
-            <!-- Right-aligned items -->
-            <div class="flex items-center">
-                <!-- Score Display -->
-                <div class="score-box">
-                    Score: <span id="scoreValue">0</span> m
-                </div>
+            <!-- Center Score Display -->
+            <div class="score-box score-main">
+                <span id="scoreValue">0</span> m
+            </div>
+            <!-- Right-aligned coin items -->
+            <div class="flex flex-col items-end">
                 <!-- Current Run Coins -->
                 <div class="score-box">
                     <img src="rec/items/coin.png" alt="Coin" class="coin-icon" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MCA1MCI+PHBhdGg+PC9wYXRoPjwvc3ZnPg=='"> 
-                    Earned: <span id="runCoinsValue">0</span>
+                    <span id="runCoinsValue">0</span>
                 </div>
                 <!-- Total Persistent Coins -->
                 <div class="score-box">
@@ -326,11 +333,11 @@
             </p>
             <p class="text-sm mb-6 text-gray-300">
                 Controls:<br>
-                Desktop: A or Left Arrow / D or Right Arrow<br>
-                Mobile: Tap Left / Right side of the screen
+                Desktop: A or Left Arrow / D or Right Arrow | Can also tap on side<br>
+                Mobile: Swipe Left / Right 
             </p>
-            <button id="startButton" class="game-button">START ENGINE</button>
-            <button id="reviveButton" class="game-button hidden" style="background-color: #b91010; box-shadow: 0 4px #000000;">REVIVE ($300)</button>
+            <button id="startButton" class="game-button">SPLASH</button>
+            <button id="reviveButton" class="game-button hidden">REVIVE ($300)</button>
             <button id="useHeadstartButton" class="game-button hidden">USE HEADSTART (<span id="startHeadgetCount">0</span>)</button>
 
             <div id="finalScore" class="text-xl font-bold mt-4 hidden"></div>
@@ -346,7 +353,7 @@
             <!-- UPDATED: This is now a link to shop.html -->
             <a href="jetshop.html" id="jetShopMenuButton" class="menu-button">JET SHOP</a>
             <button id="settingsButton" class="menu-button">SETTINGS</button>
-            <p class="text-xs text-gray-500 mt-6">Game Version: v1.0.0</p>
+            <p class="text-xs text-gray-500 mt-6">Game Version: v1.1.1</p>
         </div>
         
         <!-- NEW: Boosting Text Overlay -->
@@ -364,6 +371,8 @@
     const JET_SELECTED_KEY = 'jetSurferSelectedJet';
     // NEW KEY for Headstart count
     const HEADSTART_COUNT_KEY = 'jetSurferHeadstartCount';
+    // *** FIX: ADDED COIN MULTIPLIER KEY ***
+    const COIN_MULTIPLIER_LEVEL_KEY = 'jetSurferCoinMultiplierLevel'; 
 
     // --- START: Jet Definitions ---
     // This array MUST match the one in shop.html
@@ -383,16 +392,30 @@
     let totalCoins = 0; // The persistent total
     let magnetLevel = 0; // The persistent magnet level (0 to 5)
     let headstartCount = 0; // The persistent headstart item count
+    // *** FIX: ADDED COIN MULTIPLIER STATE VARIABLE ***
+    let coinMultiplierLevel = 0; // The persistent multiplier level
 
     function loadGameData() {
         const storedCoins = localStorage.getItem(COIN_STORAGE_KEY);
-        totalCoins = storedCoins ? parseInt(storedCoins, 10) : 0;
-        
+        // NEW: Check for first-time load
+        if (storedCoins === null) {
+            // It's the first time, give the player 150 coins as a welcome bonus
+            totalCoins = 150;
+            localStorage.setItem(COIN_STORAGE_KEY, totalCoins);
+        } else {
+            // Not the first time, load existing coins
+            totalCoins = parseInt(storedCoins, 10);
+        }
         const storedMagnetLevel = localStorage.getItem(MAGNET_LEVEL_KEY);
         magnetLevel = storedMagnetLevel ? parseInt(storedMagnetLevel, 10) : 0;
         
         const storedHeadstartCount = localStorage.getItem(HEADSTART_COUNT_KEY);
         headstartCount = storedHeadstartCount ? parseInt(storedHeadstartCount, 10) : 0;
+        
+        // *** FIX: LOAD COIN MULTIPLIER LEVEL ***
+        const storedCoinMultiplierLevel = localStorage.getItem(COIN_MULTIPLIER_LEVEL_KEY);
+        coinMultiplierLevel = storedCoinMultiplierLevel ? parseInt(storedCoinMultiplierLevel, 10) : 0;
+
 
         document.getElementById('totalCoinsValue').textContent = totalCoins.toLocaleString();
         document.getElementById('headstartCount').textContent = headstartCount.toLocaleString();
@@ -571,14 +594,47 @@
     let boostEndTime = 0; // NEW: Headstart tracking
 
     // --- Background Styles (Updated for Red Theme) ---
+    let explosions = []; // NEW: Array to hold explosion particles
+
+    // --- NEW: Explosion Particle Class ---
+    class ExplosionParticle {
+        constructor(x, y) {
+            this.x = x;
+            this.y = y;
+            this.size = Math.random() * 8 + 4; // Particle size
+            // Random velocity for a spray effect
+            this.vx = (Math.random() - 0.5) * 12;
+            this.vy = (Math.random() - 0.5) * 12;
+            this.alpha = 1; // Lifespan
+            // Random color between orange, yellow, and red
+            const colors = ['yellow', 'orange', 'yellow', 'orange'];
+            this.color = colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        update() {
+            this.x += this.vx;
+            this.y += this.vy;
+            this.alpha -= 0.04; // Fade out
+        }
+
+        draw(ctx) {
+            ctx.save();
+            ctx.globalAlpha = this.alpha;
+            ctx.fillStyle = this.color;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        }
+    }
     // Default background (Red)
     const DEFAULT_BACKGROUND = 'linear-gradient(16deg,rgba(187, 194, 196, 1) 0%, rgba(186, 186, 186, 1) 50%, rgba(237, 236, 232, 1) 100%)'; 
     // Darker, stormy, spaceous red gradient
-    const RAIN_BACKGROUND = 'linear-gradient(180deg, #9b9292 0%, #887575 100%)'; 
+    const RAIN_BACKGROUND = 'linear-gradient(0deg,rgba(48, 48, 48, 1) 0%, rgba(77, 77, 77, 1) 50%, rgba(230, 230, 230, 1) 100%)'; 
 
     // --- Canvas Background Styles (NEW) ---
     const SNOW_CANVAS_BACKGROUND = 'linear-gradient(16deg,rgba(187, 194, 196, 1) 0%, rgba(186, 186, 186, 1) 50%, rgba(237, 236, 232, 1) 100%)'; /* Light Blue Sky Gradient */
-    const DARK_CANVAS_BACKGROUND = 'linear-gradient(180deg, #9b9292 0%, #887575 100%)'; 
+    const DARK_CANVAS_BACKGROUND = 'linear-gradient(0deg,rgba(48, 48, 48, 1) 0%, rgba(77, 77, 77, 1) 50%, rgba(230, 230, 230, 1) 100%)'; 
     
     // --- Rain State Variables ---
     let rainTimer = 0;
@@ -744,6 +800,14 @@
         }
     }
 
+    // --- NEW: Function to create explosion particles ---
+    function createExplosion(x, y, count = 40) {
+        // Clear any previous explosion particles
+        explosions = [];
+        for (let i = 0; i < count; i++) {
+            explosions.push(new ExplosionParticle(x, y));
+        }
+    }
 
     // --- Game Logic ---
 
@@ -860,13 +924,16 @@
             if (obstacle.type === 'coin' && !obstacle.isHit) {
                 obstacle.isHit = true; // Mark it as hit
                 
+                // *** FIX: CALCULATE COIN VALUE BASED ON MULTIPLIER ***
+                const coinValue = 1 + coinMultiplierLevel; 
+                
                 // Magnet Level 5 bonus
                 if (isMagnetActive && magnetLevel === MAGNET_MAX_LEVEL) {
                     runCoins += 15;
                 } else if (gameState === 'BOOSTING') {
                     runCoins += 20; // Extra coin bonus during headstart
                 } else {
-                    runCoins++;
+                    runCoins += coinValue; // Use calculated coin value
                 }
 
                 collectedCount++;
@@ -924,15 +991,32 @@
 
         // Draw player jet
         if (playerImg.isLoaded) {
-            // Draw speed lines/afterburner effect for BOOSTING state (NEW)
-            if (gameState === 'BOOSTING') {
-                ctx.fillStyle = 'rgba(255, 165, 0, 0.5)';
-                const flameHeight = PLAYER_SIZE * 0.5;
-                const flameWidth = PLAYER_SIZE * 0.6;
+            // --- NEW: Dynamic Fire Exhaust Effect ---
+            if (gameState === 'PLAYING' || gameState === 'BOOSTING') {
+                const flameBaseY = playerDrawY + PLAYER_SIZE * 0.9; // Start flame just inside the jet
+                const baseFlameWidth = PLAYER_SIZE * 0.4;
+
+                // Create a flickering effect by varying height and width
+                const flameHeight = (PLAYER_SIZE * 0.5) + (Math.random() * PLAYER_SIZE * 0.4);
+                const flameFlickerWidth = baseFlameWidth + (Math.random() * 10 - 5);
+
+                // Outer flame (yellow/orange)
+                ctx.fillStyle = `rgba(255, ${180 + Math.random() * 55}, 0, 0.7)`;
                 ctx.beginPath();
-                ctx.moveTo(playerX - flameWidth / 2, playerDrawY + PLAYER_SIZE);
-                ctx.lineTo(playerX + flameWidth / 2, playerDrawY + PLAYER_SIZE);
-                ctx.lineTo(playerX, playerDrawY + PLAYER_SIZE + flameHeight);
+                ctx.moveTo(playerX - flameFlickerWidth / 2, flameBaseY);
+                ctx.lineTo(playerX + flameFlickerWidth / 2, flameBaseY);
+                ctx.lineTo(playerX, flameBaseY + flameHeight);
+                ctx.closePath();
+                ctx.fill();
+
+                // Inner flame (brighter, smaller)
+                const innerFlameHeight = flameHeight * 0.6;
+                const innerFlameWidth = flameFlickerWidth * 0.5;
+                ctx.fillStyle = `rgba(255, 255, 150, 0.9)`;
+                ctx.beginPath();
+                ctx.moveTo(playerX - innerFlameWidth / 2, flameBaseY);
+                ctx.lineTo(playerX + innerFlameWidth / 2, flameBaseY);
+                ctx.lineTo(playerX, flameBaseY + innerFlameHeight);
                 ctx.closePath();
                 ctx.fill();
             }
@@ -977,6 +1061,9 @@
         // Draw obstacles
         obstacles.forEach(obstacle => obstacle.draw(ctx, laneCenters));
         
+        // --- NEW: Draw Explosions ---
+        explosions.forEach(p => p.draw(ctx));
+
         // When PAUSED, draw a semi-transparent dark overlay on top of the game
         if (gameState === 'PAUSED') {
             ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
@@ -1205,6 +1292,9 @@
         gameState = 'SHAKING';
         shakeEndTime = performance.now() + SHAKE_DURATION;
         playDeathSound();
+
+        // --- NEW: Trigger explosion at player's last position ---
+        createExplosion(playerX, canvas.height * PLAYER_Y_POS_RATIO);
     }
 
 
@@ -1222,6 +1312,10 @@
 
         deltaTime = (currentTime - lastTime) / 1000;
         lastTime = currentTime;
+
+        // --- NEW: Update and filter explosion particles ---
+        explosions.forEach(p => p.update());
+        explosions = explosions.filter(p => p.alpha > 0);
         
         // --- Check for Headstart Boost Expiration (NEW) ---
         if (gameState === 'BOOSTING') {
@@ -1375,10 +1469,12 @@
                 } else if (obstacle.type === 'coin') {
                     // If not caught by magnet logic in handleCoinCollection, still collect on contact
                     if (!isMagnetActive) {
+                         // *** FIX: CALCULATE COIN VALUE BASED ON MULTIPLIER ***
+                         const coinValue = 1 + coinMultiplierLevel;
                          if (magnetLevel === MAGNET_MAX_LEVEL) {
                             runCoins += 15;
                         } else {
-                            runCoins++;
+                            runCoins += coinValue; // Use calculated coin value
                         }
                         runCoinsValueElement.textContent = runCoins;
                         playCoinSound();
@@ -1427,7 +1523,7 @@
         gameModal.classList.remove('hidden');
         pauseMenuModal.classList.add('hidden');
         modalTitle.textContent = "SETTINGS";
-        modalMessage.textContent = "Version: v1.0.0. More Coming soon in Beta Development Stages.";
+        modalMessage.textContent = "Version: v1.1.1. More Coming soon in Beta Development Stages.";
         startButton.textContent = "CONTINUE";
 
         const tempStartHandler = () => {

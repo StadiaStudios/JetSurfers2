@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JetSurfers 2 - Jet Shop</title>
-    <script src="weather/snowfall_effect.js"></script>
     <link rel="icon" href="rec/xmas-icon.jpg" type="image/png">
     <link rel="manifest" href="manifest.json">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -31,8 +30,9 @@
             box-shadow: 0 0 30px red;
             border: 2px solid red;
             pointer-events: auto;
-            max-width: 90%;
-            width: 450px; /* Matched game container width */
+            max-width: 90%; /* Ensure it always respects 90% margin */
+            width: 100%; /* Allow it to fill up to max-width */
+            max-width: 700px; /* INCREASED MAXIMUM WIDTH for better desktop/tablet view */
             max-height: 90vh;
             overflow-y: auto;
             color: white;
