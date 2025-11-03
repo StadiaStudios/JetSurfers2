@@ -1,0 +1,30 @@
+🚀 JetSurfers 2: Full Game Guide
+Game Goal: Collect coins and avoid oncoming aircrafts.
+
+1. Game Controls - - - 
+The game is played on a 3-lane track and requires you to move your jet left and right to dodge obstacles and collect items.
+
+Platform	Action	 Controls
+Desktop	Left	 A key or Left Arrow key
+Desktop	Right         D key or Right Arrow key
+Mobile	Left	Tap the Left side of the screen or Swipe Left
+Mobile	Right	Tap the Right side of the screen or Swipe Right
+In-Game	Pause       Click the Pause Button in the top left
+
+2. Core Gameplay Mechanics - - - 
+Score: Measured in meters (m). It increases based on your effective game speed.
+Coins: You track two types of coins:
+ ● 1 Earned Coins (Run Coins): Coins collected during the current run.
+ ● 2 Total Coins: Your persistent currency used for purchases and upgrades.
+
+3. Upgrades Shop - - - 
+This shop uses your Total Coins to purchase permanent upgrades and items.
+
+Upgrade	                  Max Level	Cost	Effect
+Magnet Duration	5	300 Coins per level	Increases the base duration of the Magnet power-up by +2 seconds per level.
+Coin Multiplier	5	100 Coins per level	Adds +1 coin per pickup for each level.
+Headstart Item	N/A	100 Coins per item	A consumable item that grants a speed boost at the start of a run.
+
+4. Jet Shop - - - 
+This shop allows you to purchase and select different jets for your player.
+
