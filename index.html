@@ -200,7 +200,7 @@
         /* --- Pause Button Styles --- */
         .pause-button {
             pointer-events: auto; /* Allow clicks */
-            background: rgb(255, 56, 56);
+            background: #41b3ff;
             padding: 8px;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
@@ -277,7 +277,7 @@
     <div class="ui-overlay">
         
         <!-- Pause Button (Positioned top left) -->
-        <button id="pauseButton" class="pause-button absolute top-4 left-4 z-10 hidden">
+        <button id="pauseButton" class="pause-button absolute top-4 left-4 z-10">
             <!-- Updated to use a PNG image for better styling -->
             <img src="rec/pause_icon.png" alt="Pause" class="w-5 h-5" onerror="this.src='rec/pause_icon.png'">
         </button>
@@ -340,7 +340,8 @@
         <!-- Pause Menu Modal -->
         <div id="pauseMenuModal" class="modal hidden">
             <h2 class="text-3xl font-extrabold mb-8 text-white">PAUSED</h2>
-            <button id="resumeButton" class="menu-button">RESUME FLIGHT</button>
+            <button id="resumeButton" class="menu-button">RESUME</button>
+            <button id="quitButton" class="menu-button">QUIT</button>
             <button id="shopButton" class="menu-button">UPGRADES SHOP</button>
             <!-- UPDATED: This is now a link to shop.html -->
             <a href="jetshop.html" id="jetShopMenuButton" class="menu-button">JET SHOP</a>
@@ -499,6 +500,7 @@
     const resumeButton = document.getElementById('resumeButton');
     const shopButton = document.getElementById('shopButton');
     const settingsButton = document.getElementById('settingsButton');
+    const quitButton = document.getElementById('quitButton');
 
     // NEW UI ELEMENTS for Magnet
     const magnetProgressContainer = document.getElementById('magnetProgressContainer');
@@ -516,7 +518,7 @@
     const SPEED_INCREMENT_AMOUNT = 0.02;
     
     // Headstart Constants (NEW)
-    const HEADSTART_SCORE = 20000;
+    const HEADSTART_SCORE = 50000;
     const HEADSTART_DURATION_SECONDS = 10;
     const HEADSTART_SPEED_MULTIPLIER = 20;
     
@@ -996,23 +998,35 @@
     }
 
     function pauseGame() {
-        if (gameState !== 'PLAYING' && gameState !== 'BOOSTING') return;
-        
-        const wasBoosting = gameState === 'BOOSTING';
-        
-        gameState = 'PAUSED';
-        if (isRaining) rainSound.pause(); // Pause rain sound
-        if (wasBoosting) stopBoostSound(); // Stop boost sound
-        
-        boostingText.classList.add('hidden'); // Hide text
-
-        showModal(pauseMenuModal);
-        // The game loop will stop execution on the next frame check
+        if (gameState === 'PLAYING' || gameState === 'BOOSTING') {
+            const wasBoosting = gameState === 'BOOSTING';
+            
+            gameState = 'PAUSED';
+            if (isRaining) rainSound.pause(); // Pause rain sound
+            if (wasBoosting) stopBoostSound(); // Stop boost sound
+            
+            boostingText.classList.add('hidden'); // Hide text
+            resumeButton.classList.remove('hidden'); // Show resume button in-game
+            showModal(pauseMenuModal);
+        } else if (gameState === 'START') {
+            // Allow opening pause menu from the main screen
+            resumeButton.classList.add('hidden'); // Hide resume button on main menu
+            showModal(pauseMenuModal);
+        }
     }
 
     function unpauseGame() {
-        if (gameState !== 'PAUSED') return;
-        
+        // If unpausing from the main menu, just hide the modal.
+        if (gameState === 'START') {
+            showModal(gameModal); // Hides pause menu, shows main menu
+            return;
+        }
+
+        // If not in a paused state (e.g., from main menu), do nothing.
+        if (gameState !== 'PAUSED') {
+            return;
+        }
+
         // Determine if we need to go back to BOOSTING or PLAYING
         const newGameState = (performance.now() < boostEndTime && score < HEADSTART_SCORE) ? 'BOOSTING' : 'PLAYING';
         gameState = newGameState;
@@ -1023,8 +1037,8 @@
             boostingText.classList.remove('hidden');
         }
         
-        showModal(gameModal); // Hides all modals
-        gameModal.classList.add('hidden'); // Ensure no modal is visible
+        showModal(gameModal); // This hides all modals...
+        gameModal.classList.add('hidden'); // ...so we explicitly hide the main one too.
         
         // Crucial: Reset lastTime to current time
         lastTime = performance.now();
@@ -1091,9 +1105,8 @@
         shakeEndTime = 0;
 
         // Hide Modals and show Pause Button
-        gameModal.classList.add('hidden');
-        pauseMenuModal.classList.add('hidden');
-        pauseButton.classList.remove('hidden');
+        showModal(gameModal); // Hide all modals
+        gameModal.classList.add('hidden'); // Then hide the main one
         finalScore.classList.add('hidden');
         coinsEarned.classList.add('hidden');
         scoreValueElement.textContent = Math.floor(score).toLocaleString(); // Update initial score
@@ -1160,8 +1173,6 @@
         // Reset backgrounds
         document.body.style.background = DEFAULT_BACKGROUND; 
         canvas.style.background = SNOW_CANVAS_BACKGROUND;
-
-        pauseButton.classList.add('hidden');
 
         // Show Game Over Modal
         showModal(gameModal);
@@ -1404,6 +1415,7 @@
     // 3. Pause Button & Menu Handlers
     pauseButton.addEventListener('click', pauseGame);
     resumeButton.addEventListener('click', unpauseGame);
+    quitButton.addEventListener('click', finishGameOver); // NEW: Quit button ends the run
     
     shopButton.addEventListener('click', () => {
         gameState = 'PAUSED'; 
@@ -1513,7 +1525,6 @@
         loadGameData(); // Load all persistent data (coins, magnet level, jets, and headstarts)
         updateMagnetDuration(); // Ensure the duration is correct on startup
         setupCanvas();
-        pauseButton.classList.add('hidden'); 
         
         // Initialize background to default state on load
         document.body.style.background = DEFAULT_BACKGROUND; 
