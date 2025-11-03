@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JetSurfers 2</title>
     <script src="weather/snowfall_effect.js"></script>
+    <script src="day_night_cycle.js"></script>
     <script src="weather/rain_effect.js"></script> <!-- Added rain effect script -->
     <link rel="icon" href="rec/xmas-icon.jpg" type="image/png">
     <link rel="manifest" href="manifest.json">
@@ -15,7 +16,7 @@
         body {
             font-family: 'Inter', sans-serif;
             /* Default background, will be set by JS on load using DEFAULT_BACKGROUND constant */
-            background: linear-gradient(180deg, #ce0303 0%, #850202 100%); /* Initial Red Gradient */
+            background: linear-gradient(180deg, #9b9292 0%, #887575 100%); /* Initial Red Gradient */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -47,12 +48,28 @@
         #gameCanvas {
             display: block;
             /* Background will be set dynamically by JavaScript */
+            transition: background 0.8s ease; /* Added transition for smooth background color change */
+            
         }
+
+        #canvasContainer {
+            width: 600px; /* Match canvas width */
+            height: 400px; /* Fixed height for scrollable area */
+            overflow-y: scroll; /* Enable vertical scrolling */
+            position: relative;
+            /* Custom scrollbar styling */
+            scrollbar-width: thin; /* For Firefox */
+            scrollbar-color: #888 #f1f1f1; /* For Firefox */
+        }
+
         .ui-overlay {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
+
+
+
             height: 100%;
             display: flex;
             flex-direction: column;
@@ -100,8 +117,8 @@
             padding: 30px 40px;
             border-radius: 15px;
             text-align: center;
-            box-shadow: 0 0 30px rgba(201, 204, 209, 0.8);
-            border: 2px solid white;
+            box-shadow: 0 0 30px red;
+            border: 2px solid red;
             pointer-events: auto; /* Re-enable pointer events for the modal */
             max-width: 90%; /* Allow modal to be slightly wider for shop */
             width: 400px;
@@ -116,19 +133,19 @@
             font-size: 1.1rem;
             font-weight: bold;
             color: white;
-            background-color: #3b82f6;
+            background-color: #f63b3b;
             border: none;
             border-radius: 8px;
             cursor: pointer;
             transition: background-color 0.2s, transform 0.1s;
-            box-shadow: 0 4px #1e40af;
+            box-shadow: 0 4px red;
         }
         .game-button:hover {
-            background-color: #2563eb;
+            background-color: #ff0000;
         }
         .game-button:active {
             transform: translateY(2px);
-            box-shadow: 0 2px #1e40af;
+            box-shadow: 0 2px red;
         }
         
         /* NEW Style for Headstart Button */
@@ -183,7 +200,7 @@
         /* --- Pause Button Styles --- */
         .pause-button {
             pointer-events: auto; /* Allow clicks */
-            background: rgba(0, 0, 0, 0.6);
+            background: rgb(255, 56, 56);
             padding: 8px;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
@@ -216,7 +233,7 @@
             font-weight: 600;
             color: #f3f4f6;
             background-color: #1f2937; /* Darker blue/gray */
-            border: 2px solid white;
+            border: 2px solid red;
             border-radius: 8px;
             cursor: pointer;
             transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
@@ -303,7 +320,7 @@
 
         <!-- Start/Game Over Modal -->
         <div id="gameModal" class="modal">
-            <h1 id="modalTitle" class="text-3xl font-extrabold mb-4 text-cyan-400">JET SURFERS II</h1>
+            <h1 id="modalTitle" class="text-3xl font-extrabold mb-4 text-[white]">JET SURFERS <p style="color:red;">II</p></h1>
             <p id="modalMessage" class="text-lg mb-6">
                 Collect coins and avoid oncoming aircrafts.
             </p>
@@ -312,7 +329,8 @@
                 Desktop: A or Left Arrow / D or Right Arrow<br>
                 Mobile: Tap Left / Right side of the screen
             </p>
-            <button id="startButton" class="game-button">START FLIGHT</button>
+            <button id="startButton" class="game-button">START ENGINE</button>
+            <button id="reviveButton" class="game-button hidden" style="background-color: #b91010; box-shadow: 0 4px #000000;">REVIVE ($300)</button>
             <button id="useHeadstartButton" class="game-button hidden">USE HEADSTART (<span id="startHeadgetCount">0</span>)</button>
 
             <div id="finalScore" class="text-xl font-bold mt-4 hidden"></div>
@@ -352,7 +370,8 @@
         { id: 'default', name: 'Standard Issue', price: 0, img: 'rec/motor/default.png' },
         { id: 'blue_streak', name: 'Blue Streak', price: 500, img: 'rec/motor/jet_blue.png' }, // Placeholder
         { id: 'red_comet', name: 'Nightwing', price: 1000, img: 'rec/motor/nightwing.png' }, // Placeholder
-        { id: 'gold_wing', name: 'Premium Jet', price: 5000, img: 'rec/motor/premium-jet.png' } // Placeholder
+        { id: 'gold_wing', name: 'Premium Jet', price: 5000, img: 'rec/motor/premium-jet.png' }, // Placeholder
+        { id: 'Punkin', name: 'Punkin', price: 10000, img: 'rec/motor/punkin.png' } // NEW JET
     ];
     const DEFAULT_JET_ID = 'default';
     
@@ -471,6 +490,7 @@
     const finalScore = document.getElementById('finalScore');
     const coinsEarned = document.getElementById('coinsEarned');
     const useHeadstartButton = document.getElementById('useHeadstartButton');
+    const reviveButton = document.getElementById('reviveButton'); // NEW: Revive button
     const boostingText = document.getElementById('boostingText');
 
     // UI Elements for Pause Menu
@@ -542,6 +562,7 @@
     let isSlowingDown = false;
     
     let shakeEndTime = 0;
+    let reviveInvincibilityEndTime = 0; // NEW: For post-revive invincibility
     const SHAKE_MAGNITUDE = 10;
     const SHAKE_DURATION = 300;
     
@@ -549,13 +570,13 @@
 
     // --- Background Styles (Updated for Red Theme) ---
     // Default background (Red)
-    const DEFAULT_BACKGROUND = 'linear-gradient(180deg, #DC2626 0%, #991B1B 100%)'; 
+    const DEFAULT_BACKGROUND = 'linear-gradient(16deg,rgba(187, 194, 196, 1) 0%, rgba(186, 186, 186, 1) 50%, rgba(237, 236, 232, 1) 100%)'; 
     // Darker, stormy, spaceous red gradient
-    const RAIN_BACKGROUND = 'linear-gradient(180deg, #450A0A 0%, #6D2828 100%)'; 
+    const RAIN_BACKGROUND = 'linear-gradient(180deg, #9b9292 0%, #887575 100%)'; 
 
     // --- Canvas Background Styles (NEW) ---
-    const SNOW_CANVAS_BACKGROUND = 'linear-gradient(90deg, #FFFAFA 0%, #aecdf7 100%)'; /* Light Blue Sky Gradient */
-    const DARK_CANVAS_BACKGROUND = 'linear-gradient(0deg, #1A0505 0%, #300A0A 100%)'; 
+    const SNOW_CANVAS_BACKGROUND = 'linear-gradient(16deg,rgba(187, 194, 196, 1) 0%, rgba(186, 186, 186, 1) 50%, rgba(237, 236, 232, 1) 100%)'; /* Light Blue Sky Gradient */
+    const DARK_CANVAS_BACKGROUND = 'linear-gradient(180deg, #9b9292 0%, #887575 100%)'; 
     
     // --- Rain State Variables ---
     let rainTimer = 0;
@@ -592,12 +613,15 @@
     const powerupSound = new Audio('sfx/powerup.mp3'); 
     const rainSound = new Audio('sfx/ambience/rain.mp3'); // Added rain sound
     const boostSound = new Audio('sfx/boost.mp3'); // NEW: Boost sound
+    const backgroundMusic = new Audio('sfx/ambience/wind.mp3'); // NEW: Background music
 
-    coinSound.volume = 0.5; 
+    coinSound.volume = 0.6; 
     deathSound.volume = 1.0;
-    powerupSound.volume = 1.0;
+    powerupSound.volume = 0.6;
     rainSound.loop = true;
     rainSound.volume = 1.0; // Set rain volume to be ambient
+    backgroundMusic.loop = true;
+    backgroundMusic.volume = 1.0; // Lower volume so it's not overpowering
     boostSound.volume = 1.0;
     boostSound.loop = true;
 
@@ -634,6 +658,17 @@
     function stopBoostSound() {
         boostSound.pause();
         boostSound.currentTime = 0;
+    }
+    
+    function playBackgroundMusic() {
+        // Only play if the game is active
+        if (gameState === 'PLAYING' || gameState === 'BOOSTING') {
+            backgroundMusic.play().catch(e => console.error("Background music playback failed:", e));
+        }
+    }
+    function stopBackgroundMusic() {
+        backgroundMusic.pause();
+        backgroundMusic.currentTime = 0;
     }
 
 
@@ -754,13 +789,13 @@
 
         if (coinRoll < 0.3) { // 30% chance of an item spawn
             const itemRoll = Math.random();
-            if (itemRoll < MAGNET_SPAWN_CHANCE) { 
+            // Only spawn a magnet if one isn't already active
+            if (itemRoll < MAGNET_SPAWN_CHANCE && !isMagnetActive) { 
                 type = 'magnet';
             } else {
                 type = 'coin';
             }
         }
-
         obstacles.push(new Obstacle(lane, size, type));
     }
 
@@ -794,6 +829,9 @@
         magnetDurationMS = currentMagnetDuration * 1000; // Use dynamically calculated duration
         magnetProgressContainer.classList.remove('opacity-0');
         playPowerupSound();
+
+        // Remove any other magnet power-ups currently on screen
+        obstacles = obstacles.filter(obstacle => obstacle.type !== 'magnet');
     }
     
     // Function to end the magnet power-up cleanly
@@ -912,6 +950,14 @@
                 ctx.shadowColor = 'red';
                 ctx.shadowBlur = blur;
             }
+
+            // NEW: Draw a white shield/glow if invincible after reviving
+            if (performance.now() < reviveInvincibilityEndTime) {
+                const invincibilityProgress = (reviveInvincibilityEndTime - performance.now()) / 2000; // 2-second duration
+                ctx.shadowColor = `rgba(255, 255, 255, ${0.8 * invincibilityProgress})`; // Fade out effect
+                ctx.shadowBlur = 30 * invincibilityProgress;
+            }
+
             ctx.drawImage(playerImg, playerDrawX, playerDrawY, PLAYER_SIZE, PLAYER_SIZE);
             ctx.shadowColor = 'transparent'; // Reset shadow
             ctx.shadowBlur = 0;
@@ -1038,6 +1084,7 @@
             canvas.style.background = SNOW_CANVAS_BACKGROUND; // New: Snow Color (Canvas)
             // Stop sounds that shouldn't play when it's not raining
             stopRainSound();
+            playBackgroundMusic(); // Start music if it's not raining
         }
         // --- END UPDATED Rain Cycle Logic ---
         
@@ -1070,6 +1117,29 @@
         }
     }
 
+    // NEW: Function to handle reviving the player
+    function revivePlayer() {
+        if (spendCoins(300)) {
+            // Clear obstacles near the player to give them a safe start
+            const playerY = canvas.height * PLAYER_Y_POS_RATIO;
+            obstacles = obstacles.filter(obs => {
+                const obsBottom = obs.y + obs.size;
+                // Remove obstacles that are in the player's half of the screen
+                return obsBottom < playerY - (canvas.height * 0.2) || obs.y > playerY + (canvas.height * 0.2);
+            });
+
+            // Grant 2 seconds of invincibility
+            reviveInvincibilityEndTime = performance.now() + 2000;
+
+            // Resume the game
+            gameState = 'PLAYING';
+            gameModal.classList.add('hidden');
+            pauseButton.classList.remove('hidden');
+            lastTime = performance.now(); // Reset time to prevent frame jump
+            requestAnimationFrame(gameLoop);
+        }
+    }
+
 
     function finishGameOver() {
         gameState = 'GAMEOVER';
@@ -1082,6 +1152,7 @@
         if (isRaining) {
             isRaining = false;
             rainEffect.stop();
+            stopBackgroundMusic(); // Also stop music on game over
             stopRainSound(); 
         }
         stopBoostSound(); // Stop any lingering boost sound from a previous run
@@ -1096,10 +1167,18 @@
         showModal(gameModal);
         modalTitle.textContent = "FLIGHT TERMINATED";
         modalMessage.textContent = "You collided with a enemy aircraft!";
-        startButton.textContent = "RETRY";
         
+        stopBackgroundMusic(); // Final stop just in case
         // Reload data to update headstart count on button
         loadGameData(); 
+        
+        // --- NEW: Revive Button Logic ---
+        if (totalCoins >= 300) {
+            reviveButton.classList.remove('hidden');
+        } else {
+            reviveButton.classList.add('hidden');
+        }
+        startButton.textContent = "RETRY";
 
         finalScore.textContent = `FINAL SCORE: ${Math.floor(score).toLocaleString()} meters`;
         finalScore.classList.remove('hidden');
@@ -1109,8 +1188,8 @@
     }
 
     function gameOver() {
-        // Can't game over during boost
-        if (gameState === 'BOOSTING') return; 
+        // Can't game over during boost or post-revive invincibility
+        if (gameState === 'BOOSTING' || performance.now() < reviveInvincibilityEndTime) return; 
         
         gameState = 'SHAKING';
         shakeEndTime = performance.now() + SHAKE_DURATION;
@@ -1157,9 +1236,10 @@
         if (rainTimer < RAIN_CYCLE_DURATION_MS) {
             // First 120 seconds: Raining
             if (!isRaining) {
-                isRaining = true;
+                isRaining = true; // Set state to raining
                 rainEffect.start();
                 playRainSound(); // Start rain sound
+                stopBackgroundMusic(); // Stop music when rain starts
                 document.body.style.background = RAIN_BACKGROUND; // Change body to Dark Red
                 canvas.style.background = DARK_CANVAS_BACKGROUND; // Change canvas to Dark Red/Black
             }
@@ -1169,6 +1249,7 @@
                 isRaining = false;
                 rainEffect.stop();
                 stopRainSound(); // Stop rain sound
+                if (gameState === 'PLAYING') playBackgroundMusic(); // Start music when rain stops during gameplay
                 document.body.style.background = DEFAULT_BACKGROUND; // Revert body to Bright Red
                 canvas.style.background = SNOW_CANVAS_BACKGROUND; // Revert canvas to Snow Color
             }
@@ -1276,7 +1357,7 @@
                 
                 if (obstacle.type === 'enemy') {
                     // Collision only results in game over if not boosting or not under magnet protection
-                    if (gameState !== 'BOOSTING' && !isMagnetActive) {
+                    if (gameState !== 'BOOSTING' && !isMagnetActive && performance.now() > reviveInvincibilityEndTime) {
                         gameOver();
                     }
                     // If boosting or magnet is active, the enemy is destroyed (filtered out next step)
@@ -1318,6 +1399,7 @@
     // 2. Start Buttons (Updated)
     startButton.addEventListener('click', startGame);
     useHeadstartButton.addEventListener('click', startWithHeadstart);
+    reviveButton.addEventListener('click', revivePlayer); // NEW
 
     // 3. Pause Button & Menu Handlers
     pauseButton.addEventListener('click', pauseGame);
