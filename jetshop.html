@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JetSurfers 2 - Jet Shop</title>
+    <script src="snowfall_effect.js"></script>
     <link rel="icon" href="rec/xmas-icon.jpg" type="image/png">
     <link rel="manifest" href="manifest.json">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -11,7 +12,7 @@
         /* Styles copied from index.html for consistency */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0d1117; /* Dark background */
+            background-color: rgb(40, 174, 252); /* Dark background */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -133,7 +134,7 @@
     // --- START: Jet Definitions ---
     // This array MUST match the one in index.html
     const JETS = [
-        { id: 'default', name: 'Standard Issue', price: 0, img: 'rec/motor/default.png' },
+        { id: 'default', name: 'PILOT-XMAS 25', price: 0, img: 'rec/motor/default.png' },
         { id: 'blue_streak', name: 'Blue Streak', price: 500, img: 'rec/motor/jet_blue.png' },
         { id: 'red_comet', name: 'Nightwing', price: 1000, img: 'rec/motor/nightwing.png' },
         { id: 'gold_wing', name: 'Premium Jet', price: 5000, img: 'rec/motor/premium-jet.png' }
@@ -263,5 +264,6 @@
     };
 
 </script>
+
 </body>
 </html>
