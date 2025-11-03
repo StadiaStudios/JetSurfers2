@@ -4,15 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JetSurfers 2</title>
-    <script src="snowfall_effect.js"></script>
+    <script src="weather/snowfall_effect.js"></script>
+    <script src="weather/rain_effect.js"></script> <!-- Added rain effect script -->
     <link rel="icon" href="rec/xmas-icon.jpg" type="image/png">
     <link rel="manifest" href="manifest.json">
     <script src="https://cdn.tailwindcss.com"></script>
+    
     <style>
         /* Custom Styles for Game Canvas and UI */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: red; /* Dark background */
+            /* Default background, will be set by JS on load using DEFAULT_BACKGROUND constant */
+            background: linear-gradient(180deg, #ce0303 0%, #850202 100%); /* Initial Red Gradient */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -20,6 +23,8 @@
             margin: 0;
             user-select: none;
             overflow: hidden; /* Prevent scrolling */
+            /* Added transition for smooth background color change */
+            transition: background 0.8s ease;
         }
         #gameContainer {
             width: 100%;
@@ -41,7 +46,7 @@
         
         #gameCanvas {
             display: block;
-            background: linear-gradient(0deg, #fcffff 0%, #dfe0e2 100%); /* Deep night sky gradient */
+            /* Background will be set dynamically by JavaScript */
         }
         .ui-overlay {
             position: absolute;
@@ -61,15 +66,15 @@
         .top-bar {
             position: absolute;
             top: 15px;
-            /* Adjusted width and positioning to avoid collision with pause button */
-            width: calc(100% - 30px); 
+            /* Use full width and let padding handle spacing */
+            width: 100%; 
             display: flex;
-            justify-content: flex-end; /* Align elements to the right */
+            justify-content: space-between; /* Distribute items */
             align-items: center;
             color: #f3f4f6;
             font-weight: bold;
             font-size: 1rem;
-            padding: 0 15px;
+            padding: 0 15px; /* Padding on both sides */
         }
         .score-box {
             background: rgba(0, 0, 0, 0.6);
@@ -95,8 +100,8 @@
             padding: 30px 40px;
             border-radius: 15px;
             text-align: center;
-            box-shadow: 0 0 30px rgba(59, 130, 246, 0.8);
-            border: 2px solid #3b82f6;
+            box-shadow: 0 0 30px rgba(201, 204, 209, 0.8);
+            border: 2px solid white;
             pointer-events: auto; /* Re-enable pointer events for the modal */
             max-width: 90%; /* Allow modal to be slightly wider for shop */
             width: 400px;
@@ -125,6 +130,22 @@
             transform: translateY(2px);
             box-shadow: 0 2px #1e40af;
         }
+        
+        /* NEW Style for Headstart Button */
+        #useHeadstartButton {
+            background-color: #f59e0b; /* Amber/Orange */
+            box-shadow: 0 4px #d97706;
+            margin-top: 10px;
+            padding: 8px 20px;
+            font-size: 0.9rem;
+        }
+        #useHeadstartButton:hover {
+            background-color: #eab308;
+        }
+        #useHeadstartButton:active {
+            box-shadow: 0 2px #d97706;
+        }
+
 
         /* --- Magnet Progress Bar Styles --- */
         #magnetProgressContainer {
@@ -146,7 +167,7 @@
         }
         #magnetProgressBar {
             height: 100%;
-            background: linear-gradient(90deg, #60a5fa, #3b82f6); /* Blue gradient */
+            background: linear-gradient(90deg, #fd0404, #ff5353); /* Blue gradient */
             width: 0%;
             transition: width 0.1s linear;
             border-radius: 6px;
@@ -195,7 +216,7 @@
             font-weight: 600;
             color: #f3f4f6;
             background-color: #1f2937; /* Darker blue/gray */
-            border: 2px solid #3b82f6;
+            border: 2px solid white;
             border-radius: 8px;
             cursor: pointer;
             transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
@@ -212,6 +233,22 @@
             transform: translateY(2px);
             box-shadow: 0 2px #111827;
         }
+        
+        /* NEW: Boosting Text */
+        #boostingText {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            font-weight: 900;
+            color: yellow;
+            text-shadow: 0 0 10px red, 0 0 20px red;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
     </style>
 </head>
 <body>
@@ -225,26 +262,35 @@
         <!-- Pause Button (Positioned top left) -->
         <button id="pauseButton" class="pause-button absolute top-4 left-4 z-10 hidden">
             <!-- Updated to use a PNG image for better styling -->
-            <img src="rec/icons/pause_icon.png" alt="Pause" class="w-5 h-5" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MCA1MCI+PHJlY3Qgd2lkdGg9IjE4IiBoZWlnaHQ9IjUwIiBmaWxsPSIjZmZmZmZmIi8+PHJlY3QgeD0iMjciIHdpZHRoPSIxOCIgaGVpZ2h0PSI1MCIgZmlsbD0iI2ZmZmZmZiIvPjwvc3ZnPg=='">
+            <img src="rec/pause_icon.png" alt="Pause" class="w-5 h-5" onerror="this.src='rec/pause_icon.png'">
         </button>
         
         <!-- Top Bar for Score and Coins -->
         <div class="top-bar">
-            <!-- Score Display -->
-            <div class="score-box">
-                Score: <span id="scoreValue">0</span> m
+            <!-- Left-aligned items -->
+            <div class="flex items-center">
+                <!-- Headstart Inventory Display (New) -->
+                <div id="headstartInventoryBox" class="score-box" style="min-width: unset; pointer-events: auto; margin-left: 45px;">
+                    <img src="rec/items/headstart.png" alt="Headstart" class="coin-icon" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZHRoPSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMjEgMTBIM3oiLz48cGF0aCBkPSJNMjEgMTZIMyIvPjwvc3ZnPg=='">
+                    <span id="headstartCount">0</span>
+                </div>
             </div>
-            <!-- Current Run Coins -->
-            <div class="score-box">
-                <!-- Replaced star icon with image tag -->
-                <img src="rec/items/coin.png" alt="Coin" class="coin-icon" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MCA1MCI+PHBhdGggZD0iTTUwLDI1QzUwLDE3LjUsNDIuNSwxMCwzNSwxMEMyNy41LDEwLDIwLDE3LjUsMjAsMjVDMjAsMzIuNSwyNy41LDQwLDM1LDQwQzQyLjUsNDAsNTAsMzIuNSw1MCwyNU0xNSwxMEM3LjUsMTAsMCwxNy41LDAsMjVDMCwzMi41LDcuNSw0MCwxNSw0MEMyMi41LDQwLDMwLDMyLjUsMzAsMjVDMzAsMTcuNSwyMi41LDEwLDE1LDEwWiIgZmlsbD0iI2ZhY2MxNSIvPjwvc3ZnPg=='"> 
-                <span id="runCoinsValue">0</span>
-            </div>
-            <!-- Total Persistent Coins -->
-            <div class="score-box">
-                <!-- Replaced star icon with image tag -->
-                <img src="rec/items/coin.png" alt="Coin" class="coin-icon" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MCA1MCI+PHBhdGggZD0iTTUwLDI1QzUwLDE3LjUsNDIuNSwxMCwzNSwxMEMyNy41LDEwLDIwLDE3LjUsMjAsMjVDMjAsMzIuNSwyNy41LDQwLDM1LDQwQzQyLjUsNDAsNTAsMzIuNSw1MCwyNU0xNSwxMEM3LjUsMTAsMCwxNy41LDAsMjVDMCwzMi41LDcuNSw0MCwxNSw0MEMyMi41LDQwLDMwLDMyLjUsMzAsMjVDMzAsMTcuNSwyMi41LDEwLDE1LDEwWiIgZmlsbD0iI2ZhY2MxNSIvPjwvc3ZnPg=='">
-                Total Coins: <span id="totalCoinsValue">0</span>
+            <!-- Right-aligned items -->
+            <div class="flex items-center">
+                <!-- Score Display -->
+                <div class="score-box">
+                    Score: <span id="scoreValue">0</span> m
+                </div>
+                <!-- Current Run Coins -->
+                <div class="score-box">
+                    <img src="rec/items/coin.png" alt="Coin" class="coin-icon" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MCA1MCI+PHBhdGg+PC9wYXRoPjwvc3ZnPg=='"> 
+                    Earned: <span id="runCoinsValue">0</span>
+                </div>
+                <!-- Total Persistent Coins -->
+                <div class="score-box">
+                    <img src="rec/items/coin.png" alt="Coin" class="coin-icon" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MCA1MCI+PHBhdGg+PC9wYXRoPjwvc3ZnPg=='">
+                    <span id="totalCoinsValue">0</span>
+                </div>
             </div>
         </div>
 
@@ -267,6 +313,8 @@
                 Mobile: Tap Left / Right side of the screen
             </p>
             <button id="startButton" class="game-button">START FLIGHT</button>
+            <button id="useHeadstartButton" class="game-button hidden">USE HEADSTART (<span id="startHeadgetCount">0</span>)</button>
+
             <div id="finalScore" class="text-xl font-bold mt-4 hidden"></div>
             <div id="coinsEarned" class="text-xl font-bold text-yellow-400 mt-2 hidden"></div>
         </div>
@@ -281,8 +329,9 @@
             <button id="settingsButton" class="menu-button">SETTINGS</button>
             <p class="text-xs text-gray-500 mt-6">Game Version: v1.0.0</p>
         </div>
-
-        <!-- Jet Shop Modal has been removed from this file -->
+        
+        <!-- NEW: Boosting Text Overlay -->
+        <div id="boostingText" class="hidden">BOOSTING</div>
 
     </div>
 </div>
@@ -291,10 +340,11 @@
     // --- Local Storage Setup (Shared Keys) ---
     // These keys are shared with shop.html
     const COIN_STORAGE_KEY = 'jetSurferTotalCoins';
-    const MAGNET_LEVEL_KEY = 'jetSurferMagnetLevel'; // Match shop.html key
+    const MAGNET_LEVEL_KEY = 'jetSurferMagnetLevel';
     const JET_OWNED_KEY = 'jetSurferOwnedJets';
     const JET_SELECTED_KEY = 'jetSurferSelectedJet';
-    // --- END: Added Jet Storage Keys ---
+    // NEW KEY for Headstart count
+    const HEADSTART_COUNT_KEY = 'jetSurferHeadstartCount';
 
     // --- START: Jet Definitions ---
     // This array MUST match the one in shop.html
@@ -312,6 +362,7 @@
 
     let totalCoins = 0; // The persistent total
     let magnetLevel = 0; // The persistent magnet level (0 to 5)
+    let headstartCount = 0; // The persistent headstart item count
 
     function loadGameData() {
         const storedCoins = localStorage.getItem(COIN_STORAGE_KEY);
@@ -320,7 +371,11 @@
         const storedMagnetLevel = localStorage.getItem(MAGNET_LEVEL_KEY);
         magnetLevel = storedMagnetLevel ? parseInt(storedMagnetLevel, 10) : 0;
         
+        const storedHeadstartCount = localStorage.getItem(HEADSTART_COUNT_KEY);
+        headstartCount = storedHeadstartCount ? parseInt(storedHeadstartCount, 10) : 0;
+
         document.getElementById('totalCoinsValue').textContent = totalCoins.toLocaleString();
+        document.getElementById('headstartCount').textContent = headstartCount.toLocaleString();
 
         // --- Load Jet Data ---
         const storedOwnedJets = localStorage.getItem(JET_OWNED_KEY);
@@ -332,6 +387,15 @@
         // Apply the selected jet image
         const selectedJet = JETS.find(j => j.id === selectedJetId) || JETS[0];
         playerImg.src = selectedJet.img;
+        
+        // Show/Hide Headstart button on start screen
+        const headstartButton = document.getElementById('useHeadstartButton');
+        document.getElementById('startHeadgetCount').textContent = headstartCount;
+        if (headstartCount > 0) {
+            headstartButton.classList.remove('hidden');
+        } else {
+            headstartButton.classList.add('hidden');
+        }
     }
 
     function saveCoins(coinsEarned) {
@@ -340,14 +404,25 @@
         }
         localStorage.setItem(COIN_STORAGE_KEY, totalCoins);
         document.getElementById('totalCoinsValue').textContent = totalCoins.toLocaleString();
-        
-        // Removed update to jetShopCoinsValue as it no longer exists here
     }
     
+    // --- Headstart Inventory Management ---
+    function spendHeadstart() {
+        if (headstartCount > 0) {
+            headstartCount--;
+            localStorage.setItem(HEADSTART_COUNT_KEY, headstartCount);
+            document.getElementById('headstartCount').textContent = headstartCount;
+            // Hide the button on the modal if no more are left
+            if (headstartCount === 0) {
+                document.getElementById('useHeadstartButton').classList.add('hidden');
+            }
+            return true;
+        }
+        return false;
+    }
+    // --- End Headstart Inventory Management ---
+
     // --- Jet/Coin Functions (Still needed for loading) ---
-    // This function is only used by shop.html now, but we keep
-    // saveOwnedJets and saveSelectedJet in case we add logic
-    // to unlock jets via gameplay later.
     function spendCoins(amount) {
         if (totalCoins >= amount) {
             totalCoins -= amount;
@@ -383,6 +458,7 @@
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
     const container = document.getElementById('gameContainer');
+    const rainEffect = new RainEffect(canvas); // Initialize rain effect
 
     // UI Elements
     const scoreValueElement = document.getElementById('scoreValue');
@@ -394,6 +470,8 @@
     const startButton = document.getElementById('startButton');
     const finalScore = document.getElementById('finalScore');
     const coinsEarned = document.getElementById('coinsEarned');
+    const useHeadstartButton = document.getElementById('useHeadstartButton');
+    const boostingText = document.getElementById('boostingText');
 
     // UI Elements for Pause Menu
     const pauseButton = document.getElementById('pauseButton');
@@ -402,14 +480,6 @@
     const shopButton = document.getElementById('shopButton');
     const settingsButton = document.getElementById('settingsButton');
 
-    // --- Jet Shop UI Elements (REMOVED) ---
-    // const jetShopMenuButton = document.getElementById('jetShopMenuButton'); // This is an <a> tag now
-    // const jetShopModal = document.getElementById('jetShopModal');
-    // const jetShopCoinsValue = document.getElementById('jetShopCoinsValue');
-    // const jetShopGrid = document.getElementById('jetShopGrid');
-    // const jetShopBackButton = document.getElementById('jetShopBackButton');
-    // --- End: Jet Shop UI Elements (REMOVED) ---
-    
     // NEW UI ELEMENTS for Magnet
     const magnetProgressContainer = document.getElementById('magnetProgressContainer');
     const magnetProgressBar = document.getElementById('magnetProgressBar');
@@ -424,7 +494,12 @@
     const INITIAL_GAME_SPEED = 4;
     const SPEED_INCREMENT_SCORE = 1000;
     const SPEED_INCREMENT_AMOUNT = 0.02;
-
+    
+    // Headstart Constants (NEW)
+    const HEADSTART_SCORE = 20000;
+    const HEADSTART_DURATION_SECONDS = 10;
+    const HEADSTART_SPEED_MULTIPLIER = 20;
+    
     // Magnet State Variables and Constants
     const MAGNET_DURATION_SECONDS_BASE = 10; // Base duration
     const MAGNET_DURATION_BONUS_PER_LEVEL = 2; // +2 seconds per level
@@ -446,7 +521,8 @@
 
 
     // State variables
-    let gameState = 'START'; // Possible states: 'START', 'PLAYING', 'PAUSED', 'SHAKING', 'GAMEOVER'
+    // Added 'BOOSTING' state
+    let gameState = 'START'; // Possible states: 'START', 'PLAYING', 'PAUSED', 'SHAKING', 'GAMEOVER', 'BOOSTING'
     let score = 0;
     let runCoins = 0;
     let baseGameSpeed = INITIAL_GAME_SPEED;
@@ -468,6 +544,23 @@
     let shakeEndTime = 0;
     const SHAKE_MAGNITUDE = 10;
     const SHAKE_DURATION = 300;
+    
+    let boostEndTime = 0; // NEW: Headstart tracking
+
+    // --- Background Styles (Updated for Red Theme) ---
+    // Default background (Red)
+    const DEFAULT_BACKGROUND = 'linear-gradient(180deg, #DC2626 0%, #991B1B 100%)'; 
+    // Darker, stormy, spaceous red gradient
+    const RAIN_BACKGROUND = 'linear-gradient(180deg, #450A0A 0%, #6D2828 100%)'; 
+
+    // --- Canvas Background Styles (NEW) ---
+    const SNOW_CANVAS_BACKGROUND = 'linear-gradient(90deg, #FFFAFA 0%, #aecdf7 100%)'; /* Light Blue Sky Gradient */
+    const DARK_CANVAS_BACKGROUND = 'linear-gradient(0deg, #1A0505 0%, #300A0A 100%)'; 
+    
+    // --- Rain State Variables ---
+    let rainTimer = 0;
+    let isRaining = false;
+    const RAIN_CYCLE_DURATION_MS = 120 * 1000; // 120 seconds
 
     // Player/Coin Images
     const playerImg = new Image();
@@ -493,14 +586,21 @@
     magnetImg.onload = () => { magnetImg.isLoaded = true; };
     magnetImg.onerror = () => { console.error("Failed to load magnet image. Using fallback."); };
 
-    // --- Audio Setup (Unchanged) ---
+    // --- Audio Setup ---
     const coinSound = new Audio('sfx/coin.mp3');
     const deathSound = new Audio('sfx/dead.mp3');
     const powerupSound = new Audio('sfx/powerup.mp3'); 
+    const rainSound = new Audio('sfx/ambience/rain.mp3'); // Added rain sound
+    const boostSound = new Audio('sfx/boost.mp3'); // NEW: Boost sound
 
     coinSound.volume = 0.5; 
-    deathSound.volume = 0.5;
-    powerupSound.volume = 0.6;
+    deathSound.volume = 1.0;
+    powerupSound.volume = 1.0;
+    rainSound.loop = true;
+    rainSound.volume = 1.0; // Set rain volume to be ambient
+    boostSound.volume = 1.0;
+    boostSound.loop = true;
+
 
     function playCoinSound() {
         coinSound.currentTime = 0; 
@@ -515,6 +615,25 @@
     function playPowerupSound() {
         powerupSound.currentTime = 0;
         powerupSound.play().catch(e => console.error("Powerup audio playback failed (expected if MP3 is missing):", e));
+    }
+
+    function playRainSound() {
+        rainSound.play().catch(e => console.error("Rain audio playback failed (expected if MP3 is missing):", e));
+    }
+    
+    function stopRainSound() {
+        rainSound.pause();
+        rainSound.currentTime = 0;
+    }
+    
+    function playBoostSound() {
+        boostSound.currentTime = 0;
+        boostSound.play().catch(e => console.error("Boost audio playback failed (expected if MP3 is missing):", e));
+    }
+    
+    function stopBoostSound() {
+        boostSound.pause();
+        boostSound.currentTime = 0;
     }
 
 
@@ -595,6 +714,12 @@
         canvas.width = container.clientWidth;
         canvas.height = container.clientHeight;
         playerX = getLaneCenterX(currentLane);
+        
+        // Update rain effect canvas reference and re-init particles for new size
+        rainEffect.canvas = canvas;
+        if (isRaining) {
+            rainEffect.init();
+        }
     }
 
     function getLaneCenterX(laneIndex) {
@@ -611,6 +736,16 @@
     }
 
     function spawnObstacle() {
+        // Do not spawn enemies/magnets during a Headstart boost
+        if (gameState === 'BOOSTING') {
+            // Only allow coins to spawn during boost
+            const lane = Math.floor(Math.random() * NUM_LANES);
+            const size = 50;
+            const type = 'coin';
+            obstacles.push(new Obstacle(lane, size, type));
+            return;
+        }
+        
         const lane = Math.floor(Math.random() * NUM_LANES);
         const size = 50;
         let type = 'enemy';
@@ -635,7 +770,7 @@
         return playerBounds.x < obsBounds.x + obsBounds.width &&
                playerBounds.x + playerBounds.width > obsBounds.x &&
                playerBounds.y < obsBounds.y + obsBounds.height &&
-               playerBounds.y + playerBounds.height > obsBounds.y;
+               playerBounds.y + obsBounds.height > obsBounds.y;
     }
 
     function getPlayerBounds(x) {
@@ -672,7 +807,8 @@
      * Function to handle coin collection (still screen-wide)
      */
     function handleCoinCollection() {
-        if (!isMagnetActive) return;
+        // Collect all coins during magnet or boosting
+        if (!isMagnetActive && gameState !== 'BOOSTING') return;
 
         let collectedCount = 0;
         
@@ -684,8 +820,11 @@
             if (obstacle.type === 'coin' && !obstacle.isHit) {
                 obstacle.isHit = true; // Mark it as hit
                 
-                if (magnetLevel === MAGNET_MAX_LEVEL) {
+                // Magnet Level 5 bonus
+                if (isMagnetActive && magnetLevel === MAGNET_MAX_LEVEL) {
                     runCoins += 15;
+                } else if (gameState === 'BOOSTING') {
+                    runCoins += 20; // Extra coin bonus during headstart
                 } else {
                     runCoins++;
                 }
@@ -721,6 +860,13 @@
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+        // --- Draw Rain Effect ---
+        // Draw rain after clearing screen but before other elements
+        if (isRaining) {
+            rainEffect.draw(ctx);
+        }
+        // --- End Rain Effect ---
+
         // Draw lane lines
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
         ctx.lineWidth = 3;
@@ -738,6 +884,19 @@
 
         // Draw player jet
         if (playerImg.isLoaded) {
+            // Draw speed lines/afterburner effect for BOOSTING state (NEW)
+            if (gameState === 'BOOSTING') {
+                ctx.fillStyle = 'rgba(255, 165, 0, 0.5)';
+                const flameHeight = PLAYER_SIZE * 0.5;
+                const flameWidth = PLAYER_SIZE * 0.6;
+                ctx.beginPath();
+                ctx.moveTo(playerX - flameWidth / 2, playerDrawY + PLAYER_SIZE);
+                ctx.lineTo(playerX + flameWidth / 2, playerDrawY + PLAYER_SIZE);
+                ctx.lineTo(playerX, playerDrawY + PLAYER_SIZE + flameHeight);
+                ctx.closePath();
+                ctx.fill();
+            }
+
             // If magnet is active, draw a blue glow around the player
             if (isMagnetActive) {
                 const maxBlur = 30;
@@ -750,7 +909,7 @@
                     blur = maxBlur;
                 }
                 
-                ctx.shadowColor = '#3b82f6';
+                ctx.shadowColor = 'red';
                 ctx.shadowBlur = blur;
             }
             ctx.drawImage(playerImg, playerDrawX, playerDrawY, PLAYER_SIZE, PLAYER_SIZE);
@@ -785,16 +944,22 @@
         // Hide all modals
         gameModal.classList.add('hidden');
         pauseMenuModal.classList.add('hidden');
-        // jetShopModal.classList.add('hidden'); // <-- REMOVED
         
         // Show the requested modal
         modalElement.classList.remove('hidden');
     }
 
     function pauseGame() {
-        if (gameState !== 'PLAYING') return;
+        if (gameState !== 'PLAYING' && gameState !== 'BOOSTING') return;
+        
+        const wasBoosting = gameState === 'BOOSTING';
         
         gameState = 'PAUSED';
+        if (isRaining) rainSound.pause(); // Pause rain sound
+        if (wasBoosting) stopBoostSound(); // Stop boost sound
+        
+        boostingText.classList.add('hidden'); // Hide text
+
         showModal(pauseMenuModal);
         // The game loop will stop execution on the next frame check
     }
@@ -802,7 +967,16 @@
     function unpauseGame() {
         if (gameState !== 'PAUSED') return;
         
-        gameState = 'PLAYING';
+        // Determine if we need to go back to BOOSTING or PLAYING
+        const newGameState = (performance.now() < boostEndTime && score < HEADSTART_SCORE) ? 'BOOSTING' : 'PLAYING';
+        gameState = newGameState;
+        
+        if (isRaining) playRainSound(); // Resume rain sound
+        if (newGameState === 'BOOSTING') {
+            playBoostSound();
+            boostingText.classList.remove('hidden');
+        }
+        
         showModal(gameModal); // Hides all modals
         gameModal.classList.add('hidden'); // Ensure no modal is visible
         
@@ -811,7 +985,7 @@
         requestAnimationFrame(gameLoop);
     }
     
-    function startGame() {
+    function initializeGame(useHeadstart = false) {
         // Reset state
         score = 0;
         runCoins = 0;
@@ -824,6 +998,19 @@
         setupCanvas();
         playerX = getLaneCenterX(currentLane);
         
+        // Set up headstart state
+        if (useHeadstart) {
+            score = HEADSTART_SCORE;
+            gameState = 'BOOSTING';
+            boostEndTime = performance.now() + (HEADSTART_DURATION_SECONDS * 1000);
+            playBoostSound();
+            boostingText.classList.remove('hidden');
+        } else {
+            gameState = 'PLAYING';
+            boostEndTime = 0;
+            boostingText.classList.add('hidden');
+        }
+
         // Re-load data to ensure current magnet level and jet are used
         loadGameData(); 
         updateMagnetDuration();
@@ -831,21 +1018,58 @@
         // Reset Magnet State
         deactivateMagnet();
         
+        // --- UPDATED Rain Cycle Logic: Randomize Start ---
+        const MAX_CYCLE_MS = RAIN_CYCLE_DURATION_MS * 2;
+        rainTimer = Math.random() * MAX_CYCLE_MS; // Randomize start time
+        isRaining = rainTimer < RAIN_CYCLE_DURATION_MS; // Check initial state
+        
+        rainEffect.stop();
+        rainEffect.clear();
+
+        // Set initial background and rain state based on the randomized start
+        if (isRaining) {
+            stopRainSound(); // Stop any previous instance before starting a new one
+            rainEffect.start();
+            playRainSound();
+            document.body.style.background = RAIN_BACKGROUND; // Dark Red (Body)
+            canvas.style.background = DARK_CANVAS_BACKGROUND; // New: Dark Red (Canvas)
+        } else {
+            document.body.style.background = DEFAULT_BACKGROUND; // Bright Red (Body)
+            canvas.style.background = SNOW_CANVAS_BACKGROUND; // New: Snow Color (Canvas)
+            // Stop sounds that shouldn't play when it's not raining
+            stopRainSound();
+        }
+        // --- END UPDATED Rain Cycle Logic ---
+        
         shakeEndTime = 0;
 
         // Hide Modals and show Pause Button
         gameModal.classList.add('hidden');
         pauseMenuModal.classList.add('hidden');
-        // jetShopModal.classList.add('hidden'); // REMOVED
         pauseButton.classList.remove('hidden');
         finalScore.classList.add('hidden');
         coinsEarned.classList.add('hidden');
-        scoreValueElement.textContent = '0';
+        scoreValueElement.textContent = Math.floor(score).toLocaleString(); // Update initial score
         runCoinsValueElement.textContent = '0';
 
-        gameState = 'PLAYING';
         requestAnimationFrame(gameLoop);
     }
+    
+    // Wrapper function for the START button
+    function startGame() {
+        initializeGame(false);
+    }
+    
+    // NEW function for Headstart button
+    function startWithHeadstart() {
+        if (spendHeadstart()) {
+            initializeGame(true);
+        } else {
+            // Should not happen if button is correctly hidden/disabled
+            console.error("Cannot use headstart: None left.");
+        }
+    }
+
 
     function finishGameOver() {
         gameState = 'GAMEOVER';
@@ -853,8 +1077,19 @@
         // Save persistent coins to local storage
         saveCoins(runCoins);
         
-        // Hide magnet bar and pause button
+        // Stop all sounds/effects
         deactivateMagnet();
+        if (isRaining) {
+            isRaining = false;
+            rainEffect.stop();
+            stopRainSound(); 
+        }
+        stopBoostSound(); // Stop any lingering boost sound from a previous run
+
+        // Reset backgrounds
+        document.body.style.background = DEFAULT_BACKGROUND; 
+        canvas.style.background = SNOW_CANVAS_BACKGROUND;
+
         pauseButton.classList.add('hidden');
 
         // Show Game Over Modal
@@ -862,6 +1097,9 @@
         modalTitle.textContent = "FLIGHT TERMINATED";
         modalMessage.textContent = "You collided with a enemy aircraft!";
         startButton.textContent = "RETRY";
+        
+        // Reload data to update headstart count on button
+        loadGameData(); 
 
         finalScore.textContent = `FINAL SCORE: ${Math.floor(score).toLocaleString()} meters`;
         finalScore.classList.remove('hidden');
@@ -871,15 +1109,13 @@
     }
 
     function gameOver() {
+        // Can't game over during boost
+        if (gameState === 'BOOSTING') return; 
+        
         gameState = 'SHAKING';
         shakeEndTime = performance.now() + SHAKE_DURATION;
         playDeathSound();
     }
-
-    // --- Jet Shop Logic (REMOVED) ---
-    // function populateJetShop() { ... }
-    // function handleJetShopClick(e) { ... }
-    // --- End: Jet Shop Logic (REMOVED) ---
 
 
     // --- Game Loop ---
@@ -896,6 +1132,55 @@
 
         deltaTime = (currentTime - lastTime) / 1000;
         lastTime = currentTime;
+        
+        // --- Check for Headstart Boost Expiration (NEW) ---
+        if (gameState === 'BOOSTING') {
+            if (currentTime > boostEndTime) {
+                gameState = 'PLAYING'; // End boost
+                stopBoostSound();
+                boostingText.classList.add('hidden');
+            } else if (score >= HEADSTART_SCORE) {
+                // If the score already reached the target, switch to normal speed
+                gameState = 'PLAYING';
+                stopBoostSound();
+                boostingText.classList.add('hidden');
+            }
+        }
+        
+        // --- Rain Cycle Logic ---
+        rainTimer += (deltaTime * 1000);
+        
+        if (rainTimer >= RAIN_CYCLE_DURATION_MS * 2) {
+            rainTimer -= (RAIN_CYCLE_DURATION_MS * 2); // Reset cycle (240s total)
+        }
+        
+        if (rainTimer < RAIN_CYCLE_DURATION_MS) {
+            // First 120 seconds: Raining
+            if (!isRaining) {
+                isRaining = true;
+                rainEffect.start();
+                playRainSound(); // Start rain sound
+                document.body.style.background = RAIN_BACKGROUND; // Change body to Dark Red
+                canvas.style.background = DARK_CANVAS_BACKGROUND; // Change canvas to Dark Red/Black
+            }
+        } else {
+            // Second 120 seconds: Cooldown
+            if (isRaining) {
+                isRaining = false;
+                rainEffect.stop();
+                stopRainSound(); // Stop rain sound
+                document.body.style.background = DEFAULT_BACKGROUND; // Revert body to Bright Red
+                canvas.style.background = SNOW_CANVAS_BACKGROUND; // Revert canvas to Snow Color
+            }
+        }
+
+        if (isRaining) {
+            rainEffect.update(); // Update particle positions
+        } else {
+            rainEffect.clear(); // Clear particles when not raining
+        }
+        // --- End Rain Cycle Logic ---
+        
         const laneCenters = getLaneCenters();
 
         if (gameState === 'SHAKING') {
@@ -904,6 +1189,7 @@
                 return;
             }
             
+            // Obstacles still move during shake
             obstacles = obstacles.filter(obstacle => {
                 obstacle.update(currentEffectiveGameSpeed * 60, deltaTime);
                 return obstacle.y < canvas.height;
@@ -914,20 +1200,27 @@
             return;
         }
 
-        // --- 'PLAYING' state ---
+        // --- 'PLAYING' or 'BOOSTING' state ---
         const playerBounds = getPlayerBounds(playerX);
 
         // 1. Update Base Game Speed
-        const newSpeedLevel = Math.floor(score / SPEED_INCREMENT_SCORE);
-        if (newSpeedLevel > speedLevel) {
-            speedLevel = newSpeedLevel;
-            baseGameSpeed = INITIAL_GAME_SPEED * (1 + (speedLevel * SPEED_INCREMENT_AMOUNT));
+        if (gameState !== 'BOOSTING') {
+            const newSpeedLevel = Math.floor(score / SPEED_INCREMENT_SCORE);
+            if (newSpeedLevel > speedLevel) {
+                speedLevel = newSpeedLevel;
+                baseGameSpeed = INITIAL_GAME_SPEED * (1 + (speedLevel * SPEED_INCREMENT_AMOUNT));
+            }
+        } else {
+            // If boosting, base speed is high
+            baseGameSpeed = INITIAL_GAME_SPEED * (1 + (HEADSTART_SCORE / SPEED_INCREMENT_SCORE) * SPEED_INCREMENT_AMOUNT);
         }
 
-        // 2. Update Effective Game Speed (Magnet Effect)
+        // 2. Update Effective Game Speed (Magnet/Headstart Effect)
         let speedMultiplier = 1;
         
-        if (isMagnetActive) {
+        if (gameState === 'BOOSTING') {
+            speedMultiplier = HEADSTART_SPEED_MULTIPLIER;
+        } else if (isMagnetActive) {
             const timeElapsed = currentTime - magnetStartTime;
             const timeLeft = magnetDurationMS - timeElapsed;
             
@@ -968,15 +1261,13 @@
         });
 
         // 6. Spawn new obstacle
-        if (currentTime - lastObstacleTime > 1600 / (baseGameSpeed * 0.8)) {
+        if (currentTime - lastObstacleTime > 1600 / (currentEffectiveGameSpeed * 0.8)) {
             spawnObstacle();
             lastObstacleTime = currentTime;
         }
 
-        // 7. Coin Collection Logic
-        if (isMagnetActive) {
-            handleCoinCollection();
-        }
+        // 7. Coin Collection Logic (during Magnet or Boost)
+        handleCoinCollection();
         
         // 8. Collision Detection
         obstacles.forEach(obstacle => {
@@ -984,24 +1275,30 @@
                 obstacle.isHit = true;
                 
                 if (obstacle.type === 'enemy') {
-                    if (!isMagnetActive) {
+                    // Collision only results in game over if not boosting or not under magnet protection
+                    if (gameState !== 'BOOSTING' && !isMagnetActive) {
                         gameOver();
                     }
+                    // If boosting or magnet is active, the enemy is destroyed (filtered out next step)
                 } else if (obstacle.type === 'coin') {
-                    if (isMagnetActive && magnetLevel === MAGNET_MAX_LEVEL) {
-                        runCoins += 15;
-                    } else {
-                        runCoins++;
+                    // If not caught by magnet logic in handleCoinCollection, still collect on contact
+                    if (!isMagnetActive) {
+                         if (magnetLevel === MAGNET_MAX_LEVEL) {
+                            runCoins += 15;
+                        } else {
+                            runCoins++;
+                        }
+                        runCoinsValueElement.textContent = runCoins;
+                        playCoinSound();
                     }
-                    runCoinsValueElement.textContent = runCoins;
-                    playCoinSound();
                 } else if (obstacle.type === 'magnet') {
                     activateMagnet(currentTime);
                 }
             }
         });
 
-        // 9. Remove collected items
+        // 9. Remove collected/destroyed items
+        // Destroyed enemies are filtered out here if isHit is true (due to protection)
         obstacles = obstacles.filter(o => (o.type !== 'coin' && o.type !== 'magnet' && o.type !== 'enemy') || !o.isHit);
 
         // 10. Draw
@@ -1018,34 +1315,25 @@
     // 1. Handle resize
     window.addEventListener('resize', setupCanvas);
 
-    // 2. Start Button
+    // 2. Start Buttons (Updated)
     startButton.addEventListener('click', startGame);
+    useHeadstartButton.addEventListener('click', startWithHeadstart);
 
     // 3. Pause Button & Menu Handlers
     pauseButton.addEventListener('click', pauseGame);
     resumeButton.addEventListener('click', unpauseGame);
     
     shopButton.addEventListener('click', () => {
-        // This is the "Upgrades Shop", assuming it's also a separate page
-        // If it was meant to be the jet shop, it should also be "shop.html"
-        // For now, leaving it as 'shop.html' as that's the only shop we have.
-        // If you have a different upgrades shop, change 'shop.html' to 'upgrades.html' etc.
         gameState = 'PAUSED'; 
-        window.location.href = 'shop.html'; // Changed to shop.html
+        window.location.href = 'shop.html';
     }); 
     
-    // --- Jet Shop Listeners (REMOVED) ---
-    // jetShopMenuButton.addEventListener('click', ...);
-    // jetShopBackButton.addEventListener('click', ...);
-    // jetShopGrid.addEventListener('click', ...);
-    // --- End: Jet Shop Listeners (REMOVED) ---
-
     settingsButton.addEventListener('click', () => {
         // Temporarily use the main game modal to display a message, then unpause
         gameModal.classList.remove('hidden');
         pauseMenuModal.classList.add('hidden');
         modalTitle.textContent = "SETTINGS";
-        modalMessage.textContent = "Version: v1.0.0. No customizable settings yet.";
+        modalMessage.textContent = "Version: v1.0.0. More Coming soon in Beta Development Stages.";
         startButton.textContent = "CONTINUE";
 
         const tempStartHandler = () => {
@@ -1061,7 +1349,7 @@
 
     // 4. Input Handling
     function handleInput(isRight) {
-        if (gameState === 'PLAYING') {
+        if (gameState === 'PLAYING' || gameState === 'BOOSTING') {
             if (isRight && targetLane < NUM_LANES - 1) {
                 targetLane++;
             } else if (!isRight && targetLane > 0) {
@@ -1076,7 +1364,7 @@
             handleInput(true);
         } else if (e.key === 'ArrowLeft' || e.key.toLowerCase() === 'a') {
             handleInput(false);
-        } else if (e.key === 'Enter' && gameState !== 'PLAYING') {
+        } else if (e.key === 'Enter' && gameState !== 'PLAYING' && gameState !== 'BOOSTING') {
             if (gameState === 'PAUSED') {
                 // Check which modal is open.
                 if (!pauseMenuModal.classList.contains('hidden')) {
@@ -1088,7 +1376,7 @@
                 startGame();
             }
         } else if (e.key === 'Escape' || e.key.toLowerCase() === 'p') {
-            if (gameState === 'PLAYING') {
+            if (gameState === 'PLAYING' || gameState === 'BOOSTING') {
                 pauseGame();
             } else if (gameState === 'PAUSED') {
                 // If in pause menu, unpause
@@ -1101,7 +1389,7 @@
 
     // Touch/Click Input (Mobile friendly)
     canvas.addEventListener('mousedown', (e) => {
-        if (gameState !== 'PLAYING') return;
+        if (gameState !== 'PLAYING' && gameState !== 'BOOSTING') return;
         e.preventDefault();
         const rect = canvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
@@ -1109,7 +1397,7 @@
     });
 
     canvas.addEventListener('touchstart', (e) => {
-        if (gameState !== 'PLAYING') return;
+        if (gameState !== 'PLAYING' && gameState !== 'BOOSTING') return;
         e.preventDefault();
         const rect = canvas.getBoundingClientRect();
         const x = e.touches[0].clientX - rect.left;
@@ -1118,12 +1406,17 @@
 
     // Start initialization and game loop on load
     window.onload = function() {
-        loadGameData(); // Load all persistent data (coins, magnet level, and jets)
+        loadGameData(); // Load all persistent data (coins, magnet level, jets, and headstarts)
         updateMagnetDuration(); // Ensure the duration is correct on startup
         setupCanvas();
         pauseButton.classList.add('hidden'); 
+        
+        // Initialize background to default state on load
+        document.body.style.background = DEFAULT_BACKGROUND; 
+        canvas.style.background = SNOW_CANVAS_BACKGROUND;
+        
         requestAnimationFrame(gameLoop);
-    };
+    }
 
 </script>
 </body>

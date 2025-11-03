@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JetSurfers 2 - Jet Shop</title>
-    <script src="snowfall_effect.js"></script>
+    <script src="weather/snowfall_effect.js"></script>
     <link rel="icon" href="rec/xmas-icon.jpg" type="image/png">
     <link rel="manifest" href="manifest.json">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -12,7 +12,7 @@
         /* Styles copied from index.html for consistency */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: rgb(40, 174, 252); /* Dark background */
+            background-color: rgb(128, 0, 0); /* Dark background */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -28,8 +28,8 @@
             padding: 30px 40px;
             border-radius: 15px;
             text-align: center;
-            box-shadow: 0 0 30px rgba(59, 130, 246, 0.8);
-            border: 2px solid #3b82f6;
+            box-shadow: 0 0 30px rgba(245, 245, 247, 0.8);
+            border: 2px solid #e6eaf0;
             pointer-events: auto;
             max-width: 90%;
             width: 450px; /* Matched game container width */
@@ -48,7 +48,7 @@
             font-weight: 600;
             color: #f3f4f6;
             background-color: #1f2937;
-            border: 2px solid #3b82f6;
+            border: 2px solid #e0e2e6;
             border-radius: 8px;
             cursor: pointer;
             transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
@@ -67,10 +67,28 @@
         /* --- START: Jet Shop Styles --- */
         .jet-item {
             background: #1f2937; /* Darker blue/gray */
-            border: 2px solid #3b82f6;
+            border: 2px solid #ff8e8e;
             border-radius: 8px;
             padding: 10px;
             text-align: center;
+        }
+        .jet-logo {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 30px;
+            height: 30px;
+            background: rgba(0,0,0,0.4);
+            border-radius: 50%;
+            padding: 4px;
+        }
+        .coin-image {
+            width: 16px;
+            height: 16px;
+            display: inline-block;
+            vertical-align: text-bottom;
+            margin-left: 4px;
+            margin-right: -2px; /* Adjust spacing inside button */
         }
         .jet-image {
             width: 100%;
@@ -111,7 +129,7 @@
     <div class="shop-container">
         <h2 class="text-3xl font-extrabold mb-4 text-white">JET SHOP</h2>
         <div class="text-lg mb-6">
-            Total Coins: <span id="jetShopCoinsValue" class="font-bold text-yellow-400">0</span>
+            Total Coins: <span id="jetShopCoinsValue" class="font-bold text-yellow-400">0</span> <img src="rec/items/coin.png" alt="Coin" class="coin-image" style="width: 20px; height: 20px; margin-left: 5px;">
         </div>
         
         <!-- Grid for Jet Items -->
@@ -134,10 +152,10 @@
     // --- START: Jet Definitions ---
     // This array MUST match the one in index.html
     const JETS = [
-        { id: 'default', name: 'PILOT-XMAS 25', price: 0, img: 'rec/motor/default.png' },
-        { id: 'blue_streak', name: 'Blue Streak', price: 500, img: 'rec/motor/jet_blue.png' },
-        { id: 'red_comet', name: 'Nightwing', price: 1000, img: 'rec/motor/nightwing.png' },
-        { id: 'gold_wing', name: 'Premium Jet', price: 5000, img: 'rec/motor/premium-jet.png' }
+        { id: 'default', name: 'PILOT-XMAS 25', price: 0, img: 'rec/motor/default.png', logo: 'rec/logos/default_logo.png' },
+        { id: 'blue_streak', name: 'Blue Streak', price: 500, img: 'rec/motor/jet_blue.png', logo: 'rec/logos/blue_streak_logo.png' },
+        { id: 'red_comet', name: 'Nightwing', price: 1000, img: 'rec/motor/nightwing.png', logo: 'rec/logos/nightwing_logo.png' },
+        { id: 'gold_wing', name: 'Premium Jet', price: 5000, img: 'rec/motor/premium-jet.png', logo: 'rec/logos/premium_logo.png' }
     ];
     const DEFAULT_JET_ID = 'default';
     
@@ -194,7 +212,7 @@
             const isSelected = (jet.id === selectedJetId);
 
             const item = document.createElement('div');
-            item.className = 'jet-item';
+            item.className = 'jet-item relative'; // Added relative for logo positioning
             
             let buttonHtml = '';
             if (isSelected) {
@@ -204,11 +222,12 @@
             } else {
                 const canAfford = totalCoins >= jet.price;
                 buttonHtml = `<button class="jet-buy-button ${!canAfford ? 'disabled' : ''}" data-jet-id="${jet.id}" data-action="buy" ${!canAfford ? 'disabled' : ''}>
-                                Buy (<span class="text-yellow-300">${jet.price.toLocaleString()} ★</span>)
+                                Buy (<span class="text-yellow-300">${jet.price.toLocaleString()}</span><img src="rec/items/coin.png" alt="Coin" class="coin-image">)
                               </button>`;
             }
 
             item.innerHTML = `
+                <img src="${jet.logo}" alt="${jet.name} Logo" class="jet-logo" onerror="this.style.display='none'">
                 <img src="${jet.img}" alt="${jet.name}" class="jet-image" onerror="this.src='rec/motor/default.png'">
                 <p class="font-bold text-white">${jet.name}</p>
                 ${buttonHtml}
