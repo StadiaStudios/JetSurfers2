@@ -1358,6 +1358,10 @@
         }
     }
 
+    // --- Swipe Detection State ---
+    let touchStartX = 0;
+    let touchStartY = 0;
+
     // Keyboard Input
     document.addEventListener('keydown', (e) => {
         if (e.key === 'ArrowRight' || e.key.toLowerCase() === 'd') {
@@ -1388,20 +1392,38 @@
     });
 
     // Touch/Click Input (Mobile friendly)
-    canvas.addEventListener('mousedown', (e) => {
+    canvas.addEventListener('mousedown', (e) => { // Keep for desktop clicking
         if (gameState !== 'PLAYING' && gameState !== 'BOOSTING') return;
         e.preventDefault();
         const rect = canvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
         handleInput(x > canvas.width / 2); // True if tapped on the right half
     });
-
+    
+    // --- NEW: Swipe Controls for Mobile ---
     canvas.addEventListener('touchstart', (e) => {
         if (gameState !== 'PLAYING' && gameState !== 'BOOSTING') return;
         e.preventDefault();
-        const rect = canvas.getBoundingClientRect();
-        const x = e.touches[0].clientX - rect.left;
-        handleInput(x > canvas.width / 2); // True if tapped on the right half
+        // Record the starting touch position
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+    });
+
+    canvas.addEventListener('touchend', (e) => {
+        if (gameState !== 'PLAYING' && gameState !== 'BOOSTING') return;
+        e.preventDefault();
+        
+        const touchEndX = e.changedTouches[0].clientX;
+        const touchEndY = e.changedTouches[0].clientY;
+
+        const deltaX = touchEndX - touchStartX;
+        const deltaY = touchEndY - touchStartY;
+        const minSwipeDistance = 30; // Minimum pixels for a swipe
+
+        // Check for a horizontal swipe that is long enough
+        if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > minSwipeDistance) {
+            handleInput(deltaX > 0); // True for right swipe, false for left
+        }
     });
 
     // Start initialization and game loop on load

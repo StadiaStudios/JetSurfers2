@@ -67,10 +67,12 @@
             height: 20px;
             vertical-align: middle; /* Align with the text */
             margin-right: 5px; /* Space between coin and amount */
+            display: inline-block; /* Ensure it aligns properly */
         }
 
         .upgrade-info {
             text-align: left;
+            flex-grow: 1; /* Allow info to take available space */
         }
 
         .upgrade-name {
@@ -103,6 +105,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            min-width: 140px; /* Give buttons a consistent min-width */
         }
 
         .upgrade-action .can-buy {
@@ -137,6 +140,10 @@
             margin-bottom: 20px;
             padding-bottom: 10px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            /* Align coin icon with text */
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .back-button {
@@ -164,14 +171,14 @@
         
         /* New Style for Headstart Buy Button */
         #buyHeadstartButton {
-            background-color: #057401; /* Amber/Orange */
-            box-shadow: 0 3px #753f00;
+            background-color: #057401; /* Green */
+            box-shadow: 0 3px #024b00;
         }
         #buyHeadstartButton:hover {
-            background-color: #eab308;
+            background-color: #045a01;
         }
         #buyHeadstartButton:active {
-            box-shadow: 0 2px #d97706;
+            box-shadow: 0 2px #024b00;
         }
     </style>
 </head>
@@ -181,8 +188,7 @@
     <h1 class="text-3xl font-extrabold mb-4 text-cyan-400">UPGRADES SHOP</h1>
     
     <div class="current-coins">
-        
-        <img src="rec/items/coin.png" alt="Coin" class="coin-image" style="position:absolute; top: 11.6%;5px;"><span id="totalCoinsValue">0</span>
+        <img src="rec/items/coin.png" alt="Coin" class="coin-image"><span id="totalCoinsValue">0</span>
     </div>
 
     <!-- Inventory / Power-Up Section (New) -->
@@ -224,6 +230,21 @@
         </div>
     </div>
     
+    <!-- NEW: Coin Multiplier Upgrade Card -->
+    <div class="upgrade-card">
+        <img src="rec/items/coin.png" alt="Coin" class="upgrade-logo" onerror="this.style.display='none'">
+        <div class="upgrade-info">
+            <div class="upgrade-name">Coin Multiplier</div>
+            <div class="upgrade-level">Level <span id="coinMultiplierLevelValue">0</span> / 5</div>
+            <div class="upgrade-description">Adds +1 coin per pickup for each level.</div>
+        </div>
+        <div class="upgrade-action">
+            <button id="buyCoinMultiplierButton" class="can-buy">
+                <span id="coinMultiplierCostValue">100</span> <img src="rec/items/coin.png" alt="Coin" class="coin-image">
+            </button>
+        </div>
+    </div>
+    
     <a href="index.html" class="back-button">Back to Game</a>
 
 </div>
@@ -232,25 +253,33 @@
     // --- Local Storage Setup (Shared Keys) ---
     const COIN_STORAGE_KEY = 'jetSurferTotalCoins';
     const MAGNET_LEVEL_KEY = 'jetSurferMagnetLevel';
-    const HEADSTART_COUNT_KEY = 'jetSurferHeadstartCount'; // NEW KEY
+    const HEADSTART_COUNT_KEY = 'jetSurferHeadstartCount';
+    const COIN_MULTIPLIER_LEVEL_KEY = 'jetSurferCoinMultiplierLevel'; // NEW KEY
 
     // --- Upgrade Constants ---
     const MAGNET_UPGRADE_COST = 300;
     const MAGNET_MAX_LEVEL = 5;
     const HEADSTART_COST = 100; // Cost for one Headstart
+    const COIN_MULTIPLIER_UPGRADE_COST = 100; // UPDATED
+    const COIN_MULTIPLIER_MAX_LEVEL = 5; // NEW
 
     // --- State Variables ---
     let totalCoins = 0;
     let magnetLevel = 0;
-    let headstartCount = 0; // NEW State variable
+    let headstartCount = 0;
+    let coinMultiplierLevel = 0; // NEW State variable
 
     // --- UI Elements ---
     const totalCoinsValueElement = document.getElementById('totalCoinsValue');
     const magnetLevelValueElement = document.getElementById('magnetLevelValue');
     const buyMagnetDurationButton = document.getElementById('buyMagnetDurationButton');
     const magnetCostValueElement = document.getElementById('magnetCostValue');
-    const headstartCountElement = document.getElementById('headstartCount'); // NEW
-    const buyHeadstartButton = document.getElementById('buyHeadstartButton'); // NEW
+    const headstartCountElement = document.getElementById('headstartCount');
+    const buyHeadstartButton = document.getElementById('buyHeadstartButton');
+    
+    // NEW UI Elements
+    const coinMultiplierLevelValueElement = document.getElementById('coinMultiplierLevelValue');
+    const buyCoinMultiplierButton = document.getElementById('buyCoinMultiplierButton');
 
     // --- Data Management Functions ---
 
@@ -263,6 +292,10 @@
         
         const storedHeadstartCount = localStorage.getItem(HEADSTART_COUNT_KEY);
         headstartCount = storedHeadstartCount ? parseInt(storedHeadstartCount, 10) : 0;
+        
+        // NEW: Load Coin Multiplier Level
+        const storedCoinMultiplierLevel = localStorage.getItem(COIN_MULTIPLIER_LEVEL_KEY);
+        coinMultiplierLevel = storedCoinMultiplierLevel ? parseInt(storedCoinMultiplierLevel, 10) : 0;
     }
 
     function saveCoins() {
@@ -274,10 +307,15 @@
         localStorage.setItem(MAGNET_LEVEL_KEY, newLevel);
     }
     
-    // NEW: Save Headstart Count
     function saveHeadstartCount(newCount) {
         headstartCount = newCount;
         localStorage.setItem(HEADSTART_COUNT_KEY, newCount);
+    }
+
+    // NEW: Save Coin Multiplier Level
+    function saveCoinMultiplierLevel(newLevel) {
+        coinMultiplierLevel = newLevel;
+        localStorage.setItem(COIN_MULTIPLIER_LEVEL_KEY, newLevel);
     }
 
     // --- UI Update Function ---
@@ -286,14 +324,13 @@
         // Update Coin Display
         totalCoinsValueElement.textContent = totalCoins.toLocaleString();
         
-        // Update Headstart Count Display (NEW)
+        // Update Headstart Count Display
         headstartCountElement.textContent = headstartCount.toLocaleString();
 
         // --- Magnet UI ---
         magnetLevelValueElement.textContent = magnetLevel;
-        const cost = MAGNET_UPGRADE_COST; // Cost is flat for this upgrade
+        const cost = MAGNET_UPGRADE_COST;
 
-        // Set button state for Magnet Duration
         buyMagnetDurationButton.classList.remove('can-buy', 'disabled', 'max-level');
         buyMagnetDurationButton.disabled = true;
 
@@ -305,11 +342,11 @@
             buyMagnetDurationButton.classList.add('can-buy');
             buyMagnetDurationButton.disabled = false;
         } else {
-            buyMagnetDurationButton.innerHTML = `${cost.toLocaleString()} <img src="rec/items/coin.png" alt="Coin" class="coin-image"> (Need More)`;
+            buyMagnetDurationButton.innerHTML = `${cost.toLocaleString()} <img src="rec/items/coin.png" alt="Coin" class="coin-image">`;
             buyMagnetDurationButton.classList.add('disabled');
         }
         
-        // --- Headstart UI (NEW) ---
+        // --- Headstart UI ---
         buyHeadstartButton.classList.remove('can-buy', 'disabled');
         buyHeadstartButton.disabled = true;
         
@@ -318,49 +355,71 @@
             buyHeadstartButton.classList.add('can-buy');
             buyHeadstartButton.disabled = false;
         } else {
-            buyHeadstartButton.innerHTML = `${HEADSTART_COST.toLocaleString()} <img src="rec/items/coin.png" alt="Coin" class="coin-image"> (Need More)`;
+            buyHeadstartButton.innerHTML = `${HEADSTART_COST.toLocaleString()} <img src="rec/items/coin.png" alt="Coin" class="coin-image">`;
             buyHeadstartButton.classList.add('disabled');
+        }
+        
+        // --- NEW: Coin Multiplier UI ---
+        coinMultiplierLevelValueElement.textContent = coinMultiplierLevel;
+        const multiplierCost = COIN_MULTIPLIER_UPGRADE_COST; 
+
+        buyCoinMultiplierButton.classList.remove('can-buy', 'disabled', 'max-level');
+        buyCoinMultiplierButton.disabled = true;
+
+        if (coinMultiplierLevel >= COIN_MULTIPLIER_MAX_LEVEL) {
+            buyCoinMultiplierButton.textContent = 'MAX LEVEL';
+            buyCoinMultiplierButton.classList.add('max-level');
+        } else if (totalCoins >= multiplierCost) {
+            buyCoinMultiplierButton.innerHTML = `${multiplierCost.toLocaleString()} <img src="rec/items/coin.png" alt="Coin" class="coin-image">`;
+            buyCoinMultiplierButton.classList.add('can-buy');
+            buyCoinMultiplierButton.disabled = false;
+        } else {
+            buyCoinMultiplierButton.innerHTML = `${multiplierCost.toLocaleString()} <img src="rec/items/coin.png" alt="Coin" class="coin-image">`;
+            buyCoinMultiplierButton.classList.add('disabled');
         }
     }
 
     // --- Purchase Logic Functions ---
     
-    // Logic for purchasing the Magnet Duration upgrade
     function buyMagnetDuration() {
         if (magnetLevel >= MAGNET_MAX_LEVEL) return;
         const cost = MAGNET_UPGRADE_COST;
 
         if (totalCoins >= cost) {
-            // Deduct cost and save
             totalCoins -= cost;
-            saveCoins(); 
-            
-            // Increment and save new level
-            saveMagnetLevel(magnetLevel + 1); 
-            
-            // Refresh the UI
-            updateShopUI(); 
+            saveCoins();
+            saveMagnetLevel(magnetLevel + 1);
+            updateShopUI();
         } else {
             console.error("Not enough coins to purchase!");
         }
     }
     
-    // NEW: Logic for purchasing Headstart
     function buyHeadstart() {
         const cost = HEADSTART_COST;
         
         if (totalCoins >= cost) {
-            // Deduct cost and save
             totalCoins -= cost;
             saveCoins();
-            
-            // Increment and save new count
             saveHeadstartCount(headstartCount + 1);
-            
-            // Refresh the UI
             updateShopUI();
         } else {
             console.error("Not enough coins to purchase Headstart!");
+        }
+    }
+
+    // NEW: Logic for purchasing Coin Multiplier
+    function buyCoinMultiplier() {
+        if (coinMultiplierLevel >= COIN_MULTIPLIER_MAX_LEVEL) return;
+        const cost = COIN_MULTIPLIER_UPGRADE_COST;
+
+        if (totalCoins >= cost) {
+            totalCoins -= cost;
+            saveCoins();
+            saveCoinMultiplierLevel(coinMultiplierLevel + 1);
+            updateShopUI();
+        } else {
+            console.error("Not enough coins to purchase!");
         }
     }
 
@@ -371,9 +430,11 @@
         
         // Add click listeners
         buyMagnetDurationButton.addEventListener('click', buyMagnetDuration);
-        buyHeadstartButton.addEventListener('click', buyHeadstart); // NEW Listener
+        buyHeadstartButton.addEventListener('click', buyHeadstart);
+        buyCoinMultiplierButton.addEventListener('click', buyCoinMultiplier); // NEW Listener
     };
 
 </script>
 </body>
 </html>
+
