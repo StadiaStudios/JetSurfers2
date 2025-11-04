@@ -167,10 +167,12 @@
 
 <script>
     // --- Local Storage Setup (Shared Keys) ---
-    // These MUST match the keys in index.html
+    // These MUST match the keys in index.html and stats.html
     const COIN_STORAGE_KEY = 'jetSurferTotalCoins';
     const JET_OWNED_KEY = 'jetSurferOwnedJets';
     const JET_SELECTED_KEY = 'jetSurferSelectedJet';
+    // --- NEW KEY FOR STATS ---
+    const MONEY_SPENT_KEY = 'jetSurferMoneySpent';
     // NOTE: MAGNET_LEVEL_KEY is not needed on this page
 
     // --- START: Jet Definitions ---
@@ -275,6 +277,14 @@
         if (action === 'buy') {
             if (spendCoins(jet.price)) {
                 // Purchase successful
+
+                // --- NEW: Track money spent ---
+                const storedSpent = localStorage.getItem(MONEY_SPENT_KEY);
+                let moneySpent = storedSpent ? parseInt(storedSpent, 10) : 0;
+                moneySpent += jet.price;
+                localStorage.setItem(MONEY_SPENT_KEY, moneySpent);
+                // --- END: Track money spent ---
+                
                 ownedJets.push(jet.id);
                 saveOwnedJets();
                 

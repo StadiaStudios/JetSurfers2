@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JetSurfers 2 - Daily Quests</title>
+    <link rel="icon" href="rec/xmas-icon.jpg" type="image/png">
+    <link rel="manifest" href="manifest.json">
+    <script src="https://cdn/tailwindcss.com"></script>
+    <style>
+        /* Styles copied from jetshop.html for consistency */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111; /* Dark background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            user-select: none;
+            padding: 20px;
+        }
+
+        .quests-container {
+            background: rgba(17, 24, 39, 0.98);
+            padding: 30px 40px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 0 30px red;
+            border: 2px solid red;
+            pointer-events: auto;
+            max-width: 90%;
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            color: white;
+        }
+        
+        /* Custom Scrollbar */
+        .quests-container::-webkit-scrollbar {
+            width: 12px;
+        }
+        .quests-container::-webkit-scrollbar-track {
+            background: #111827;
+            border-radius: 10px;
+        }
+        .quests-container::-webkit-scrollbar-thumb {
+            background-color: #ef4444;
+            border-radius: 10px;
+            border: 2px solid #111827;
+            box-shadow: 0 0 10px #ef4444;
+        }
+
+        /* Quest item styling */
+        .quest-item {
+            background: #1f2937; /* Darker blue/gray */
+            border: 2px solid #ff8e8e;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: left;
+            margin-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .quest-desc {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #f3f4f6;
+            margin-bottom: 12px;
+        }
+
+        .quest-reward {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #fcd34d; /* Yellow */
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .coin-image {
+            width: 20px;
+            height: 20px;
+            display: inline-block;
+            vertical-align: bottom;
+            margin-right: 5px;
+        }
+
+        /* Progress Bar */
+        .progress-bar-container {
+            width: 100%;
+            background-color: #374151; /* Gray-blue */
+            border-radius: 99px;
+            height: 10px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+        .progress-bar {
+            width: 0%; /* Will be set by JS */
+            height: 100%;
+            background-color: #34d399; /* Green */
+            border-radius: 99px;
+            transition: width 0.3s ease;
+        }
+        .progress-text {
+            font-size: 0.8rem;
+            color: #d1d5db; /* Light gray */
+            text-align: right;
+        }
+
+        /* Claim Button */
+        .quest-button {
+            width: 100%;
+            padding: 10px 0;
+            margin-top: 8px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #f3f4f6;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s, opacity 0.2s;
+        }
+
+        .quest-button-claim {
+            background-color: #10b981; /* Green */
+            box-shadow: 0 4px #059669;
+        }
+        .quest-button-claim:hover {
+            background-color: #059669;
+        }
+
+        .quest-button-disabled {
+            background-color: #4b5563; /* Gray */
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        /* Menu button style for the "Back" link */
+        .menu-button {
+            display: block;
+            width: 100%;
+            padding: 12px 0;
+            margin: 8px 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #f3f4f6;
+            background-color: #1f2937;
+            border: 2px solid #e0e2e6;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
+            box-shadow: 0 4px #111827;
+            text-decoration: none;
+            text-align: center;
+        }
+        .menu-button:hover {
+            background-color: #374151;
+        }
+        .menu-button:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px #111827;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="quests-container">
+        <h2 class="text-3xl font-extrabold mb-4 text-white">DAILY QUESTS</h2>
+        <p class="text-lg mb-2">
+            Total Coins: <span id="totalCoinsValue" class="font-bold text-yellow-400">0</span> <img src="rec/items/coin.png" alt="Coin" class="coin-image" style="width: 20px; height: 20px; margin-left: 5px;">
+        </p>
+        <p id="timerText" class="text-sm text-gray-400 mb-6">New quests in: 00:00:00</p>
+        
+        <!-- Quests List -->
+        <div id="questsList" class="space-y-4">
+            <!-- Quests will be populated by JavaScript -->
+        </div>
+
+        <!-- This is a link back to the game -->
+        <a href="index.html" id="questsBackButton" class="menu-button mt-8">BACK TO GAME</a>
+    </div>
+
+<script>
+    // --- Local Storage Keys (Shared with game files) ---
+    const COIN_STORAGE_KEY = 'jetSurferTotalCoins';
+    const QUEST_STORAGE_KEY = 'jetSurferQuests';
+
+    // --- UI Elements ---
+    const totalCoinsValue = document.getElementById('totalCoinsValue');
+    const questsList = document.getElementById('questsList');
+    const timerText = document.getElementById('timerText');
+
+    // --- Quest Definitions ---
+    // id: Used to track progress from the game
+    // desc: Template for the description
+    // targets: Array of possible target values
+    const QUEST_POOL = [
+        { 
+            id: 'score_run', 
+            desc: (target) => `Score ${target.toLocaleString()}m in one run`,
+            targets: [25000, 50000, 75000, 100000]
+        },
+        { 
+            id: 'coins_run', 
+            desc: (target) => `Collect ${target.toLocaleString()} coins in one run`,
+            targets: [100, 150, 200, 250]
+        },
+        { 
+            id: 'games_played', 
+            desc: (target) => `Play ${target} games`,
+            targets: [2, 3, 5]
+        },
+        { 
+            id: 'total_coins', 
+            desc: (target) => `Collect ${target.toLocaleString()} total coins`,
+            targets: [500, 1000, 2000]
+        },
+        { 
+            id: 'total_meters', 
+            desc: (target) => `Run ${target.toLocaleString()} total meters`,
+            targets: [50000, 100000, 250000]
+        }
+    ];
+
+    let currentQuests = {
+        lastRefreshed: '',
+        quests: []
+    };
+    
+    // --- Utility Functions ---
+
+    function getTodayDateString() {
+        // Use UTC to prevent issues with timezones changing the date
+        const now = new Date();
+        return now.toISOString().split('T')[0]; // YYYY-MM-DD
+    }
+
+    function getRandomInt(min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function updateTimer() {
+        const now = new Date();
+        // Get the next day (UTC)
+        const tomorrow = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1, 0, 0, 0);
+        // Get the current time (UTC)
+        const nowUTC = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds());
+        
+        const diff = tomorrow.getTime() - nowUTC.getTime();
+
+        if (diff <= 0) {
+            timerText.textContent = "Refreshing quests...";
+            checkAndRefreshQuests(); // Time to refresh
+            return;
+        }
+
+        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24).toString().padStart(2, '0');
+        const minutes = Math.floor((diff / 1000 / 60) % 60).toString().padStart(2, '0');
+        const seconds = Math.floor((diff / 1000) % 60).toString().padStart(2, '0');
+
+        timerText.textContent = `New quests in: ${hours}:${minutes}:${seconds}`;
+    }
+
+    // --- Quest Logic ---
+
+    function generateNewQuests() {
+        let newQuests = [];
+        let poolCopy = [...QUEST_POOL]; // Copy pool to avoid duplicates
+        
+        for (let i = 0; i < 3; i++) {
+            if (poolCopy.length === 0) break; // In case pool is smaller than 3
+
+            // Pick a random quest type
+            const questIndex = getRandomInt(0, poolCopy.length - 1);
+            const questType = poolCopy.splice(questIndex, 1)[0]; // Remove from pool
+
+            // Pick a random target from that quest's targets
+            const target = questType.targets[getRandomInt(0, questType.targets.length - 1)];
+            
+            const quest = {
+                id: questType.id,
+                desc: questType.desc(target),
+                target: target,
+                progress: 0,
+                isComplete: false,
+                isClaimed: false,
+                reward: getRandomInt(1000, 1500) // Random reward
+            };
+            newQuests.push(quest);
+        }
+
+        currentQuests = {
+            lastRefreshed: getTodayDateString(),
+            quests: newQuests
+        };
+        
+        localStorage.setItem(QUEST_STORAGE_KEY, JSON.stringify(currentQuests));
+    }
+
+    function checkAndRefreshQuests() {
+        const today = getTodayDateString();
+        const storedQuests = localStorage.getItem(QUEST_STORAGE_KEY);
+        
+        if (!storedQuests) {
+            generateNewQuests();
+        } else {
+            currentQuests = JSON.parse(storedQuests);
+            if (currentQuests.lastRefreshed !== today) {
+                generateNewQuests();
+            }
+        }
+        displayQuests();
+    }
+
+    function displayQuests() {
+        // Load total coins
+        const storedCoins = localStorage.getItem(COIN_STORAGE_KEY);
+        totalCoinsValue.textContent = storedCoins ? parseInt(storedCoins, 10).toLocaleString() : '0';
+        
+        questsList.innerHTML = ''; // Clear old quests
+        
+        if (!currentQuests.quests || currentQuests.quests.length === 0) {
+            questsList.innerHTML = '<p>No quests available. Check back tomorrow!</p>';
+            return;
+        }
+
+        currentQuests.quests.forEach((quest, index) => {
+            const progressPercent = Math.min(100, (quest.progress / quest.target) * 100);
+            
+            let buttonHtml = '';
+            if (quest.isClaimed) {
+                buttonHtml = `<button class="quest-button quest-button-disabled" disabled>Claimed</button>`;
+            } else if (quest.isComplete) {
+                buttonHtml = `<button class="quest-button quest-button-claim" data-index="${index}">Claim Reward</button>`;
+            } else {
+                buttonHtml = `<button class="quest-button quest-button-disabled" disabled>In Progress</button>`;
+            }
+
+            const questElement = document.createElement('div');
+            questElement.className = 'quest-item';
+            questElement.innerHTML = `
+                <div class="quest-desc">${quest.desc}</div>
+                <div class="quest-reward">
+                    <img src="rec/items/coin.png" alt="Coin" class="coin-image" onerror="this.style.display='none'">
+                    ${quest.reward.toLocaleString()}
+                </div>
+                
+                <!-- Progress Bar -->
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: ${progressPercent}%"></div>
+                </div>
+                <div class="progress-text">${quest.progress.toLocaleString()} / ${quest.target.toLocaleString()}</div>
+                
+                <!-- Button -->
+                ${buttonHtml}
+            `;
+            questsList.appendChild(questElement);
+        });
+    }
+
+    function handleQuestClick(e) {
+        const button = e.target.closest('.quest-button-claim');
+        if (!button) return; // Clicked on something else
+
+        const questIndex = parseInt(button.dataset.index, 10);
+        const quest = currentQuests.quests[questIndex];
+
+        if (!quest || quest.isClaimed || !quest.isComplete) {
+            return; // Safety check
+        }
+
+        // 1. Mark as claimed
+        quest.isClaimed = true;
+
+        // 2. Add coins
+        const storedCoins = localStorage.getItem(COIN_STORAGE_KEY);
+        let totalCoins = storedCoins ? parseInt(storedCoins, 10) : 0;
+        totalCoins += quest.reward;
+        
+        // 3. Save data
+        localStorage.setItem(COIN_STORAGE_KEY, totalCoins);
+        localStorage.setItem(QUEST_STORAGE_KEY, JSON.stringify(currentQuests));
+        
+        // 4. Redraw UI
+        displayQuests();
+    }
+
+    // --- Event Listeners & Initialization ---
+
+    questsList.addEventListener('click', handleQuestClick);
+
+    window.onload = function() {
+        checkAndRefreshQuests();
+        setInterval(updateTimer, 1000); // Update timer every second
+        updateTimer(); // Initial call
+    };
+
+</script>
+
+</body>
+</html>

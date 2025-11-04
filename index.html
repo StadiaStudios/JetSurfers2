@@ -247,6 +247,7 @@
             box-shadow: 0 4px #111827;
             text-decoration: none; /* Added for <a> tag */
             text-align: center; /* Added for <a> tag */
+            position: relative; /* NEW: For notification icon */
         }
 
         .menu-button:hover {
@@ -352,10 +353,31 @@
             <button id="shopButton" class="menu-button">UPGRADES SHOP</button>
             <!-- UPDATED: This is now a link to shop.html -->
             <a href="jetshop.html" id="jetShopMenuButton" class="menu-button">JET SHOP</a>
+            <!-- NEW: Link to stats.html -->
+            <a href="stats.html" id="statsMenuButton" class="menu-button">USER STATS</a>
+            <!-- NEW: Link to quests.html -->
+            <a href="quests.html" id="questsMenuButton" class="menu-button">
+                DAILY CHALLENGES
+                <!-- NEW: Quest Notification Icon -->
+                <img src="rec/exclamation.png" id="questNotificationIcon" class="hidden absolute top-0 right-0 w-10 h-10 -mt-2 -mr-2" alt="!" 
+                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZHRoPSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSIjRkRFNCA0NyI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiLz48cGF0aCBmaWxsPSIjMDAwIiBkPSJNMTEgMTVIMTNWMTdIMTF6TTExIDdIMTNWMTNIMTF6Ii8+PC9zdmc+'; this.onerror=null;">
+            </a>
             <button id="settingsButton" class="menu-button">SETTINGS</button>
             <p class="text-xs text-gray-500 mt-6">Game Version: v1.1.1</p>
         </div>
         
+        <!-- NEW: Settings Menu Modal -->
+        <div id="settingsModal" class="modal hidden">
+            <h2 class="text-3xl font-extrabold mb-8 text-white">SETTINGS</h2>
+            <p class="text-sm text-gray-400 mb-6">Backup your game data or restore it from a file.</p>
+            <button id="exportDataButton" class="menu-button">EXPORT DATA</button>
+            <button id="importDataButton" class="menu-button">IMPORT DATA</button>
+            <!-- Hidden file input for the import process -->
+            <input type="file" id="importFileInput" class="hidden" accept=".json">
+            
+            <button id="settingsBackButton" class="menu-button mt-8">BACK</button>
+        </div>
+
         <!-- NEW: Boosting Text Overlay -->
         <div id="boostingText" class="hidden">BOOSTING</div>
 
@@ -364,15 +386,28 @@
 
 <script>
     // --- Local Storage Setup (Shared Keys) ---
-    // These keys are shared with shop.html
+    // These keys are shared with shop.html and stats.html
     const COIN_STORAGE_KEY = 'jetSurferTotalCoins';
     const MAGNET_LEVEL_KEY = 'jetSurferMagnetLevel';
     const JET_OWNED_KEY = 'jetSurferOwnedJets';
     const JET_SELECTED_KEY = 'jetSurferSelectedJet';
-    // NEW KEY for Headstart count
     const HEADSTART_COUNT_KEY = 'jetSurferHeadstartCount';
-    // *** FIX: ADDED COIN MULTIPLIER KEY ***
-    const COIN_MULTIPLIER_LEVEL_KEY = 'jetSurferCoinMultiplierLevel'; 
+    const COIN_MULTIPLIER_LEVEL_KEY = 'jetSurferCoinMultiplierLevel';
+    // --- NEW KEYS FOR STATS & QUESTS ---
+    const HIGH_SCORE_KEY = 'jetSurferHighScore';
+    const MONEY_SPENT_KEY = 'jetSurferMoneySpent';
+    const QUEST_STORAGE_KEY = 'jetSurferQuests';
+
+    // --- NEW: All storage keys for backup/restore ---
+    const ALL_STORAGE_KEYS = [
+        COIN_STORAGE_KEY, MAGNET_LEVEL_KEY, JET_OWNED_KEY, 
+        JET_SELECTED_KEY, HEADSTART_COUNT_KEY, COIN_MULTIPLIER_LEVEL_KEY,
+        HIGH_SCORE_KEY, MONEY_SPENT_KEY, QUEST_STORAGE_KEY
+    ];
+
+
+
+
 
     // --- START: Jet Definitions ---
     // This array MUST match the one in shop.html
@@ -392,7 +427,6 @@
     let totalCoins = 0; // The persistent total
     let magnetLevel = 0; // The persistent magnet level (0 to 5)
     let headstartCount = 0; // The persistent headstart item count
-    // *** FIX: ADDED COIN MULTIPLIER STATE VARIABLE ***
     let coinMultiplierLevel = 0; // The persistent multiplier level
 
     function loadGameData() {
@@ -412,7 +446,6 @@
         const storedHeadstartCount = localStorage.getItem(HEADSTART_COUNT_KEY);
         headstartCount = storedHeadstartCount ? parseInt(storedHeadstartCount, 10) : 0;
         
-        // *** FIX: LOAD COIN MULTIPLIER LEVEL ***
         const storedCoinMultiplierLevel = localStorage.getItem(COIN_MULTIPLIER_LEVEL_KEY);
         coinMultiplierLevel = storedCoinMultiplierLevel ? parseInt(storedCoinMultiplierLevel, 10) : 0;
 
@@ -496,6 +529,99 @@
         updateMagnetDuration(); // Recalculate duration when level changes
     }
 
+    // --- NEW: Quest Notification Check ---
+    function checkQuestCompletion() {
+        const notificationIcon = document.getElementById('questNotificationIcon');
+        if (!notificationIcon) return; // Exit if element not found
+
+        const today = getTodayDateString();
+        const storedQuests = localStorage.getItem(QUEST_STORAGE_KEY);
+        let showNotification = false;
+
+        if (storedQuests) {
+            try {
+                const questData = JSON.parse(storedQuests);
+                // Only check if quests are for today
+                if (questData.lastRefreshed === today) {
+                    // Check if any quest is complete but not claimed
+                    showNotification = questData.quests.some(quest => quest.isComplete && !quest.isClaimed);
+                }
+            } catch (e) {
+                console.error("Failed to check quest completion:", e);
+                showNotification = false;
+            }
+        }
+
+        if (showNotification) {
+            notificationIcon.classList.remove('hidden');
+        } else {
+            notificationIcon.classList.add('hidden');
+        }
+    }
+    // --- End Quest Notification Check ---
+
+    // --- NEW: Quest Progress Logic ---
+    function getTodayDateString() {
+        const now = new Date();
+        return now.toISOString().split('T')[0]; // YYYY-MM-DD
+    }
+
+    function updateQuestProgress(type, amount) {
+        const today = getTodayDateString();
+        const storedQuests = localStorage.getItem(QUEST_STORAGE_KEY);
+        
+        if (!storedQuests) return; // No quests to update
+
+        try {
+            let questData = JSON.parse(storedQuests);
+
+            // If quests are old, don't update progress
+            if (questData.lastRefreshed !== today) {
+                return;
+            }
+
+            let questsUpdated = false;
+            questData.quests.forEach(quest => {
+                if (quest.isClaimed || quest.isComplete) return; // Don't update completed or claimed quests
+
+                let progressMade = false;
+                if (quest.id === 'score_run' && type === 'score_run') {
+                    quest.progress = Math.max(quest.progress, amount);
+                    progressMade = true;
+                } else if (quest.id === 'coins_run' && type === 'coins_run') {
+                    quest.progress = Math.max(quest.progress, amount);
+                    progressMade = true;
+                } else if (quest.id === 'games_played' && type === 'play_game') {
+                    quest.progress += amount;
+                    progressMade = true;
+                } else if (quest.id === 'total_coins' && type === 'total_coins') {
+                    quest.progress += amount;
+                    progressMade = true;
+                } else if (quest.id === 'total_meters' && type === 'total_meters') {
+                    quest.progress += amount;
+                    progressMade = true;
+                }
+
+                if (progressMade) {
+                    // Check for completion
+                    if (quest.progress >= quest.target) {
+                        quest.progress = quest.target; // Cap progress at target
+                        quest.isComplete = true;
+                    }
+                    questsUpdated = true;
+                }
+            });
+
+            if (questsUpdated) {
+                localStorage.setItem(QUEST_STORAGE_KEY, JSON.stringify(questData));
+                checkQuestCompletion(); // NEW: Update notification status
+            }
+        } catch (e) {
+            console.error("Failed to update quest progress:", e);
+        }
+    }
+    // --- End Quest Logic ---
+
 
     // --- Canvas Setup ---
     const canvas = document.getElementById('gameCanvas');
@@ -523,6 +649,8 @@
     const resumeButton = document.getElementById('resumeButton');
     const shopButton = document.getElementById('shopButton');
     const settingsButton = document.getElementById('settingsButton');
+    const settingsModal = document.getElementById('settingsModal'); // NEW
+    const settingsBackButton = document.getElementById('settingsBackButton'); // NEW
     const quitButton = document.getElementById('quitButton');
 
     // NEW UI ELEMENTS for Magnet
@@ -869,7 +997,7 @@
         const obsBounds = obstacle.getBounds(getLaneCenters());
 
         return playerBounds.x < obsBounds.x + obsBounds.width &&
-               playerBounds.x + playerBounds.width > obsBounds.x &&
+               playerBounds.x + obsBounds.width > obsBounds.x &&
                playerBounds.y < obsBounds.y + obsBounds.height &&
                playerBounds.y + obsBounds.height > obsBounds.y;
     }
@@ -1079,6 +1207,8 @@
         // Hide all modals
         gameModal.classList.add('hidden');
         pauseMenuModal.classList.add('hidden');
+        settingsModal.classList.add('hidden'); // NEW: Hide settings modal
+
         
         // Show the requested modal
         modalElement.classList.remove('hidden');
@@ -1094,10 +1224,14 @@
             
             boostingText.classList.add('hidden'); // Hide text
             resumeButton.classList.remove('hidden'); // Show resume button in-game
+            
+            checkQuestCompletion(); // NEW: Check for quest notifications
             showModal(pauseMenuModal);
         } else if (gameState === 'START') {
             // Allow opening pause menu from the main screen
             resumeButton.classList.add('hidden'); // Hide resume button on main menu
+            
+            checkQuestCompletion(); // NEW: Check for quest notifications
             showModal(pauseMenuModal);
         }
     }
@@ -1199,6 +1333,12 @@
         scoreValueElement.textContent = Math.floor(score).toLocaleString(); // Update initial score
         runCoinsValueElement.textContent = '0';
 
+        // --- NEW: Update 'Play Game' Quest ---
+        if (!useHeadstart) { // Don't count headstart use as a "play" until they retry
+            updateQuestProgress('play_game', 1);
+        }
+        // --- End Quest Update ---
+
         requestAnimationFrame(gameLoop);
     }
     
@@ -1220,6 +1360,13 @@
     // NEW: Function to handle reviving the player
     function revivePlayer() {
         if (spendCoins(300)) {
+            // --- NEW: Track money spent ---
+            const storedSpent = localStorage.getItem(MONEY_SPENT_KEY);
+            let moneySpent = storedSpent ? parseInt(storedSpent, 10) : 0;
+            moneySpent += 300;
+            localStorage.setItem(MONEY_SPENT_KEY, moneySpent);
+            // --- END: Track money spent ---
+
             // Clear obstacles near the player to give them a safe start
             const playerY = canvas.height * PLAYER_Y_POS_RATIO;
             obstacles = obstacles.filter(obs => {
@@ -1230,6 +1377,11 @@
 
             // Grant 2 seconds of invincibility
             reviveInvincibilityEndTime = performance.now() + 2000;
+
+            // --- NEW: Update 'Play Game' Quest on Revive ---
+            // A revive counts as continuing the game, but let's count it as a "play"
+            updateQuestProgress('play_game', 1);
+            // --- End Quest Update ---
 
             // Resume the game
             gameState = 'PLAYING';
@@ -1246,6 +1398,23 @@
 
         // Save persistent coins to local storage
         saveCoins(runCoins);
+        
+        // --- NEW: Save High Score ---
+        const storedHighScore = localStorage.getItem(HIGH_SCORE_KEY);
+        const highScore = storedHighScore ? parseInt(storedHighScore, 10) : 0;
+        if (score > highScore) {
+            localStorage.setItem(HIGH_SCORE_KEY, Math.floor(score));
+        }
+        // --- END: Save High Score ---
+
+        // --- NEW: Update Quest Progress on Game Over ---
+        updateQuestProgress('score_run', Math.floor(score));
+        updateQuestProgress('coins_run', runCoins);
+        updateQuestProgress('total_meters', Math.floor(score));
+        if(runCoins > 0) {
+            updateQuestProgress('total_coins', runCoins);
+        }
+        // --- End Quest Update ---
         
         // Stop all sounds/effects
         deactivateMagnet();
@@ -1518,23 +1687,68 @@
         window.location.href = 'shop.html';
     }); 
     
+    // --- NEW: Settings Menu Logic ---
     settingsButton.addEventListener('click', () => {
-        // Temporarily use the main game modal to display a message, then unpause
-        gameModal.classList.remove('hidden');
-        pauseMenuModal.classList.add('hidden');
-        modalTitle.textContent = "SETTINGS";
-        modalMessage.textContent = "Version: v1.1.1. More Coming soon in Beta Development Stages.";
-        startButton.textContent = "CONTINUE";
+        showModal(settingsModal); // Show the new settings modal
+    });
 
-        const tempStartHandler = () => {
-            gameModal.classList.add('hidden');
-            unpauseGame(); 
-            startButton.removeEventListener('click', tempStartHandler);
-            startButton.addEventListener('click', startGame); 
+    settingsBackButton.addEventListener('click', () => {
+        showModal(pauseMenuModal); // Go back to the pause menu
+    });
+
+    // --- NEW: Data Export/Import Logic ---
+    const exportDataButton = document.getElementById('exportDataButton');
+    const importDataButton = document.getElementById('importDataButton');
+    const importFileInput = document.getElementById('importFileInput');
+
+    exportDataButton.addEventListener('click', () => {
+        const backupData = {};
+        ALL_STORAGE_KEYS.forEach(key => {
+            const value = localStorage.getItem(key);
+            if (value !== null) {
+                backupData[key] = value;
+            }
+        });
+
+        const jsonString = JSON.stringify(backupData, null, 2);
+        const blob = new Blob([jsonString], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `jetsurfers-backup-${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        alert("Backup file has been downloaded!");
+    });
+
+    importDataButton.addEventListener('click', () => {
+        importFileInput.click(); // Trigger the hidden file input
+    });
+
+    importFileInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const importedData = JSON.parse(e.target.result);
+                ALL_STORAGE_KEYS.forEach(key => {
+                    if (importedData[key] !== undefined) {
+                        localStorage.setItem(key, importedData[key]);
+                    }
+                });
+                alert("Data imported successfully! The game will now reload to apply changes.");
+                window.location.reload();
+            } catch (error) {
+                alert("Import failed: The selected file is not a valid backup file.");
+            }
         };
-        
-        startButton.removeEventListener('click', startGame);
-        startButton.addEventListener('click', tempStartHandler);
+        reader.readAsText(file);
     });
 
     // 4. Input Handling
@@ -1625,6 +1839,8 @@
         // Initialize background to default state on load
         document.body.style.background = DEFAULT_BACKGROUND; 
         canvas.style.background = SNOW_CANVAS_BACKGROUND;
+        
+        checkQuestCompletion(); // NEW: Check for quest notifications
         
         requestAnimationFrame(gameLoop);
     }

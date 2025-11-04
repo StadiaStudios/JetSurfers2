@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JetSurfers 2 - Stats</title>
+    <link rel="icon" href="rec/xmas-icon.jpg" type="image/png">
+    <link rel="manifest" href="manifest.json">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Styles copied from jetshop.html for consistency */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111; /* Dark background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            user-select: none;
+            padding: 20px;
+        }
+
+        /* Use modal style as the main container for the stats */
+        .stats-container {
+            background: rgba(17, 24, 39, 0.98);
+            padding: 30px 40px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 0 30px red;
+            border: 2px solid red;
+            pointer-events: auto;
+            max-width: 90%;
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            color: white;
+        }
+        
+        /* Stat item styling */
+        .stat-item {
+            background: #1f2937; /* Darker blue/gray */
+            border: 2px solid #ff8e8e;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: left;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-label {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #f3f4f6;
+        }
+
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #fcd34d; /* Yellow for values */
+        }
+        
+        .coin-image {
+            width: 20px;
+            height: 20px;
+            display: inline-block;
+            vertical-align: bottom;
+            margin-right: 5px;
+        }
+
+        /* Menu button style for the "Back" link */
+        .menu-button {
+            display: block;
+            width: 100%;
+            padding: 12px 0;
+            margin: 8px 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #f3f4f6;
+            background-color: #1f2937;
+            border: 2px solid #e0e2e6;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
+            box-shadow: 0 4px #111827;
+            text-decoration: none;
+            text-align: center;
+        }
+        .menu-button:hover {
+            background-color: #374151;
+        }
+        .menu-button:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px #111827;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="stats-container">
+        <h2 class="text-3xl font-extrabold mb-8 text-white">USER STATS</h2>
+        
+        <!-- Stats List -->
+        <div class="space-y-4">
+            <!-- Jets Owned -->
+            <div class="stat-item">
+                <span class="stat-label">Jets Owned</span>
+                <span id="jetsOwnedValue" class="stat-value">0/5</span>
+            </div>
+            
+            <!-- High Score -->
+            <div class="stat-item">
+                <span class="stat-label">High Score</span>
+                <span id="highScoreValue" class="stat-value">0 m</span>
+            </div>
+
+            <!-- Total Coins (Income) -->
+            <div class="stat-item">
+                <span class="stat-label">Total Coins</span>
+                <span id="totalCoinsValue" class="stat-value">
+                    <img src="rec/items/coin.png" alt="Coin" class="coin-image" onerror="this.style.display='none'">
+                    0
+                </span>
+            </div>
+            
+            <!-- Money Ever Spent -->
+            <div class="stat-item">
+                <span class="stat-label">Money Spent on Jets</span>
+                <span id="totalSpentValue" class="stat-value">
+                    <img src="rec/items/coin.png" alt="Coin" class="coin-image" onerror="this.style.display='none'">
+                    0
+                </span>
+            </div>
+        </div>
+
+        <!-- This is a link back to the game -->
+        <a href="index.html" id="statsBackButton" class="menu-button mt-8">BACK TO GAME</a>
+    </div>
+
+<script>
+    // --- Local Storage Keys (Shared with game files) ---
+    const COIN_STORAGE_KEY = 'jetSurferTotalCoins';
+    const JET_OWNED_KEY = 'jetSurferOwnedJets';
+    const HIGH_SCORE_KEY = 'jetSurferHighScore';
+    const MONEY_SPENT_KEY = 'jetSurferMoneySpent';
+
+    // --- JETS (Copied from jetshop.html to get total count) ---
+    const JETS = [
+        { id: 'default', name: 'PILOT-XMAS 25', price: 0, img: 'rec/motor/default.png', logo: 'rec/logos/default_logo.png' },
+        { id: 'blue_streak', name: 'Blue Streak', price: 500, img: 'rec/motor/jet_blue.png', logo: 'rec/logos/blue_streak_logo.png' },
+        { id: 'red_comet', name: 'Nightwing', price: 1000, img: 'rec/motor/nightwing.png', logo: 'rec/logos/nightwing_logo.png' },
+        { id: 'gold_wing', name: 'Premium Jet', price: 5000, img: 'rec/motor/premium-jet.png', logo: 'rec/logos/premium_logo.png' },
+        { id: 'Punkin', name: 'Punkin', price: 10000, img: 'rec/motor/punkin.png', logo: 'rec/logos/punkin.png' }
+    ];
+    const DEFAULT_JET_ID = 'default';
+
+    // --- UI Elements ---
+    const jetsOwnedValue = document.getElementById('jetsOwnedValue');
+    const highScoreValue = document.getElementById('highScoreValue');
+    const totalCoinsValue = document.getElementById('totalCoinsValue');
+    const totalSpentValue = document.getElementById('totalSpentValue');
+
+    // --- Load Data on Page Load ---
+    window.onload = function() {
+        // Load Jets Owned
+        const storedOwnedJets = localStorage.getItem(JET_OWNED_KEY);
+        const ownedJets = storedOwnedJets ? JSON.parse(storedOwnedJets) : [DEFAULT_JET_ID];
+        jetsOwnedValue.textContent = `${ownedJets.length}/${JETS.length}`;
+
+        // Load High Score
+        const storedHighScore = localStorage.getItem(HIGH_SCORE_KEY);
+        const highScore = storedHighScore ? parseInt(storedHighScore, 10) : 0;
+        highScoreValue.textContent = `${highScore.toLocaleString()} m`;
+
+        // Load Total Coins (Income)
+        const storedCoins = localStorage.getItem(COIN_STORAGE_KEY);
+        const totalCoins = storedCoins ? parseInt(storedCoins, 10) : 0;
+        totalCoinsValue.innerHTML = `<img src="rec/items/coin.png" alt="Coin" class="coin-image" onerror="this.style.display='none'"> ${totalCoins.toLocaleString()}`;
+
+        // Load Total Spent
+        const storedSpent = localStorage.getItem(MONEY_SPENT_KEY);
+        const totalSpent = storedSpent ? parseInt(storedSpent, 10) : 0;
+        totalSpentValue.innerHTML = `<img src="rec/items/coin.png" alt="Coin" class="coin-image" onerror="this.style.display='none'"> ${totalSpent.toLocaleString()}`;
+    };
+
+</script>
+
+</body>
+</html>
