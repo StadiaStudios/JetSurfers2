@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JetSurfers 2 - Jet Shop</title>
     <link rel="icon" href="rec/xmas-icon.jpg" type="image/png">
+    <script src="weather/snowfall_effect.js"></script>
     <link rel="manifest" href="manifest.json">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="jets-data.js"></script>
     <style>
         /* Styles copied from index.html for consistency */
         body {
@@ -126,18 +128,18 @@
             margin-top: 8px;
             font-size: 1rem;
             font-weight: 600;
-            color: #f3f4f6;
-            background-color: #ff4848; /* Blue */
+            color: white;
+            background-color: hsl(239, 100%, 64%); /* Blue */
             border: none;
             border-radius: 6px;
             cursor: pointer;
             transition: background-color 0.2s;
         }
         .jet-buy-button:hover:not(:disabled) {
-            background-color: #ac2f2f;
+            background-color: hsl(240, 7%, 27%);
         }
         .jet-buy-button.selected {
-            background-color: #ff4848; /* Green */
+            background-color: #4b5563; /* Green */
             cursor: not-allowed;
         }
         .jet-buy-button.disabled {
@@ -166,25 +168,7 @@
     </div>
 
 <script>
-    // --- Local Storage Setup (Shared Keys) ---
-    // These MUST match the keys in index.html and stats.html
-    const COIN_STORAGE_KEY = 'jetSurferTotalCoins';
-    const JET_OWNED_KEY = 'jetSurferOwnedJets';
-    const JET_SELECTED_KEY = 'jetSurferSelectedJet';
-    // --- NEW KEY FOR STATS ---
-    const MONEY_SPENT_KEY = 'jetSurferMoneySpent';
-    // NOTE: MAGNET_LEVEL_KEY is not needed on this page
-
-    // --- START: Jet Definitions ---
-    // This array MUST match the one in index.html
-    const JETS = [
-        { id: 'default', name: 'PILOT-XMAS 25', price: 0, img: 'rec/motor/default.png', logo: 'rec/logos/default_logo.png' },
-        { id: 'blue_streak', name: 'Blue Streak', price: 500, img: 'rec/motor/jet_blue.png', logo: 'rec/logos/blue_streak_logo.png' },
-        { id: 'red_comet', name: 'Nightwing', price: 1000, img: 'rec/motor/nightwing.png', logo: 'rec/logos/nightwing_logo.png' },
-        { id: 'gold_wing', name: 'Premium Jet', price: 5000, img: 'rec/motor/premium-jet.png', logo: 'rec/logos/premium_logo.png' },
-        { id: 'Punkin', name: 'Punkin', price: 10000, img: 'rec/motor/punkin.png', logo: 'rec/logos/punkin.png' } // NEW JET
-    ];
-    const DEFAULT_JET_ID = 'default';
+    // === Jets data and storage keys are now loaded from jets-data.js ===
     
     let totalCoins = 0;
     let ownedJets = [DEFAULT_JET_ID];
@@ -231,37 +215,44 @@
 
     // --- Jet Shop Logic (Copied from index.html) ---
     function populateJetShop() {
-        jetShopGrid.innerHTML = ''; // Clear existing items
-        jetShopCoinsValue.textContent = totalCoins.toLocaleString(); // Ensure coins are up-to-date
+    jetShopGrid.innerHTML = ''; 
+    jetShopCoinsValue.textContent = totalCoins.toLocaleString();
 
-        JETS.forEach(jet => {
-            const isOwned = ownedJets.includes(jet.id);
-            const isSelected = (jet.id === selectedJetId);
+    // Show jets that are available, OR limited jets that the player already owns.
+    JETS.filter(jet => {
+        const isOwned = ownedJets.includes(jet.id);
+        return jet.available || (jet.limited && isOwned);
+    }).forEach(jet => {
+        const isOwned = ownedJets.includes(jet.id);
+        const isSelected = (jet.id === selectedJetId);
 
-            const item = document.createElement('div');
-            item.className = 'jet-item relative'; // Added relative for logo positioning
-            
-            let buttonHtml = '';
-            if (isSelected) {
-                buttonHtml = `<button class="jet-buy-button selected" disabled>Selected</button>`;
-            } else if (isOwned) {
-                buttonHtml = `<button class="jet-buy-button" data-jet-id="${jet.id}" data-action="select">Select</button>`;
-            } else {
-                const canAfford = totalCoins >= jet.price;
-                buttonHtml = `<button class="jet-buy-button ${!canAfford ? 'disabled' : ''}" data-jet-id="${jet.id}" data-action="buy" ${!canAfford ? 'disabled' : ''}>
-                                Buy (<span class="text-yellow-300">${jet.price.toLocaleString()}</span><img src="rec/items/coin.png" alt="Coin" class="coin-image">)
-                              </button>`;
-            }
+        const item = document.createElement('div');
+        item.className = 'jet-item relative';
+        
+        let buttonHtml = '';
+        if (isSelected) {
+            buttonHtml = `<button class="jet-buy-button selected" disabled>Selected</button>`;
+        } else if (isOwned) {
+            buttonHtml = `<button class="jet-buy-button" data-jet-id="${jet.id}" data-action="select">Select</button>`;
+        } else {
+            const canAfford = totalCoins >= jet.price;
+            buttonHtml = `<button class="jet-buy-button ${!canAfford ? 'disabled' : ''}" data-jet-id="${jet.id}" data-action="buy" ${!canAfford ? 'disabled' : ''}>
+                            Buy (<span class="text-yellow-300">${jet.price.toLocaleString()}</span><img src="rec/items/coin.png" alt="Coin" class="coin-image">)
+                          </button>`;
+        }
 
-            item.innerHTML = `
-                <img src="${jet.logo}" alt="${jet.name} Logo" class="jet-logo" onerror="this.style.display='none'">
-                <img src="${jet.img}" alt="${jet.name}" class="jet-image" onerror="this.src='rec/motor/default.png'">
-                <p class="font-bold text-white">${jet.name}</p>
-                ${buttonHtml}
-            `;
-            jetShopGrid.appendChild(item);
-        });
-    }
+        // 🧊 Add limited label if needed
+        item.innerHTML = `
+            <img src="${jet.logo}" alt="${jet.name} Logo" class="jet-logo" onerror="this.style.display='none'">
+            <img src="${jet.img}" alt="${jet.name}" class="jet-image" onerror="this.src='rec/motor/default.png'">
+            <p class="font-bold text-white">
+                ${jet.name} ${jet.limited ? '<span class="text-green-400 text-sm">(LIMITED OFFER)</span>' : ''}
+            </p>
+            ${buttonHtml}
+        `;
+        jetShopGrid.appendChild(item);
+    });
+}
 
     // Event handler for clicks inside the jet shop grid
     function handleJetShopClick(e) {

@@ -9,6 +9,7 @@
     <link rel="icon" href="rec/xmas-icon.jpg" type="image/png">
     <link rel="manifest" href="manifest.json">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="jets-data.js"></script>
     
     <style>
         /* Custom Styles for Game Canvas and UI */
@@ -385,18 +386,7 @@
 </div>
 
 <script>
-    // --- Local Storage Setup (Shared Keys) ---
-    // These keys are shared with shop.html and stats.html
-    const COIN_STORAGE_KEY = 'jetSurferTotalCoins';
-    const MAGNET_LEVEL_KEY = 'jetSurferMagnetLevel';
-    const JET_OWNED_KEY = 'jetSurferOwnedJets';
-    const JET_SELECTED_KEY = 'jetSurferSelectedJet';
-    const HEADSTART_COUNT_KEY = 'jetSurferHeadstartCount';
-    const COIN_MULTIPLIER_LEVEL_KEY = 'jetSurferCoinMultiplierLevel';
-    // --- NEW KEYS FOR STATS & QUESTS ---
-    const HIGH_SCORE_KEY = 'jetSurferHighScore';
-    const MONEY_SPENT_KEY = 'jetSurferMoneySpent';
-    const QUEST_STORAGE_KEY = 'jetSurferQuests';
+    // === Jets data and storage keys are now loaded from jets-data.js ===
 
     // --- NEW: All storage keys for backup/restore ---
     const ALL_STORAGE_KEYS = [
@@ -405,21 +395,6 @@
         HIGH_SCORE_KEY, MONEY_SPENT_KEY, QUEST_STORAGE_KEY
     ];
 
-
-
-
-
-    // --- START: Jet Definitions ---
-    // This array MUST match the one in shop.html
-    const JETS = [
-        { id: 'default', name: 'Standard Issue', price: 0, img: 'rec/motor/default.png' },
-        { id: 'blue_streak', name: 'Blue Streak', price: 500, img: 'rec/motor/jet_blue.png' }, // Placeholder
-        { id: 'red_comet', name: 'Nightwing', price: 1000, img: 'rec/motor/nightwing.png' }, // Placeholder
-        { id: 'gold_wing', name: 'Premium Jet', price: 5000, img: 'rec/motor/premium-jet.png' }, // Placeholder
-        { id: 'Punkin', name: 'Punkin', price: 10000, img: 'rec/motor/punkin.png' } // NEW JET
-    ];
-    const DEFAULT_JET_ID = 'default';
-    
     let ownedJets = [DEFAULT_JET_ID];
     let selectedJetId = DEFAULT_JET_ID;
     // --- END: Jet Definitions ---

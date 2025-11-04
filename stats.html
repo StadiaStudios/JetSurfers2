@@ -7,6 +7,7 @@
     <link rel="icon" href="rec/xmas-icon.jpg" type="image/png">
     <link rel="manifest" href="manifest.json">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="jets-data.js"></script>
     <style>
         /* Styles copied from jetshop.html for consistency */
         body {
@@ -141,21 +142,7 @@
     </div>
 
 <script>
-    // --- Local Storage Keys (Shared with game files) ---
-    const COIN_STORAGE_KEY = 'jetSurferTotalCoins';
-    const JET_OWNED_KEY = 'jetSurferOwnedJets';
-    const HIGH_SCORE_KEY = 'jetSurferHighScore';
-    const MONEY_SPENT_KEY = 'jetSurferMoneySpent';
-
-    // --- JETS (Copied from jetshop.html to get total count) ---
-    const JETS = [
-        { id: 'default', name: 'PILOT-XMAS 25', price: 0, img: 'rec/motor/default.png', logo: 'rec/logos/default_logo.png' },
-        { id: 'blue_streak', name: 'Blue Streak', price: 500, img: 'rec/motor/jet_blue.png', logo: 'rec/logos/blue_streak_logo.png' },
-        { id: 'red_comet', name: 'Nightwing', price: 1000, img: 'rec/motor/nightwing.png', logo: 'rec/logos/nightwing_logo.png' },
-        { id: 'gold_wing', name: 'Premium Jet', price: 5000, img: 'rec/motor/premium-jet.png', logo: 'rec/logos/premium_logo.png' },
-        { id: 'Punkin', name: 'Punkin', price: 10000, img: 'rec/motor/punkin.png', logo: 'rec/logos/punkin.png' }
-    ];
-    const DEFAULT_JET_ID = 'default';
+    // === Jets data and storage keys are now loaded from jets-data.js ===
 
     // --- UI Elements ---
     const jetsOwnedValue = document.getElementById('jetsOwnedValue');
