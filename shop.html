@@ -8,6 +8,7 @@
     <script src="weather/snowfall_effect.js"></script>
     <link rel="icon" href="rec/xmas-icon.jpg" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Removed: Tone.js library -->
     <style>
         /* Custom Styles for Shop Page */
         body {
@@ -273,6 +274,60 @@
 </div>
 
 <script>
+    // --- Audio Setup (Using HTML5 Audio for MP3 files) ---
+    // IMPORTANT: You MUST replace these placeholder paths with the actual paths to your MP3 files.
+    const SHOP_CHIME_URL = 'sfx/shop_load_chime.mp3';
+    const PURCHASE_SOUND_URL = 'sfx/purchase.mp3';
+    const BGM_URL = 'sfx/shop.mp3'; // Placeholder for Background Music
+
+    // Create Audio objects
+    const chimeAudio = new Audio(SHOP_CHIME_URL);
+    const purchaseAudio = new Audio(PURCHASE_SOUND_URL);
+    const backgroundMusic = new Audio(BGM_URL);
+    backgroundMusic.loop = true;
+    backgroundMusic.volume = 0.4; // Set background music volume lower
+
+    let audioEnabled = false; // Flag to track if the initial user interaction has occurred
+
+    /**
+     * Attempts to enable and start all audio (chime and BGM).
+     * This function is attached to the first user interaction event (e.g., a click)
+     * to bypass browser autoplay restrictions.
+     */
+    function enableAudio() {
+        if (audioEnabled) {
+            // Already enabled, remove the listener just in case
+            document.removeEventListener('click', enableAudio);
+            return;
+        }
+
+        // 1. Play the initial chime sound
+        chimeAudio.play().catch(e => {
+             console.warn("Chime sound play failed on first click:", e);
+        });
+
+        // 2. Start the background music loop
+        backgroundMusic.play().then(() => {
+            console.log("Audio successfully enabled and BGM started.");
+            audioEnabled = true;
+            // Remove the listener once audio is successfully enabled
+            document.removeEventListener('click', enableAudio);
+        }).catch(e => {
+            console.warn("BGM play failed, keeping listener active for next interaction:", e);
+        });
+    }
+
+    /**
+     * Plays the purchase sound effect.
+     */
+    function playPurchaseSound() {
+        if (!audioEnabled) return; // Only play SFX after the initial interaction
+        // Reset and play to allow rapid, overlapping clicks
+        purchaseAudio.currentTime = 0;
+        purchaseAudio.play().catch(e => console.error("Purchase audio play failed:", e));
+    }
+
+
     // --- Local Storage Setup (Shared Keys) ---
     const COIN_STORAGE_KEY = 'jetSurferTotalCoins';
     const MAGNET_LEVEL_KEY = 'jetSurferMagnetLevel';
@@ -321,6 +376,13 @@
         coinMultiplierLevel = storedCoinMultiplierLevel ? parseInt(storedCoinMultiplierLevel, 10) : 0;
     }
 
+    function saveGameData() { // Consolidated save function
+        localStorage.setItem(COIN_STORAGE_KEY, totalCoins);
+        localStorage.setItem(MAGNET_LEVEL_KEY, magnetLevel);
+        localStorage.setItem(HEADSTART_COUNT_KEY, headstartCount);
+        localStorage.setItem(COIN_MULTIPLIER_LEVEL_KEY, coinMultiplierLevel);
+    }
+    
     function saveCoins() {
         localStorage.setItem(COIN_STORAGE_KEY, totalCoins);
     }
@@ -413,6 +475,7 @@
             saveCoins();
             saveMagnetLevel(magnetLevel + 1);
             updateShopUI();
+            playPurchaseSound(); // Play sound on success
         } else {
             console.error("Not enough coins to purchase!");
         }
@@ -426,6 +489,7 @@
             saveCoins();
             saveHeadstartCount(headstartCount + 1);
             updateShopUI();
+            playPurchaseSound(); // Play sound on success
         } else {
             console.error("Not enough coins to purchase Headstart!");
         }
@@ -441,6 +505,7 @@
             saveCoins();
             saveCoinMultiplierLevel(coinMultiplierLevel + 1);
             updateShopUI();
+            playPurchaseSound(); // Play sound on success
         } else {
             console.error("Not enough coins to purchase!");
         }
@@ -451,6 +516,9 @@
         loadGameData(); 
         updateShopUI(); 
         
+        // Attach the audio enablement function to the first click event on the document
+        document.addEventListener('click', enableAudio);
+
         // Add click listeners
         buyMagnetDurationButton.addEventListener('click', buyMagnetDuration);
         buyHeadstartButton.addEventListener('click', buyHeadstart);
