@@ -414,11 +414,6 @@
                     <img src="rec/items/coin.png" alt="Coin" class="coin-icon" onerror="this.src='https://placehold.co/18x18/facc15/000000?text=$'"> 
                     <span id="runCoinsValue">0</span>
                 </div>
-                <!-- Total Persistent Coins -->
-                <div class="score-box">
-                    <img src="rec/items/coin.png" alt="Coin" class="coin-icon" onerror="this.src='https://placehold.co/18x18/facc15/000000?text=$'">
-                    <span id="totalCoinsValue">0</span>
-                </div>
             </div>
         </div>
 
@@ -481,6 +476,12 @@
             <div class="stat-item">
                 <span class="stat-label">High Score</span>
                 <span id="settingsHighScoreValue" class="stat-value">0 m</span>
+            </div>
+
+            <!-- NEW: Jets Owned Display -->
+            <div class="stat-item">
+                <span class="stat-label">Jets Owned</span>
+                <span id="settingsJetsOwnedValue" class="stat-value">0/0</span>
             </div>
 
             <!-- NEW: Export/Import Buttons -->
@@ -583,7 +584,6 @@
             }
 
             // Update UI
-            document.getElementById('totalCoinsValue').textContent = totalCoins.toLocaleString();
             document.getElementById('headstartCount').textContent = headstartCount.toLocaleString();
             document.getElementById('repairKitCount').textContent = repairKitCount.toLocaleString(); // NEW
             
@@ -606,7 +606,6 @@
                 totalCoins += coinsEarned;
             }
             localStorage.setItem(COIN_STORAGE_KEY, totalCoins);
-            document.getElementById('totalCoinsValue').textContent = totalCoins.toLocaleString();
         }
         
         // --- Headstart Inventory Management ---
@@ -643,7 +642,6 @@
             if (totalCoins >= amount) {
                 totalCoins -= amount;
                 localStorage.setItem(COIN_STORAGE_KEY, totalCoins);
-                document.getElementById('totalCoinsValue').textContent = totalCoins.toLocaleString();
                 return true; // Purchase successful
             }
             return false; // Not enough coins
@@ -772,7 +770,6 @@
         // UI Elements
         const scoreValueElement = document.getElementById('scoreValue');
         const runCoinsValueElement = document.getElementById('runCoinsValue');
-        const totalCoinsValueElement = document.getElementById('totalCoinsValue');
         const gameModal = document.getElementById('gameModal');
         const modalTitle = document.getElementById('modalTitle');
         const modalMessage = document.getElementById('modalMessage');
@@ -2092,6 +2089,11 @@
             const storedHighScore = localStorage.getItem(HIGH_SCORE_KEY);
             const highScore = storedHighScore ? parseInt(storedHighScore, 10) : 0;
             settingsHighScoreValue.textContent = `${highScore.toLocaleString()} m`;
+
+            // NEW: Load and display jets owned count
+            const jetsOwnedCount = ownedJets.length;
+            const totalJetsCount = JETS.length;
+            document.getElementById('settingsJetsOwnedValue').textContent = `${jetsOwnedCount}/${totalJetsCount}`;
 
             showModal(settingsModal); // Show the new settings modal
         });
