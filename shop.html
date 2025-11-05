@@ -303,6 +303,30 @@
 </div>
 
 <script>
+    // --- Double-Tap Zoom Fix for Mobile Browsers (iOS/Safari) ---
+    /**
+     * Prevents the browser's default double-tap behavior (zooming) on elements
+     * that are designed to handle rapid single taps.
+     * @param {Event} e The touch event.
+     */
+    function suppressDoubleTapZoom(e) {
+        // Only run for touch events
+        if (e.type === 'touchstart') {
+            const now = new Date().getTime();
+            const lastTouch = e.currentTarget.lastTouch || 0;
+            const delta = now - lastTouch;
+
+            // Define a reasonable time limit for a 'double tap' (e.g., 500ms)
+            if (delta < 500 && delta > 0) {
+                // It's a double tap, prevent the default zoom behavior
+                e.preventDefault();
+            }
+            // Update the last touch time for the next check
+            e.currentTarget.lastTouch = now;
+        }
+    }
+
+
     // --- Audio Setup (Using HTML5 Audio for MP3 files) ---
     // IMPORTANT: You MUST replace these placeholder paths with the actual paths to your MP3 files.
     const SHOP_CHIME_URL = 'sfx/shop_load_chime.mp3';
@@ -595,6 +619,12 @@
         // Attach the audio enablement function to the first click event on the document
         document.addEventListener('click', enableAudio);
 
+        // Add the double-tap zoom suppression listener to all relevant buttons
+        buyMagnetDurationButton.addEventListener('touchstart', suppressDoubleTapZoom);
+        buyHeadstartButton.addEventListener('touchstart', suppressDoubleTapZoom);
+        buyRepairKitButton.addEventListener('touchstart', suppressDoubleTapZoom);
+        buyCoinMultiplierButton.addEventListener('touchstart', suppressDoubleTapZoom);
+        
         // Add click listeners
         buyMagnetDurationButton.addEventListener('click', buyMagnetDuration);
         buyHeadstartButton.addEventListener('click', buyHeadstart);
