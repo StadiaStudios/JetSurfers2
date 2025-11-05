@@ -62,7 +62,7 @@ const JETS = [
         price: 10000, 
         img: 'rec/motor/punkin.png', 
         logo: 'rec/motor/punkin.png',
-        available: true,
+        available: false,
         limited: true
     },
     { 
@@ -80,7 +80,7 @@ const JETS = [
         price: 0, 
         img: 'rec/motor/plank-jet.png', 
         logo: 'rec/motor/plank-jet.png',
-        available: true,   // Set to false when the event ends
+        available: false,   // Set to false when the event ends
         limited: true      // Marks it as a limited jet
     },
     { 
@@ -125,7 +125,43 @@ const JETS = [
         price: 2000, 
         img: 'rec/motor/ghost-leaf.png', 
         logo: 'rec/motor/ghost-leaf.png',
+        available: false,   // Set to false when the event ends
+        limited: true      // Marks it as a limited jet
+    },
+    { 
+        id: 'sego', 
+        name: 'SEGO', 
+        price: 15000, 
+        img: 'rec/motor/sego.png', 
+        logo: 'rec/motor/sego.png',
         available: true,   // Set to false when the event ends
+        limited: false      // Marks it as a limited jet
+    },
+    { 
+        id: 'birthday-clowns', 
+        name: 'Birthday Clowns', 
+        price: 13000, 
+        img: 'rec/motor/cicero.png', 
+        logo: 'rec/motor/cicero.png',
+        available: true,   // Set to false when the event ends
+        limited: false      // Marks it as a limited jet
+    },
+    { 
+        id: 'sharkabish', 
+        name: 'Sharkabish', 
+        price: 25000, 
+        img: 'rec/motor/sharkabish.png', 
+        logo: 'rec/motor/sharkabish.png',
+        available: true,   // Set to false when the event ends
+        limited: true      // Marks it as a limited jet
+    },
+    { 
+        id: 'sort', 
+        name: 'Space-Or-Treat', 
+        price: 30000, 
+        img: 'rec/motor/sort.png', 
+        logo: 'rec/motor/sort.png',
+        available: false,   // Set to false when the event ends
         limited: true      // Marks it as a limited jet
     }
 ];

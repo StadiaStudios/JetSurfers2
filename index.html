@@ -918,13 +918,13 @@
             }
         }
         // Default background (Red)
-        const DEFAULT_BACKGROUND = 'linear-gradient(16deg,rgba(187, 194, 196, 1) 0%, rgba(186, 186, 186, 1) 50%, rgba(237, 236, 232, 1) 100%)'; 
+        const DEFAULT_BACKGROUND = 'linear-gradient(315deg, #1b2845 0%, #000f89 98%)'; 
         // Darker, stormy, spaceous red gradient
-        const RAIN_BACKGROUND = 'linear-gradient(0deg,rgba(48, 48, 48, 1) 0%, rgba(77, 77, 77, 1) 50%, rgba(230, 230, 230, 1) 100%)'; 
+        const RAIN_BACKGROUND = 'linear-gradient(315deg, #003366 0%, #242124 74%)'; 
 
         // --- Canvas Background Styles (NEW) ---
-        const SNOW_CANVAS_BACKGROUND = 'linear-gradient(16deg,rgba(187, 194, 196, 1) 0%, rgba(186, 186, 186, 1) 50%, rgba(237, 236, 232, 1) 100%)'; /* Light Blue Sky Gradient */
-        const DARK_CANVAS_BACKGROUND = 'linear-gradient(0deg,rgba(48, 48, 48, 1) 0%, rgba(77, 77, 77, 1) 50%, rgba(230, 230, 230, 1) 100%)'; 
+        const SNOW_CANVAS_BACKGROUND = 'linear-gradient(315deg, #1b2845 0%, #000f89 74%)'; /* Light Blue Sky Gradient */
+        const DARK_CANVAS_BACKGROUND = 'linear-gradient(315deg, #003366 0%, #242124 74%)'; 
         
         // --- Rain State Variables ---
         let rainTimer = 0;
@@ -1942,10 +1942,13 @@
 
             // 1. Update Base Game Speed
             if (gameState !== 'BOOSTING') {
-                const newSpeedLevel = Math.floor(score / SPEED_INCREMENT_SCORE);
-                if (newSpeedLevel > speedLevel) {
-                    speedLevel = newSpeedLevel;
-                    baseGameSpeed = INITIAL_GAME_SPEED * (1 + (speedLevel * SPEED_INCREMENT_AMOUNT));
+                // NEW: Cap the speed increase once the score reaches 50,000
+                if (score <= 50000) {
+                    const newSpeedLevel = Math.floor(score / SPEED_INCREMENT_SCORE);
+                    if (newSpeedLevel > speedLevel) {
+                        speedLevel = newSpeedLevel;
+                        baseGameSpeed = INITIAL_GAME_SPEED * (1 + (speedLevel * SPEED_INCREMENT_AMOUNT));
+                    }
                 }
             } else {
                 // If boosting, base speed is high
