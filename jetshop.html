@@ -25,12 +25,12 @@
 
         /* Use modal style as the main container for the shop */
         .shop-container {
-            background: rgba(17, 24, 39, 0.98);
+            background: #222;
             padding: 30px 40px;
             border-radius: 15px;
             text-align: center;
-            box-shadow: 0 0 30px red;
-            border: 2px solid red;
+            box-shadow: 0 0 30px rgb(94, 145, 255);
+            border: 2px solid rgb(0, 140, 255);
             pointer-events: auto;
             max-width: 90%; /* Ensure it always respects 90% margin */
             width: 100%; /* Allow it to fill up to max-width */
@@ -73,12 +73,12 @@
             font-size: 1.2rem;
             font-weight: 600;
             color: #f3f4f6;
-            background-color: #1f2937;
-            border: 2px solid #e0e2e6;
+            background-color: #0099ffee;
+            border: 2px solid #e0e2e600;
             border-radius: 8px;
             cursor: pointer;
             transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
-            box-shadow: 0 4px #111827;
+            box-shadow: 0 4px #4f83f5;
             text-decoration: none;
             text-align: center;
         }
@@ -246,7 +246,7 @@
             <img src="${jet.logo}" alt="${jet.name} Logo" class="jet-logo" onerror="this.style.display='none'">
             <img src="${jet.img}" alt="${jet.name}" class="jet-image" onerror="this.src='rec/motor/default.png'">
             <p class="font-bold text-white">
-                ${jet.name} ${jet.limited ? '<span class="text-green-400 text-sm">(LIMITED OFFER)</span>' : ''}
+                ${jet.name} ${jet.limited ? '<span class="text-green-400 text-sm">(LIMITED!)</span>' : ''}
             </p>
             ${buttonHtml}
         `;

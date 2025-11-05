@@ -63,7 +63,7 @@ const JETS = [
         img: 'rec/motor/punkin.png', 
         logo: 'rec/motor/punkin.png',
         available: true,
-        limited: false
+        limited: true
     },
     { 
         id: 'shardship', 
@@ -89,6 +89,42 @@ const JETS = [
         price: 0, 
         img: 'rec/motor/festive-star.png', 
         logo: 'rec/motor/festive-star.png',
+        available: true,   // Set to false when the event ends
+        limited: true      // Marks it as a limited jet
+    },
+    { 
+        id: 'flake-tron', 
+        name: 'Flake Tron', 
+        price: 35000, 
+        img: 'rec/motor/flake-tron.png', 
+        logo: 'rec/motor/flake-tron.png',
+        available: true,   // Set to false when the event ends
+        limited: true      // Marks it as a limited jet
+    },
+    { 
+        id: 'breadtime', 
+        name: 'Bread Time', 
+        price: 40000, 
+        img: 'rec/motor/breadtime.png', 
+        logo: 'rec/motor/breadtime.png',
+        available: true,   // Set to false when the event ends
+        limited: false      // Marks it as a limited jet
+    },
+    { 
+        id: 'leaf', 
+        name: 'Leaf', 
+        price: 5000, 
+        img: 'rec/motor/leaf.png', 
+        logo: 'rec/motor/leaf.png',
+        available: true,   // Set to false when the event ends
+        limited: true      // Marks it as a limited jet
+    },
+    { 
+        id: 'ghostleaf', 
+        name: 'Ghost Leaf', 
+        price: 2000, 
+        img: 'rec/motor/ghost-leaf.png', 
+        logo: 'rec/motor/ghost-leaf.png',
         available: true,   // Set to false when the event ends
         limited: true      // Marks it as a limited jet
     }

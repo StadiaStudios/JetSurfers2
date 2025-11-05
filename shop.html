@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-g">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JetSurfers 2 - Upgrades Shop</title>
     <link rel="manifest" href="manifest.json">
@@ -52,8 +52,8 @@
             background: #111827;
             padding: 30px;
             border-radius: 15px;
-            box-shadow: 0 0 30px rgba(255, 0, 0, 0.5);
-            border: 2px solid red;
+            box-shadow: 0 0 30px rgb(154, 161, 255);
+            border: 2px solid rgb(0, 119, 255);
             text-align: center;
         }
 
@@ -71,7 +71,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: #1f2937;
+            background: #333;
             padding: 15px;
             margin-bottom: 15px;
             border-radius: 0px;
@@ -177,20 +177,20 @@
             font-size: 1rem;
             font-weight: bold;
             color: white;
-            background-color: #ef4444; /* Red */
+            background-color: #333; /* Red */
             border: none;
             border-radius: 6px;
             cursor: pointer;
             transition: background-color 0.2s;
             text-decoration: none;
-            box-shadow: 0 3px #b91c1c;
+            box-shadow: 0 3px #25a8ff;
         }
         .back-button:hover {
-            background-color: #dc2626;
+            background-color: #147ef7;
         }
         .back-button:active {
             transform: translateY(1px);
-            box-shadow: 0 2px #b91c1c;
+            box-shadow: 0 2px #147ef7;
         }
         
         /* New Style for Headstart Buy Button */
@@ -203,6 +203,18 @@
         }
         #buyHeadstartButton:active {
             box-shadow: 0 2px #024b00;
+        }
+
+        /* NEW Style for Repair Kit Buy Button */
+        #buyRepairKitButton {
+            background-color: #06b6d4; /* Cyan */
+            box-shadow: 0 3px #0e7490;
+        }
+        #buyRepairKitButton:hover {
+            background-color: #0891b2;
+        }
+        #buyRepairKitButton:active {
+            box-shadow: 0 2px #0e7490;
         }
     </style>
 </head>
@@ -220,17 +232,34 @@
     
     <!-- Headstart Card -->
     <div class="upgrade-card">
-        <img src="rec/items/headstart.png" alt="Headstart" class="upgrade-logo" onerror="this.style.display='none'">
+        <img src="rec/items/headstart.png" alt="Headstart" class="upgrade-logo" onerror="this.src='https://placehold.co/50x50/333/FFF?text=🚀'">
         <div class="upgrade-info">
             <div class="upgrade-name">Headstart</div>
             <div class="upgrade-description">
-                Boosts your score to <b class="text-yellow-400">20,000</b> at the start of a run. <br>
+                Boosts your score to <b class="text-yellow-400">50,000</b> at the start of a run. <br>
                 <span class="text-sm text-gray-400">Current Stock: <span id="headstartCount">0</span></span>
             </div>
         </div>
         <div class="upgrade-action">
-            <button id="buyHeadstartButton" data-cost="500">
+            <button id="buyHeadstartButton" data-cost="100">
                 100 <img src="rec/items/coin.png" alt="Coin" class="coin-image">
+            </button>
+        </div>
+    </div>
+    
+    <!-- NEW: Repair Kit Card -->
+    <div class="upgrade-card">
+        <img src="rec/items/repairkit.png" alt="Repair Kit" class="upgrade-logo" onerror="this.src='https://placehold.co/50x50/333/06b6d4?text=🛡️'">
+        <div class="upgrade-info">
+            <div class="upgrade-name">Repair Kit</div>
+            <div class="upgrade-description">
+                Lasts for 30s. Automatically revives you from one crash. Single use.<br>
+                <span class="text-sm text-gray-400">Current Stock: <span id="repairKitCount">0</span></span>
+            </div>
+        </div>
+        <div class="upgrade-action">
+            <button id="buyRepairKitButton" data-cost="200">
+                200 <img src="rec/items/coin.png" alt="Coin" class="coin-image">
             </button>
         </div>
     </div>
@@ -241,7 +270,7 @@
 
     <!-- Magnet Duration Upgrade Card -->
     <div class="upgrade-card">
-        <img src="rec/collectible/magnet.png" alt="Magnet" class="upgrade-logo" onerror="this.style.display='none'">
+        <img src="rec/collectible/magnet.png" alt="Magnet" class="upgrade-logo" onerror="this.src='https://placehold.co/50x50/333/FFF?text=🧲'">
         <div class="upgrade-info">
             <div class="upgrade-name">Magnet Duration</div>
             <div class="upgrade-level">Level <span id="magnetLevelValue">0</span> / 5</div>
@@ -256,7 +285,7 @@
     
     <!-- NEW: Coin Multiplier Upgrade Card -->
     <div class="upgrade-card">
-        <img src="rec/items/coin.png" alt="Coin" class="upgrade-logo" onerror="this.style.display='none'">
+        <img src="rec/items/coin.png" alt="Coin" class="upgrade-logo" onerror="this.src='https://placehold.co/50x50/333/FFF?text=$'">
         <div class="upgrade-info">
             <div class="upgrade-name">Coin Multiplier</div>
             <div class="upgrade-level">Level <span id="coinMultiplierLevelValue">0</span> / 5</div>
@@ -333,11 +362,13 @@
     const MAGNET_LEVEL_KEY = 'jetSurferMagnetLevel';
     const HEADSTART_COUNT_KEY = 'jetSurferHeadstartCount';
     const COIN_MULTIPLIER_LEVEL_KEY = 'jetSurferCoinMultiplierLevel'; // NEW KEY
+    const REPAIR_KIT_COUNT_KEY = 'jetSurferRepairKitCount'; // NEW KEY
 
     // --- Upgrade Constants ---
     const MAGNET_UPGRADE_COST = 300;
     const MAGNET_MAX_LEVEL = 5;
     const HEADSTART_COST = 100; // Cost for one Headstart
+    const REPAIR_KIT_COST = 200; // NEW: Cost for one Repair Kit
     const COIN_MULTIPLIER_UPGRADE_COST = 100; // UPDATED
     const COIN_MULTIPLIER_MAX_LEVEL = 5; // NEW
 
@@ -346,6 +377,7 @@
     let magnetLevel = 0;
     let headstartCount = 0;
     let coinMultiplierLevel = 0; // NEW State variable
+    let repairKitCount = 0; // NEW State variable
 
     // --- UI Elements ---
     const totalCoinsValueElement = document.getElementById('totalCoinsValue');
@@ -358,6 +390,8 @@
     // NEW UI Elements
     const coinMultiplierLevelValueElement = document.getElementById('coinMultiplierLevelValue');
     const buyCoinMultiplierButton = document.getElementById('buyCoinMultiplierButton');
+    const repairKitCountElement = document.getElementById('repairKitCount');
+    const buyRepairKitButton = document.getElementById('buyRepairKitButton');
 
     // --- Data Management Functions ---
 
@@ -374,6 +408,10 @@
         // NEW: Load Coin Multiplier Level
         const storedCoinMultiplierLevel = localStorage.getItem(COIN_MULTIPLIER_LEVEL_KEY);
         coinMultiplierLevel = storedCoinMultiplierLevel ? parseInt(storedCoinMultiplierLevel, 10) : 0;
+
+        // NEW: Load Repair Kit Count
+        const storedRepairKitCount = localStorage.getItem(REPAIR_KIT_COUNT_KEY);
+        repairKitCount = storedRepairKitCount ? parseInt(storedRepairKitCount, 10) : 0;
     }
 
     function saveGameData() { // Consolidated save function
@@ -381,6 +419,7 @@
         localStorage.setItem(MAGNET_LEVEL_KEY, magnetLevel);
         localStorage.setItem(HEADSTART_COUNT_KEY, headstartCount);
         localStorage.setItem(COIN_MULTIPLIER_LEVEL_KEY, coinMultiplierLevel);
+        localStorage.setItem(REPAIR_KIT_COUNT_KEY, repairKitCount); // NEW
     }
     
     function saveCoins() {
@@ -397,6 +436,12 @@
         localStorage.setItem(HEADSTART_COUNT_KEY, newCount);
     }
 
+    // NEW: Save Repair Kit Count
+    function saveRepairKitCount(newCount) {
+        repairKitCount = newCount;
+        localStorage.setItem(REPAIR_KIT_COUNT_KEY, newCount);
+    }
+
     // NEW: Save Coin Multiplier Level
     function saveCoinMultiplierLevel(newLevel) {
         coinMultiplierLevel = newLevel;
@@ -411,6 +456,9 @@
         
         // Update Headstart Count Display
         headstartCountElement.textContent = headstartCount.toLocaleString();
+
+        // NEW: Update Repair Kit Count Display
+        repairKitCountElement.textContent = repairKitCount.toLocaleString();
 
         // --- Magnet UI ---
         magnetLevelValueElement.textContent = magnetLevel;
@@ -442,6 +490,19 @@
         } else {
             buyHeadstartButton.innerHTML = `${HEADSTART_COST.toLocaleString()} <img src="rec/items/coin.png" alt="Coin" class="coin-image">`;
             buyHeadstartButton.classList.add('disabled');
+        }
+
+        // --- NEW: Repair Kit UI ---
+        buyRepairKitButton.classList.remove('can-buy', 'disabled');
+        buyRepairKitButton.disabled = true;
+        
+        if (totalCoins >= REPAIR_KIT_COST) {
+            buyRepairKitButton.innerHTML = `${REPAIR_KIT_COST.toLocaleString()} <img src="rec/items/coin.png" alt="Coin" class="coin-image">`;
+            buyRepairKitButton.classList.add('can-buy');
+            buyRepairKitButton.disabled = false;
+        } else {
+            buyRepairKitButton.innerHTML = `${REPAIR_KIT_COST.toLocaleString()} <img src="rec/items/coin.png" alt="Coin" class="coin-image">`;
+            buyRepairKitButton.classList.add('disabled');
         }
         
         // --- NEW: Coin Multiplier UI ---
@@ -495,6 +556,21 @@
         }
     }
 
+    // NEW: Logic for purchasing Repair Kit
+    function buyRepairKit() {
+        const cost = REPAIR_KIT_COST;
+        
+        if (totalCoins >= cost) {
+            totalCoins -= cost;
+            saveCoins();
+            saveRepairKitCount(repairKitCount + 1);
+            updateShopUI();
+            playPurchaseSound(); // Play sound on success
+        } else {
+            console.error("Not enough coins to purchase Repair Kit!");
+        }
+    }
+
     // NEW: Logic for purchasing Coin Multiplier
     function buyCoinMultiplier() {
         if (coinMultiplierLevel >= COIN_MULTIPLIER_MAX_LEVEL) return;
@@ -522,6 +598,7 @@
         // Add click listeners
         buyMagnetDurationButton.addEventListener('click', buyMagnetDuration);
         buyHeadstartButton.addEventListener('click', buyHeadstart);
+        buyRepairKitButton.addEventListener('click', buyRepairKit); // NEW Listener
         buyCoinMultiplierButton.addEventListener('click', buyCoinMultiplier); // NEW Listener
     };
 
