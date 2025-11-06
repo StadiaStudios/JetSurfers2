@@ -1,3 +1,6 @@
+V1.3.2 (11/5/25) - - - 
+Magnet Tweaks. New Jets. Bug fixes. JetPack Collectible, And Coin enhancments. And Theme Updates
+
 V1.2.1 (11/4/25) - - - 
 Stats are now just in settings, Theme updates, New Jets, Changed Default Jet,
 added repair kit to give u a second chance at all times. They have a 5 second cooldown. 

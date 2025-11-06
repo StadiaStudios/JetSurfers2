@@ -6,7 +6,6 @@
     <title>JetSurfers 2 - Daily Quests</title>
     <link rel="icon" href="rec/xmas-icon.jpg" type="image/png">
     <link rel="manifest" href="manifest.json">
-    <script src="https://cdn/tailwindcss.com"></script>
     <style>
         /* Styles copied from jetshop.html for consistency */
         body {
@@ -26,8 +25,8 @@
             padding: 30px 40px;
             border-radius: 15px;
             text-align: center;
-            box-shadow: 0 0 30px red;
-            border: 2px solid red;
+            box-shadow: 0 0 30px rgb(0, 140, 255);
+            border: 2px solid rgb(0, 132, 255);
             pointer-events: auto;
             max-width: 90%;
             width: 100%;
@@ -46,10 +45,10 @@
             border-radius: 10px;
         }
         .quests-container::-webkit-scrollbar-thumb {
-            background-color: #ef4444;
+            background-color: #5c9dff;
             border-radius: 10px;
             border: 2px solid #111827;
-            box-shadow: 0 0 10px #ef4444;
+            box-shadow: 0 0 10px #447aef;
         }
 
         /* Quest item styling */
@@ -100,7 +99,7 @@
         .progress-bar {
             width: 0%; /* Will be set by JS */
             height: 100%;
-            background-color: #34d399; /* Green */
+            background-color: #4983ff; /* Green */
             border-radius: 99px;
             transition: width 0.3s ease;
         }
@@ -125,11 +124,13 @@
         }
 
         .quest-button-claim {
-            background-color: #10b981; /* Green */
-            box-shadow: 0 4px #059669;
+            background-color: #398bff; /* Green */
+            box-shadow: 0 4px #4983ff;
+            transition-duration: 0.3s;
         }
         .quest-button-claim:hover {
-            background-color: #059669;
+            background-color: #444;
+            transition-duration: 0.3s;
         }
 
         .quest-button-disabled {
@@ -182,6 +183,9 @@
         <!-- This is a link back to the game -->
         <a href="index.html" id="questsBackButton" class="menu-button mt-8">BACK TO GAME</a>
     </div>
+
+<script src="weather/snowfall_effect.js"></script> 
+<script src="https://cdn.tailwindcss.com"></script>
 
 <script>
     // --- Local Storage Keys (Shared with game files) ---
@@ -336,7 +340,7 @@
             if (quest.isClaimed) {
                 buttonHtml = `<button class="quest-button quest-button-disabled" disabled>Claimed</button>`;
             } else if (quest.isComplete) {
-                buttonHtml = `<button class="quest-button quest-button-claim" data-index="${index}">Claim Reward</button>`;
+                buttonHtml = `<button class="quest-button quest-button-claim" data-index="${index}">CLAIM REWARD</button>`;
             } else {
                 buttonHtml = `<button class="quest-button quest-button-disabled" disabled>In Progress</button>`;
             }

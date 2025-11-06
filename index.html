@@ -189,10 +189,9 @@
         }
 
 
-        /* --- Magnet Progress Bar Styles --- */
-        #magnetProgressContainer {
+        /* --- Base Progress Bar Styles --- */
+        .progress-container {
             position: absolute;
-            top: 60px; /* Below the top score bar */
             left: 50%;
             transform: translateX(-50%);
             width: 80%;
@@ -207,14 +206,13 @@
             align-items: center;
             padding: 0 4px;
         }
-        #magnetProgressBar {
+        .progress-bar {
             height: 100%;
-            background: linear-gradient(90deg, #fd0404, #ff5353); /* Blue gradient */
             width: 0%;
             transition: width 0.1s linear;
             border-radius: 6px;
         }
-        #magnetIcon {
+        .progress-icon {
             position: absolute;
             left: 8px;
             color: white;
@@ -222,37 +220,28 @@
             z-index: 2;
         }
 
-        /* --- NEW: Repair Kit Progress Bar Styles --- */
+        /* --- Magnet Progress Bar --- */
+        #magnetProgressContainer {
+            top: 60px; /* Below the top score bar */
+        }
+        #magnetProgressBar {
+            background: linear-gradient(90deg, #0468fd, #6453ff); /* Blue gradient */
+        }
+
+        /* --- NEW: Jetpack Progress Bar --- */
+        #jetpackProgressContainer {
+            top: 85px; /* Below magnet bar */
+        }
+        #jetpackProgressBar {
+            background: linear-gradient(90deg, #0468fd, #6453ff); /* Orange gradient */
+        }
+
+        /* --- NEW: Repair Kit Progress Bar --- */
         #repairKitProgressContainer {
-            position: absolute;
-            top: 85px; /* Below the magnet bar */
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80%;
-            height: 16px;
-            background-color: rgba(0, 0, 0, 0.5);
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
-            transition: opacity 0.3s;
-            pointer-events: none;
-            display: flex;
-            align-items: center;
-            padding: 0 4px;
+            top: 110px; /* Below the jetpack bar */
         }
         #repairKitProgressBar {
-            height: 100%;
-            background: linear-gradient(90deg, #06b6d4, #67e8f9); /* Cyan gradient */
-            width: 0%;
-            transition: width 0.1s linear;
-            border-radius: 6px;
-        }
-        #repairKitIcon {
-            position: absolute;
-            left: 8px;
-            color: white;
-            font-size: 0.9rem;
-            z-index: 2;
+            background: linear-gradient(90deg, rgb(247, 244, 62), #5eff00)); /* Cyan gradient */
         }
 
 
@@ -347,6 +336,7 @@
             pointer-events: none;
             opacity: 0;
             transition: opacity 0.2s;
+            z-index: 50; /* Ensure it's on top */
         }
         
         /* Stat item styling (from stats.html for consistency) */
@@ -418,15 +408,21 @@
         </div>
 
         <!-- Magnet Progress Bar -->
-        <div id="magnetProgressContainer" class="opacity-0">
-            <span id="magnetIcon">🧲</span>
-            <div id="magnetProgressBar"></div>
+        <div id="magnetProgressContainer" class="progress-container opacity-0">
+            <span id="magnetIcon" class="progress-icon">🧲</span>
+            <div id="magnetProgressBar" class="progress-bar"></div>
         </div>
         
+        <!-- NEW: Jetpack Progress Bar -->
+        <div id="jetpackProgressContainer" class="progress-container opacity-0">
+            <span id="jetpackIcon" class="progress-icon">🔥</span>
+            <div id="jetpackProgressBar" class="progress-bar"></div>
+        </div>
+
         <!-- NEW: Repair Kit Progress Bar -->
-        <div id="repairKitProgressContainer" class="opacity-0">
-            <span id="repairKitIcon">🛡️</span>
-            <div id="repairKitProgressBar"></div>
+        <div id="repairKitProgressContainer" class="progress-container opacity-0">
+            <span id="repairKitIcon" class="progress-icon">🛡️</span>
+            <div id="repairKitProgressBar" class="progress-bar"></div>
         </div>
 
 
@@ -514,12 +510,13 @@
         // --- NEW: All storage keys for backup/restore ---
         // Make sure to define REPAIR_KIT_COUNT_KEY if it's not in jets-data.js
         const REPAIR_KIT_COUNT_KEY = 'jetSurferRepairKitCount'; // DEFINED HERE
+        const JETPACK_LEVEL_KEY = 'jetSurferJetpackLevel'; // NEW KEY
 
         const ALL_STORAGE_KEYS = [
             COIN_STORAGE_KEY, MAGNET_LEVEL_KEY, JET_OWNED_KEY, 
             JET_SELECTED_KEY, HEADSTART_COUNT_KEY, COIN_MULTIPLIER_LEVEL_KEY,
             HIGH_SCORE_KEY, MONEY_SPENT_KEY, QUEST_STORAGE_KEY,
-            REPAIR_KIT_COUNT_KEY // Added new key
+            REPAIR_KIT_COUNT_KEY, JETPACK_LEVEL_KEY // Added new keys
         ];
 
         let ownedJets = [DEFAULT_JET_ID];
@@ -531,6 +528,7 @@
         let headstartCount = 0; // The persistent headstart item count
         let repairKitCount = 0; // NEW: The persistent repair kit item count
         let coinMultiplierLevel = 0; // The persistent multiplier level
+        let jetpackLevel = 0; // NEW: The persistent jetpack level
 
         function loadGameData() {
             // Handle potential parsing errors
@@ -558,6 +556,10 @@
                 const storedCoinMultiplierLevel = localStorage.getItem(COIN_MULTIPLIER_LEVEL_KEY);
                 coinMultiplierLevel = storedCoinMultiplierLevel ? parseInt(storedCoinMultiplierLevel, 10) : 0;
 
+                // NEW: Load Jetpack Level
+                const storedJetpackLevel = localStorage.getItem(JETPACK_LEVEL_KEY);
+                jetpackLevel = storedJetpackLevel ? parseInt(storedJetpackLevel, 10) : 0;
+
                 // --- Load Jet Data ---
                 const storedOwnedJets = localStorage.getItem(JET_OWNED_KEY);
                 ownedJets = storedOwnedJets ? JSON.parse(storedOwnedJets) : [DEFAULT_JET_ID];
@@ -573,6 +575,7 @@
                 headstartCount = 0;
                 repairKitCount = 0;
                 coinMultiplierLevel = 0;
+                jetpackLevel = 0; // NEW
                 ownedJets = [DEFAULT_JET_ID];
                 selectedJetId = DEFAULT_JET_ID;
                 // Clear potentially corrupt keys
@@ -806,6 +809,10 @@
         const repairKitProgressContainer = document.getElementById('repairKitProgressContainer');
         const repairKitProgressBar = document.getElementById('repairKitProgressBar');
 
+        // NEW UI ELEMENTS for Jetpack
+        const jetpackProgressContainer = document.getElementById('jetpackProgressContainer');
+        const jetpackProgressBar = document.getElementById('jetpackProgressBar');
+
         // Game Constants
         const NUM_LANES = 3;
         const LANE_WIDTH_PERCENTAGE = 0.25;
@@ -829,10 +836,18 @@
         
         let currentMagnetDuration = MAGNET_DURATION_SECONDS_BASE; // Actual duration used in game
         
-        const MAGNET_BOOST_MULTIPLIER = 3.5;
-        const MAGNET_SLOWDOWN_TIME_SECONDS = 2; 
+        // --- FIX: Set magnet boost to 1 (no boost) and slowdown to 0 ---
+        const MAGNET_BOOST_MULTIPLIER = 1; // 3.5;
+        const MAGNET_SLOWDOWN_TIME_SECONDS = 0; // 2; 
         const MAGNET_SPAWN_CHANCE = 0.05; 
 
+        // NEW: Jetpack State Variables and Constants
+        const JETPACK_DURATION_SECONDS_BASE = 8; // Base duration
+        const JETPACK_DURATION_BONUS_PER_LEVEL = 2; // +2 seconds per level
+        const JETPACK_MAX_LEVEL = 5;
+        const JETPACK_SPAWN_CHANCE = 0.04; // Rarer than magnet
+        let currentJetpackDuration = JETPACK_DURATION_SECONDS_BASE; // Actual duration
+        
         // NEW: Repair Kit Constants
         const REPAIR_KIT_DURATION_SECONDS = 30;
 
@@ -841,8 +856,14 @@
             currentMagnetDuration = MAGNET_DURATION_SECONDS_BASE + (magnetLevel * MAGNET_DURATION_BONUS_PER_LEVEL);
         }
         
+        // NEW: Dynamic Jetpack Duration Calculation
+        function updateJetpackDuration() {
+            currentJetpackDuration = JETPACK_DURATION_SECONDS_BASE + (jetpackLevel * JETPACK_DURATION_BONUS_PER_LEVEL);
+        }
+        
         // Initial calculation (must be called after loading magnetLevel)
         updateMagnetDuration(); 
+        updateJetpackDuration(); // NEW
 
 
         // State variables
@@ -871,6 +892,11 @@
         let repairKitEndTime = 0;
         let repairKitCooldownEndTime = 0; // NEW: Cooldown timer
         
+        // NEW: Jetpack State
+        let isJetpackActive = false;
+        let jetpackDurationMS = 0; 
+        let jetpackCooldownEndTime = 0; // NEW: Cooldown for jetpack spawn
+        
         // NEW: Double-tap/press state
         let lastTapTime = 0;
         let lastKeypressTime = 0;
@@ -881,7 +907,7 @@
         const SHAKE_MAGNITUDE = 10;
         const SHAKE_DURATION = 300;
         
-        let boostEndTime = 0; // NEW: Headstart tracking
+        let boostEndTime = 0; // NEW: Headstart/Jetpack tracking
 
         // --- Background Styles (Updated for Red Theme) ---
         let explosions = []; // NEW: Array to hold explosion particles
@@ -965,6 +991,18 @@
             magnetImg.onload = () => { magnetImg.isLoaded = true; };
         };
 
+        // NEW: Jetpack Image
+        const jetpackImg = new Image();
+        jetpackImg.src = "rec/collectible/jetpack.png"; 
+        jetpackImg.isLoaded = false;
+        jetpackImg.onload = () => { jetpackImg.isLoaded = true; };
+        jetpackImg.onerror = () => { 
+            console.error("Failed to load jetpack image. Using fallback."); 
+            jetpackImg.src = 'https://placehold.co/50x50/f97316/ffffff?text=🔥'; // Fallback
+            jetpackImg.isLoaded = false;
+            jetpackImg.onload = () => { jetpackImg.isLoaded = true; };
+        };
+
         // --- Audio Setup ---
         // Mock Audio objects to prevent crashes if files are missing
         const coinSound = new Audio('sfx/coin.mp3');
@@ -983,7 +1021,7 @@
         backgroundMusic.loop = true;
         backgroundMusic.volume = 1.0; // Lower volume so it's not overpowering
         boostSound.volume = 1.0;
-        boostSound.loop = true;
+        boostSound.loop = false; // FIX: Set boost sound loop to false
 
         let audioInitialized = false;
 
@@ -1089,14 +1127,44 @@
                 this.y = -size;
                 this.type = type;
                 this.isHit = false;
+                this.x = null; // NEW: Add x property for non-lane-based movement
             }
 
-            update(speed, dt) {
-                this.y += speed * dt;
+            // --- FIX: Updated 'update' method to handle magnet pull ---
+            update(speed, dt, isMagnetActive, playerBounds) {
+                // Get current x position
+                let currentX = (this.x !== null) ? this.x : getLaneCenterX(this.lane);
+
+                if (isMagnetActive && this.type === 'coin') {
+                    // --- NEW: Magnet Pull Logic ---
+                    const magnetSpeed = 500; // Pixels per second
+                    
+                    // Calculate vector towards player's center
+                    let dx = playerBounds.centerX - currentX;
+                    let dy = playerBounds.centerY - (this.y + this.size / 2);
+                    
+                    // Normalize the vector
+                    const distance = Math.sqrt(dx * dx + dy * dy) + 0.001; // Epsilon to avoid divide by zero
+                    dx /= distance;
+                    dy /= distance;
+
+                    // Move towards player
+                    this.y += (dy * magnetSpeed * dt);
+                    this.x = currentX + (dx * magnetSpeed * dt); // Update this.x directly
+                    
+                    // Also apply base game speed downwards
+                    this.y += speed * dt;
+
+                } else {
+                    // Default behavior
+                    this.y += speed * dt;
+                    // Note: If magnet stops, coin will continue falling from its last 'this.x' position
+                }
             }
 
+            // --- FIX: Updated 'draw' method to use 'this.x' if available ---
             draw(ctx, lanePos) {
-                const xCenter = lanePos[this.lane];
+                const xCenter = (this.x !== null) ? this.x : lanePos[this.lane];
                 const y = this.y;
 
                 if (this.type === 'enemy') {
@@ -1136,11 +1204,27 @@
                         ctx.textBaseline = 'middle';
                         ctx.fillText('🧲', xCenter, y + this.size / 2 + 2);
                     }
+                } else if (this.type === 'jetpack') { // NEW: Draw Jetpack
+                     // Jetpack Power-up
+                    if (jetpackImg.isLoaded) {
+                        // Draw image if loaded
+                        ctx.drawImage(jetpackImg, xCenter - this.size / 2, y, this.size, this.size);
+                    } else {
+                        // Fallback to an orange square with an icon
+                        ctx.fillStyle = '#f97316'; // Orange
+                        ctx.fillRect(xCenter - this.size / 2, y, this.size, this.size);
+                        ctx.fillStyle = 'white';
+                        ctx.font = `${this.size * 0.6}px sans-serif`;
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText('🔥', xCenter, y + this.size / 2 + 2);
+                    }
                 }
             }
 
+            // --- FIX: Updated 'getBounds' method to use 'this.x' if available ---
             getBounds(lanePos) {
-                const xCenter = lanePos[this.lane];
+                const xCenter = (this.x !== null) ? this.x : lanePos[this.lane];
                 return {
                     x: xCenter - this.size / 2,
                     y: this.y,
@@ -1158,6 +1242,35 @@
                 explosions.push(new ExplosionParticle(x, y));
             }
         }
+
+        // --- NEW: Coin Pattern Definitions ---
+        const COIN_PATTERNS = [
+            // Straight line of 5
+            (lane) => [
+                { lane, yOffset: 0 }, { lane, yOffset: -60 }, { lane, yOffset: -120 }, { lane, yOffset: -180 }, { lane, yOffset: -240 }
+            ],
+            // Straight line of 8
+            (lane) => [
+                { lane, yOffset: 0 }, { lane, yOffset: -60 }, { lane, yOffset: -120 }, { lane, yOffset: -180 }, 
+                { lane, yOffset: -240 }, { lane, yOffset: -300 }, { lane, yOffset: -360 }, { lane, yOffset: -420 }
+            ],
+            // Simple diagonal
+            (startLane) => {
+                if (startLane === 1) return [{ lane: 1, yOffset: 0 }, { lane: 0, yOffset: -80 }, { lane: 1, yOffset: -160 }, { lane: 2, yOffset: -240 }];
+                const endLane = (startLane === 0) ? 2 : 0;
+                return [{ lane: startLane, yOffset: 0 }, { lane: 1, yOffset: -80 }, { lane: endLane, yOffset: -160 }];
+            },
+            // V-shape
+            () => [
+                { lane: 0, yOffset: 0 }, { lane: 1, yOffset: -80 }, { lane: 2, yOffset: 0 }
+            ],
+            // Full row
+            () => [
+                { lane: 0, yOffset: 0 }, { lane: 1, yOffset: 0 }, { lane: 2, yOffset: 0 }
+            ]
+        ];
+        const COIN_PATTERN_CHANCE = 0.4; // 40% chance to spawn a pattern instead of a single coin
+
 
         // --- Game Logic ---
 
@@ -1187,7 +1300,7 @@
         }
 
         function spawnObstacle() {
-            // Do not spawn enemies/magnets during a Headstart boost
+            // Do not spawn enemies/magnets/jetpacks during a Boost
             if (gameState === 'BOOSTING') {
                 // Only allow coins to spawn during boost
                 const lane = Math.floor(Math.random() * NUM_LANES);
@@ -1202,17 +1315,40 @@
             let type = 'enemy';
 
             const coinRoll = Math.random();
+            const currentTime = performance.now(); // Get current time for cooldown check
 
             if (coinRoll < 0.3) { // 30% chance of an item spawn
                 const itemRoll = Math.random();
-                // Only spawn a magnet if one isn't already active
-                if (itemRoll < MAGNET_SPAWN_CHANCE && !isMagnetActive) { 
+                // Only spawn a power-up if one isn't already active
+                if (itemRoll < JETPACK_SPAWN_CHANCE && !isJetpackActive && !isMagnetActive && currentTime > jetpackCooldownEndTime) { // NEW: Check cooldown
+                    type = 'jetpack';
+                } else if (itemRoll < (JETPACK_SPAWN_CHANCE + MAGNET_SPAWN_CHANCE) && !isMagnetActive && !isJetpackActive) { 
                     type = 'magnet';
                 } else {
-                    type = 'coin';
+                    // --- NEW: Coin Pattern Logic ---
+                    if (Math.random() < COIN_PATTERN_CHANCE) {
+                        // Spawn a pattern
+                        const patternFn = COIN_PATTERNS[Math.floor(Math.random() * COIN_PATTERNS.length)];
+                        const pattern = patternFn(lane); // Pass the random lane as a potential start
+                        
+                        pattern.forEach(coinInfo => {
+                            const coinObstacle = new Obstacle(coinInfo.lane, size, 'coin');
+                            coinObstacle.y += coinInfo.yOffset; // Apply the vertical offset
+                            obstacles.push(coinObstacle);
+                        });
+                        return; // Exit after spawning pattern
+                    } else {
+                        // Spawn a single coin
+                        type = 'coin';
+                    }
+                    // --- END: Coin Pattern Logic ---
                 }
             }
-            obstacles.push(new Obstacle(lane, size, type));
+
+            // This will now spawn enemies, power-ups, or single coins
+            if (type) {
+                obstacles.push(new Obstacle(lane, size, type));
+            }
         }
 
         function checkCollision(playerBounds, obstacle) {
@@ -1247,7 +1383,7 @@
             playPowerupSound();
 
             // Remove any other magnet power-ups currently on screen
-            obstacles = obstacles.filter(obstacle => obstacle.type !== 'magnet');
+            obstacles = obstacles.filter(obstacle => obstacle.type !== 'magnet' && obstacle.type !== 'jetpack');
         }
         
         // Function to end the magnet power-up cleanly
@@ -1255,6 +1391,43 @@
             isMagnetActive = false;
             isSlowingDown = false;
             magnetProgressContainer.classList.add('opacity-0');
+        }
+
+        // NEW: Function to activate the Jetpack power-up
+        function activateJetpack(currentTime) {
+            isJetpackActive = true;
+            gameState = 'BOOSTING'; // Set game state to boosting
+            jetpackDurationMS = currentJetpackDuration * 1000; // Use dynamic duration
+            boostEndTime = currentTime + jetpackDurationMS; // Set the end time
+            
+            playBoostSound(); // Start boost sound
+            boostingText.classList.remove('hidden'); // Show "BOOSTING" text
+            jetpackProgressContainer.classList.remove('opacity-0'); // Show progress bar
+            playPowerupSound();
+
+            // Remove all enemies and other power-ups from the screen
+            obstacles = obstacles.filter(obstacle => obstacle.type === 'coin');
+        }
+
+        // NEW: Function to end the Jetpack power-up cleanly
+        function deactivateJetpack(isGameReset = false) {
+            if (!isJetpackActive && !isGameReset) return; // Don't do anything if not active (unless it's a reset)
+
+            isJetpackActive = false;
+            jetpackProgressContainer.classList.add('opacity-0');
+            
+            // NEW: Set jetpack cooldown only if it's ending mid-game, not on a reset
+            if (!isGameReset) {
+                const currentTime = performance.now();
+                const minCooldown = 30 * 1000; // 30 seconds
+                const maxCooldown = 120 * 1000; // 120 seconds
+                const randomCooldown = Math.random() * (maxCooldown - minCooldown) + minCooldown;
+                jetpackCooldownEndTime = currentTime + randomCooldown;
+            } else {
+                 jetpackCooldownEndTime = 0; // Ensure no cooldown at game start
+            }
+            
+            // Note: Sound and boostingText are stopped in the gameLoop or pauseGame
         }
 
         // NEW: Function to end the repair kit power-up cleanly
@@ -1282,11 +1455,13 @@
 
 
         /**
-         * Function to handle coin collection (still screen-wide)
+         * Function to handle coin collection (BOOSTING ONLY)
+         * --- FIX: This now ONLY handles the 'BOOSTING' state auto-collect ---
          */
         function handleCoinCollection() {
-            // Collect all coins during magnet or boosting
-            if (!isMagnetActive && gameState !== 'BOOSTING') return;
+            // Collect all coins during boosting
+            // OLD: if (!isMagnetActive && gameState !== 'BOOSTING') return;
+            if (gameState !== 'BOOSTING') return; // NEW: Only runs when boosting
 
             let collectedCount = 0;
             
@@ -1301,13 +1476,13 @@
                     // *** FIX: CALCULATE COIN VALUE BASED ON MULTIPLIER ***
                     const coinValue = 1 + coinMultiplierLevel; 
                     
-                    // Magnet Level 5 bonus
-                    if (isMagnetActive && magnetLevel === MAGNET_MAX_LEVEL) {
-                        runCoins += 15;
-                    } else if (gameState === 'BOOSTING') {
-                        runCoins += 20; // Extra coin bonus during headstart
+                    // Magnet Level 5 bonus REMOVED
+                    // OLD: if (isMagnetActive && magnetLevel === MAGNET_MAX_LEVEL) { ... }
+                    if (gameState === 'BOOSTING') {
+                        runCoins += 5; // Keep boost bonus
                     } else {
-                        runCoins += coinValue; // Use calculated coin value
+                        // This branch is never hit due to the check at the start of the function
+                        runCoins += coinValue; 
                     }
 
                     collectedCount++;
@@ -1368,10 +1543,13 @@
                 // --- NEW: Dynamic Fire Exhaust Effect ---
                 if (gameState === 'PLAYING' || gameState === 'BOOSTING') {
                     const flameBaseY = playerDrawY + PLAYER_SIZE * 0.9; // Start flame just inside the jet
-                    const baseFlameWidth = PLAYER_SIZE * 0.4;
+                    
+                    // BIGGER flame when boosting
+                    const baseFlameWidth = (gameState === 'BOOSTING') ? PLAYER_SIZE * 0.7 : PLAYER_SIZE * 0.4;
+                    const baseFlameHeight = (gameState === 'BOOSTING') ? PLAYER_SIZE * 1.0 : PLAYER_SIZE * 0.5;
 
                     // Create a flickering effect by varying height and width
-                    const flameHeight = (PLAYER_SIZE * 0.5) + (Math.random() * PLAYER_SIZE * 0.4);
+                    const flameHeight = baseFlameHeight + (Math.random() * baseFlameHeight * 0.4);
                     const flameFlickerWidth = baseFlameWidth + (Math.random() * 10 - 5);
 
                     // Outer flame (yellow/orange)
@@ -1399,7 +1577,8 @@
                 if (isMagnetActive) {
                     const maxBlur = 30;
                     let blur = 0;
-                    if (isSlowingDown) {
+                    // --- FIX: Logic simplified as slowdown is 0 ---
+                    if (isSlowingDown) { // This will now always be false, but harmless
                         const timeSlowing = (magnetStartTime + magnetDurationMS) - performance.now();
                         const ratio = timeSlowing / (MAGNET_SLOWDOWN_TIME_SECONDS * 1000);
                         blur = Math.max(0, maxBlur * ratio); 
@@ -1407,7 +1586,7 @@
                         blur = maxBlur;
                     }
                     
-                    ctx.shadowColor = 'red';
+                    ctx.shadowColor = 'red'; // This was the original glow color
                     ctx.shadowBlur = blur;
                 }
 
@@ -1510,7 +1689,7 @@
             }
 
             // Determine if we need to go back to BOOSTING or PLAYING
-            const newGameState = (performance.now() < boostEndTime && score < HEADSTART_SCORE) ? 'BOOSTING' : 'PLAYING';
+            const newGameState = (performance.now() < boostEndTime) ? 'BOOSTING' : 'PLAYING'; // Simplified check
             gameState = newGameState;
             
             if (isRaining) playRainSound(); // Resume rain sound
@@ -1541,10 +1720,16 @@
             setupCanvas();
             playerX = getLaneCenterX(currentLane);
             
+            // Re-load data to ensure current magnet/jetpack level and jet are used
+            loadGameData(); 
+            updateMagnetDuration();
+            updateJetpackDuration(); // NEW
+
             // Set up headstart state
             if (useHeadstart) {
                 score = HEADSTART_SCORE;
                 gameState = 'BOOSTING';
+                isJetpackActive = false; // Headstart is not a jetpack
                 boostEndTime = performance.now() + (HEADSTART_DURATION_SECONDS * 1000);
                 playBoostSound();
                 boostingText.classList.remove('hidden');
@@ -1554,14 +1739,12 @@
                 boostingText.classList.add('hidden');
             }
 
-            // Re-load data to ensure current magnet level and jet are used
-            loadGameData(); 
-            updateMagnetDuration();
-
             // Reset Magnet State
             deactivateMagnet();
             // NEW: Reset Repair Kit UI State
             deactivateRepairKit();
+            // NEW: Reset Jetpack State
+            deactivateJetpack(true); // Pass true to indicate a reset
             
             // --- UPDATED Rain Cycle Logic: Randomize Start ---
             const MAX_CYCLE_MS = RAIN_CYCLE_DURATION_MS * 2;
@@ -1689,6 +1872,7 @@
             // Stop all sounds/effects
             deactivateMagnet();
             deactivateRepairKit(); // NEW
+            deactivateJetpack(); // NEW
             if (isRaining) {
                 isRaining = false;
                 rainEffect.stop();
@@ -1867,13 +2051,16 @@
             explosions.forEach(p => p.update());
             explosions = explosions.filter(p => p.alpha > 0);
             
-            // --- Check for Headstart Boost Expiration (NEW) ---
+            // --- Check for Headstart/Jetpack Boost Expiration (UPDATED) ---
             if (gameState === 'BOOSTING') {
                 if (currentTime > boostEndTime) {
                     gameState = 'PLAYING'; // End boost
                     stopBoostSound();
                     boostingText.classList.add('hidden');
-                } else if (score >= HEADSTART_SCORE) {
+                    if (isJetpackActive) { // NEW: Check if it was a jetpack
+                        deactivateJetpack(); // No parameter, defaults to false
+                    }
+                } else if (score >= HEADSTART_SCORE && !isJetpackActive) { // Only end early for Headstarts
                     // If the score already reached the target, switch to normal speed
                     gameState = 'PLAYING';
                     stopBoostSound();
@@ -1928,7 +2115,8 @@
                 
                 // Obstacles still move during shake
                 obstacles = obstacles.filter(obstacle => {
-                    obstacle.update(currentEffectiveGameSpeed * 60, deltaTime);
+                    // --- FIX: Pass correct arguments to update ---
+                    obstacle.update(currentEffectiveGameSpeed * 60, deltaTime, isMagnetActive, getPlayerBounds(playerX));
                     return obstacle.y < canvas.height;
                 });
                 
@@ -1951,28 +2139,29 @@
                     }
                 }
             } else {
-                // If boosting, base speed is high
-                baseGameSpeed = INITIAL_GAME_SPEED * (1 + (HEADSTART_SCORE / SPEED_INCREMENT_SCORE) * SPEED_INCREMENT_AMOUNT);
+                // If boosting (Headstart or Jetpack), use high speed multiplier
+                // Base speed is set relative to score, but multiplier overrides
             }
 
-            // 2. Update Effective Game Speed (Magnet/Headstart Effect)
+            // 2. Update Effective Game Speed (Magnet/Headstart/Jetpack Effect)
             let speedMultiplier = 1;
             
             if (gameState === 'BOOSTING') {
-                speedMultiplier = HEADSTART_SPEED_MULTIPLIER;
+                speedMultiplier = HEADSTART_SPEED_MULTIPLIER; // Use same speed for Jetpack
             } else if (isMagnetActive) {
                 const timeElapsed = currentTime - magnetStartTime;
                 const timeLeft = magnetDurationMS - timeElapsed;
                 
+                // --- FIX: Logic simplified as boost is 1 and slowdown is 0 ---
                 if (timeLeft <= 0) {
                     deactivateMagnet();
-                } else if (timeLeft <= MAGNET_SLOWDOWN_TIME_SECONDS * 1000) {
+                } else if (timeLeft <= MAGNET_SLOWDOWN_TIME_SECONDS * 1000) { // This block will be skipped
                     isSlowingDown = true;
                     const slowDownRatio = timeLeft / (MAGNET_SLOWDOWN_TIME_SECONDS * 1000);
                     const speedRange = MAGNET_BOOST_MULTIPLIER - 1;
                     speedMultiplier = 1 + (speedRange * Math.max(0, slowDownRatio)); 
                 } else {
-                    speedMultiplier = MAGNET_BOOST_MULTIPLIER;
+                    speedMultiplier = MAGNET_BOOST_MULTIPLIER; // This is 1
                 }
 
                 const progress = (timeLeft / magnetDurationMS) * 100;
@@ -1982,7 +2171,7 @@
                 isSlowingDown = false;
             }
             
-            currentEffectiveGameSpeed = baseGameSpeed * speedMultiplier;
+            currentEffectiveGameSpeed = baseGameSpeed * speedMultiplier; // Multiplier will be 1 if magnet active
 
             // 2b. NEW: Update Repair Kit Timer
             if (isRepairKitActive) {
@@ -1994,6 +2183,15 @@
                     // Update progress bar
                     const progress = (timeLeft / (REPAIR_KIT_DURATION_SECONDS * 1000)) * 100;
                     repairKitProgressBar.style.width = `${progress}%`;
+                }
+            }
+            
+            // 2c. NEW: Update Jetpack Timer (only if active)
+            if (isJetpackActive && gameState === 'BOOSTING') {
+                const timeLeft = boostEndTime - currentTime;
+                if (timeLeft > 0) {
+                    const progress = (timeLeft / jetpackDurationMS) * 100;
+                    jetpackProgressBar.style.width = `${progress}%`;
                 }
             }
             
@@ -2009,7 +2207,8 @@
 
             // 5. Update Obstacles
             obstacles = obstacles.filter(obstacle => {
-                obstacle.update(currentEffectiveGameSpeed * 60, deltaTime);
+                // --- FIX: Pass all required arguments to update ---
+                obstacle.update(currentEffectiveGameSpeed * 60, deltaTime, isMagnetActive, playerBounds);
                 return obstacle.y < canvas.height;
             });
 
@@ -2019,7 +2218,9 @@
                 lastObstacleTime = currentTime;
             }
 
-            // 7. Coin Collection Logic (during Magnet or Boost)
+            // 7. Coin Collection Logic (BOOSTING ONLY)
+            // --- FIX: Magnet pull is handled in Obstacle.update ---
+            // handleCoinCollection now internally checks for 'BOOSTING' state
             handleCoinCollection();
             
             // 8. Collision Detection
@@ -2028,34 +2229,34 @@
                     obstacle.isHit = true;
                     
                     if (obstacle.type === 'enemy') {
-                        // Collision only results in game over if not boosting or not under magnet protection
-                        // The Repair Kit check is now inside gameOver()
-                        if (gameState !== 'BOOSTING' && !isMagnetActive && performance.now() > reviveInvincibilityEndTime) {
+                        // --- FIX: Removed !isMagnetActive check. Magnet no longer grants invincibility. ---
+                        if (gameState !== 'BOOSTING' && performance.now() > reviveInvincibilityEndTime) {
                             gameOver();
                         }
-                        // If boosting or magnet is active, the enemy is destroyed (filtered out next step)
+                        // If boosting, the enemy is destroyed (filtered out next step)
+                    
+                    // --- FIX: Simplified coin collection. Always collect on contact. No magnet bonus. ---
                     } else if (obstacle.type === 'coin') {
-                        // If not caught by magnet logic in handleCoinCollection, still collect on contact
-                        if (!isMagnetActive) {
-                             // *** FIX: CALCULATE COIN VALUE BASED ON MULTIPLIER ***
-                             const coinValue = 1 + coinMultiplierLevel;
-                             if (magnetLevel === MAGNET_MAX_LEVEL) {
-                                runCoins += 15;
-                            } else {
-                                runCoins += coinValue; // Use calculated coin value
-                            }
-                            runCoinsValueElement.textContent = runCoins;
-                            playCoinSound();
-                        }
+                        // Collect on contact, magnet or not.
+                        const coinValue = 1 + coinMultiplierLevel;
+                        
+                        // REMOVED: Magnet level 5 bonus
+                        runCoins += coinValue;
+
+                        runCoinsValueElement.textContent = runCoins;
+                        playCoinSound();
+
                     } else if (obstacle.type === 'magnet') {
                         activateMagnet(currentTime);
+                    } else if (obstacle.type === 'jetpack') { // NEW: Collect Jetpack
+                        activateJetpack(currentTime);
                     }
                 }
             });
 
             // 9. Remove collected/destroyed items
             // Destroyed enemies are filtered out here if isHit is true (due to protection)
-            obstacles = obstacles.filter(o => (o.type !== 'coin' && o.type !== 'magnet' && o.type !== 'enemy') || !o.isHit);
+            obstacles = obstacles.filter(o => (o.type !== 'coin' && o.type !== 'magnet' && o.type !== 'enemy' && o.type !== 'jetpack') || !o.isHit);
 
             // 10. Draw
             drawGame(laneCenters, currentTime);
@@ -2210,6 +2411,7 @@
         // --- This is the content that was originally at the bottom ---
         loadGameData(); // Load all persistent data (coins, magnet level, jets, and headstarts)
         updateMagnetDuration(); // Ensure the duration is correct on startup
+        updateJetpackDuration(); // NEW
         setupCanvas();
         
         // Initialize background to default state on load

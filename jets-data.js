@@ -95,7 +95,7 @@ const JETS = [
     { 
         id: 'flake-tron', 
         name: 'Flake Tron', 
-        price: 35000, 
+        price: 75000, 
         img: 'rec/motor/flake-tron.png', 
         logo: 'rec/motor/flake-tron.png',
         available: true,   // Set to false when the event ends
@@ -162,6 +162,24 @@ const JETS = [
         img: 'rec/motor/sort.png', 
         logo: 'rec/motor/sort.png',
         available: false,   // Set to false when the event ends
+        limited: true      // Marks it as a limited jet
+    },
+    { 
+        id: 'hello-kitty', 
+        name: 'Hello Kitty', 
+        price: 50000, 
+        img: 'rec/motor/hello-kitty.png', 
+        logo: 'rec/motor/hello-kitty.png',
+        available: true,   // Set to false when the event ends
+        limited: true      // Marks it as a limited jet
+    },
+    { 
+        id: 'hovercraft', 
+        name: 'Hovercraft', 
+        price: 90000, 
+        img: 'rec/motor/hovercraft.png', 
+        logo: 'rec/motor/hovercraft.png',
+        available: true,   // Set to false when the event ends
         limited: true      // Marks it as a limited jet
     }
 ];
