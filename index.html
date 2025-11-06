@@ -100,7 +100,7 @@
             flex-shrink: 0; /* Prevent flex items from shrinking */
         }
         .score-box {
-            background: rgba(0, 0, 0, 0.6);
+            background: #008cff;
             padding: 8px 12px;
             border-radius: 8px;
             display: flex;
@@ -196,7 +196,7 @@
             transform: translateX(-50%);
             width: 80%;
             height: 16px;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: #111;
             border-radius: 8px;
             overflow: hidden;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
@@ -461,7 +461,7 @@
                      onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZHRoPSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSIjRkRFNCA0NyI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiLz48cGF0aCBmaWxsPSIjMDAwIiBkPSJNMTEgMTVIMTNWMTdIMTF6TTExIDdIMTNWMTNIMTF6Ii8+PC9zdmc+'; this.onerror=null;">
             </a>
             <button id="settingsButton" class="menu-button">SETTINGS</button>
-            <p class="text-xs text-gray-500 mt-6">Game Version: v1.2.1</p>
+            <p class="text-xs text-gray-500 mt-6">Game Version: v1.3.3</p>
         </div>
         
         <!-- NEW: Settings Menu Modal -->
@@ -480,6 +480,9 @@
                 <span id="settingsJetsOwnedValue" class="stat-value">0/0</span>
             </div>
 
+            <!-- NEW: What's New Button -->
+            <a href="changelog.txt" class="menu-button mt-4">WHAT'S NEW</a>
+
             <!-- NEW: Export/Import Buttons -->
             <button id="exportSaveButton" class="menu-button export mt-4">EXPORT SAVE</button>
             <button id="importSaveButton" class="menu-button import">IMPORT SAVE</button>
@@ -490,7 +493,7 @@
 
             <!-- Game Version Display -->
             <div class="text-center text-gray-400 mt-6">
-                <p>Game Version: v1.2.1</p>
+                <p>Game Version: v1.3.3</p>
             </div>
 
             <button id="settingsBackButton" class="menu-button mt-8">BACK</button>
@@ -1544,9 +1547,9 @@
                 if (gameState === 'PLAYING' || gameState === 'BOOSTING') {
                     const flameBaseY = playerDrawY + PLAYER_SIZE * 0.9; // Start flame just inside the jet
                     
-                    // BIGGER flame when boosting
-                    const baseFlameWidth = (gameState === 'BOOSTING') ? PLAYER_SIZE * 0.7 : PLAYER_SIZE * 0.4;
-                    const baseFlameHeight = (gameState === 'BOOSTING') ? PLAYER_SIZE * 1.0 : PLAYER_SIZE * 0.5;
+                    // Set a consistent flame size
+                    const baseFlameWidth = PLAYER_SIZE * 0.4;
+                    const baseFlameHeight = PLAYER_SIZE * 0.5;
 
                     // Create a flickering effect by varying height and width
                     const flameHeight = baseFlameHeight + (Math.random() * baseFlameHeight * 0.4);
@@ -1600,14 +1603,14 @@
                          blur = maxBlur * (0.5 + Math.abs(Math.sin(performance.now() / 50))); // Flicker
                     }
                     
-                    ctx.shadowColor = '#06b6d4'; // Cyan
+                    ctx.shadowColor = 'rgba(255, 234, 0)'; // Cyan
                     ctx.shadowBlur = blur;
                 }
 
                 // NEW: Draw a white shield/glow if invincible after reviving
                 if (performance.now() < reviveInvincibilityEndTime) {
                     const invincibilityProgress = (reviveInvincibilityEndTime - performance.now()) / 2000; // 2-second duration
-                    ctx.shadowColor = `rgba(255, 255, 255, ${0.8 * invincibilityProgress})`; // Fade out effect
+                    ctx.shadowColor = `rgba(255, 234, 0, ${0.8 * invincibilityProgress})`; // Fade out effect
                     ctx.shadowBlur = 30 * invincibilityProgress;
                 }
 

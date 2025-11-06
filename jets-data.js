@@ -25,34 +25,25 @@ const JETS = [
         name: 'PILOT-XMAS 25', 
         price: 0, 
         img: 'rec/motor/default.png', 
-        logo: 'rec/motor/default_logo.png',
+        logo: 'rec/motor/default.png',
         available: true,
         limited: false
     },
     { 
         id: 'blue_streak', 
         name: 'Blue Streak', 
-        price: 500, 
+        price: 5000, 
         img: 'rec/motor/jet_blue.png', 
-        logo: 'rec/motor/blue_streak_logo.png',
+        logo: 'rec/motor/blue.png',
         available: true,
         limited: false
     },
     { 
         id: 'red_comet', 
         name: 'Nightwing', 
-        price: 1000, 
+        price: 10000, 
         img: 'rec/motor/nightwing.png', 
-        logo: 'rec/motor/nightwing_logo.png',
-        available: true,
-        limited: false
-    },
-    { 
-        id: 'gold_wing', 
-        name: 'Premium Jet', 
-        price: 5000, 
-        img: 'rec/motor/premium-jet.png', 
-        logo: 'rec/motor/premium_logo.png',
+        logo: 'rec/motor/nightwing.png',
         available: true,
         limited: false
     },
@@ -181,6 +172,15 @@ const JETS = [
         logo: 'rec/motor/hovercraft.png',
         available: true,   // Set to false when the event ends
         limited: true      // Marks it as a limited jet
+    },
+    { 
+        id: 'gold_wing', 
+        name: 'Golden Wing', 
+        price: 150000, 
+        img: 'rec/motor/premium-jet.png', 
+        logo: 'rec/motor/premium-jet.png',
+        available: true,
+        limited: false
     }
 ];
 

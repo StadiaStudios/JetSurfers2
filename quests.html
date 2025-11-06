@@ -197,6 +197,10 @@
     const questsList = document.getElementById('questsList');
     const timerText = document.getElementById('timerText');
 
+    // --- NEW: Audio for claiming reward ---
+    const claimSound = new Audio('sfx/purchase.mp3'); // Using the purchase sound for consistency
+    claimSound.volume = 0.7;
+
     // --- Quest Definitions ---
     // id: Used to track progress from the game
     // desc: Template for the description
@@ -377,6 +381,10 @@
         if (!quest || quest.isClaimed || !quest.isComplete) {
             return; // Safety check
         }
+
+        // --- NEW: Play sound effect ---
+        claimSound.currentTime = 0;
+        claimSound.play().catch(e => console.error("Claim sound failed to play:", e));
 
         // 1. Mark as claimed
         quest.isClaimed = true;
