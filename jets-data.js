@@ -75,6 +75,15 @@ const JETS = [
         limited: true      // Marks it as a limited jet
     },
     { 
+        id: 'spiderjet', 
+        name: 'Spider Jet', 
+        price: 40000, 
+        img: 'rec/motor/spiderjet.png', 
+        logo: 'rec/motor/spiderjet.png',
+        available: true,   // Set to false when the event ends
+        limited: false      // Marks it as a limited jet
+    },
+    { 
         id: 'festive-star', 
         name: 'Festive Star', 
         price: 0, 

@@ -362,11 +362,63 @@
             color: #fcd34d; /* Yellow for values */
         }
 
+        /* --- Loading Screen Styles --- */
+        #loadingScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #8db1ff; /* Dark background */
+            z-index: 1000; /* Highest z-index */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+            transition: opacity 0.5s ease-out;
+            text-align: center;
+        }
+
+        #loadingScreen.hidden {
+            opacity: 0;
+            pointer-events: none; /* Allow clicks to pass through during fade-out */
+        }
+
+        .loading-content img {
+            width: 100px;
+            height: 100px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+            display: block; /* Ensure it's a block element */
+            margin: 0 auto 20px auto; /* Center horizontally and keep bottom margin */
+        }
+
+        .loading-content h1 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            text-shadow: 0 0 10px #398bff;
+        }
+
+        .loading-content p {
+            font-size: 1.2rem;
+            margin-top: 10px;
+            color: #9ca3af;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(57, 139, 255, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 10px 20px rgba(57, 139, 255, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(57, 139, 255, 0); }
+        }
+
     </style>
 </head>
 <body>
 
 <div id="gameContainer">
+
     <canvas id="gameCanvas"></canvas>
 
     <!-- UI Overlay for Score and Modals -->
@@ -505,9 +557,20 @@
     </div>
 </div>
 
+<!-- NEW: Loading Screen -->
+<div id="loadingScreen">
+    <div class="loading-content">
+        <!-- Using the same icon as the favicon for consistency -->
+        <img src="rec/xmas-icon.jpg" alt="JetSurfers Logo" onerror="this.style.display='none'">
+        <h1>JetSurfers</h1>
+    </div>
+</div>
+
 <script>
     // Start initialization and game loop on load
     window.onload = function() {
+        // === NEW: First Visit Loading Screen Logic ===
+        const VISITED_KEY = 'jetSurfersVisited';
         // === Jets data and storage keys are now loaded from jets-data.js ===
 
         // --- NEW: All storage keys for backup/restore ---
@@ -828,9 +891,9 @@
         const SPEED_INCREMENT_AMOUNT = 0.02;
         
         // Headstart Constants (NEW)
-        const HEADSTART_SCORE = 50000;
+        const HEADSTART_SCORE = 100000;
         const HEADSTART_DURATION_SECONDS = 10;
-        const HEADSTART_SPEED_MULTIPLIER = 20;
+        const HEADSTART_SPEED_MULTIPLIER = 30;
         
         // Magnet State Variables and Constants
         const MAGNET_DURATION_SECONDS_BASE = 10; // Base duration
@@ -1171,6 +1234,11 @@
                 const y = this.y;
 
                 if (this.type === 'enemy') {
+                    // --- NEW: Add red glow effect ---
+                    ctx.save();
+                    ctx.shadowColor = 'red';
+                    ctx.shadowBlur = 15;
+
                     // Enemy Plane (Red/Black)
                     ctx.fillStyle = this.isHit ? 'rgba(255, 0, 0, 0.8)' : 'rgba(239, 68, 68, 0.9)';
                     ctx.beginPath();
@@ -1180,10 +1248,16 @@
                     ctx.lineTo(xCenter + this.size / 2, y + this.size);
                     ctx.closePath();
                     ctx.fill();
-                    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)'; // Cockpit
                     ctx.fillRect(xCenter - this.size * 0.1, y + this.size * 0.2, this.size * 0.2, this.size * 0.5); // Cockpit
+                    ctx.restore();
                 } else if (this.type === 'coin') {
                     // Coin
+                    // --- NEW: Add gold glow effect ---
+                    ctx.save(); // Save current context state
+                    ctx.shadowColor = '#ffd700'; // Gold color
+                    ctx.shadowBlur = 15; // The blur radius for the glow
+
                     if (coinImg.isLoaded) {
                         ctx.drawImage(coinImg, xCenter - this.size / 2, y, this.size, this.size);
                     } else {
@@ -1192,8 +1266,13 @@
                         ctx.arc(xCenter, y + this.size / 2, this.size * 0.4, 0, Math.PI * 2);
                         ctx.fill();
                     }
+                    ctx.restore(); // Restore context to remove shadow for other objects
                 } else if (this.type === 'magnet') {
                      // Magnet Power-up
+                    ctx.save();
+                    ctx.shadowColor = '#9333ea'; // Purple glow
+                    ctx.shadowBlur = 15;
+
                     if (magnetImg.isLoaded) {
                         // Draw image if loaded
                         ctx.drawImage(magnetImg, xCenter - this.size / 2, y, this.size, this.size);
@@ -1207,8 +1286,13 @@
                         ctx.textBaseline = 'middle';
                         ctx.fillText('🧲', xCenter, y + this.size / 2 + 2);
                     }
+                    ctx.restore();
                 } else if (this.type === 'jetpack') { // NEW: Draw Jetpack
                      // Jetpack Power-up
+                    ctx.save();
+                    ctx.shadowColor = '#f97316'; // Orange glow
+                    ctx.shadowBlur = 15;
+
                     if (jetpackImg.isLoaded) {
                         // Draw image if loaded
                         ctx.drawImage(jetpackImg, xCenter - this.size / 2, y, this.size, this.size);
@@ -1222,6 +1306,7 @@
                         ctx.textBaseline = 'middle';
                         ctx.fillText('🔥', xCenter, y + this.size / 2 + 2);
                     }
+                    ctx.restore();
                 }
             }
 
@@ -2298,8 +2383,10 @@
             settingsHighScoreValue.textContent = `${highScore.toLocaleString()} m`;
 
             // NEW: Load and display jets owned count
+            // This correctly counts all owned jets and the total number of jets from jets-data.js
             const jetsOwnedCount = ownedJets.length;
             const totalJetsCount = JETS.length;
+
             document.getElementById('settingsJetsOwnedValue').textContent = `${jetsOwnedCount}/${totalJetsCount}`;
 
             showModal(settingsModal); // Show the new settings modal
@@ -2428,6 +2515,17 @@
             cancelAnimationFrame(animationFrameId); // Clear any previous loop
         }
         animationFrameId = requestAnimationFrame(gameLoop);
+
+        // --- NEW: Handle Loading Screen Visibility ---
+        // Always show the loading screen
+        const loadingScreen = document.getElementById('loadingScreen');
+        loadingScreen.style.display = 'flex'; // Make sure it's visible
+        setTimeout(() => {
+            loadingScreen.classList.add('hidden');
+            setTimeout(() => {
+                loadingScreen.style.display = 'none';
+            }, 500); // CSS transition duration
+        }, 2500); // Show for 2.5 seconds
     }
 
 </script>
