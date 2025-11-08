@@ -192,6 +192,15 @@ const JETS = [
         limited: true      // Marks it as a limited jet
     },
     { 
+        id: 'youngdollazz', 
+        name: 'youngdollazz', 
+        price: 999999999, 
+        img: 'rec/motor/youngdollazz.png', 
+        logo: 'rec/motor/youngdollazz.png',
+        available: false,   // Set to false when the event ends
+        limited: true      // Marks it as a limited jet
+    },
+    { 
         id: 'gold_wing', 
         name: 'Golden Wing', 
         price: 500000, 
@@ -201,6 +210,33 @@ const JETS = [
         limited: false
     }
 ];
+
+// --- Bundle Definitions ---
+// These bundles offer multiple jets at a discount.
+const BUNDLES = [
+    {
+        id: 'rookie_pack',
+        name: 'Rookie Pack',
+        // blue_streak, red_comet, shardship
+        jetIds: ['blue_streak', 'red_comet', 'shardship'],
+        price: 7000
+    },
+    {
+        id: 'ace_pack',
+        name: 'Ace Pack (-30% OFF)',
+        // spiderjet, breadtime, sego
+        jetIds: ['spiderjet', 'breadtime', 'sego'],
+        price: 91000
+    },
+    {
+        id: 'festive2025pack',
+        name: 'Festive 2025 Pack (-30% OFF)',
+        // flake-tron, leaf, hovercraft (all limited)
+        jetIds: ['flake-tron', 'reindeer-festive2025', 'festive-star'],
+        price: 143500
+    }
+];
+
 
 // Default jet ID (the starting jet for all players)
 const DEFAULT_JET_ID = 'default';
