@@ -71,7 +71,7 @@ const JETS = [
         price: 0, 
         img: 'rec/motor/plank-jet.png', 
         logo: 'rec/motor/plank-jet.png',
-        available: false,   // Set to false when the event ends
+        available: true,   // Set to false when the event ends
         limited: true      // Marks it as a limited jet
     },
     { 
@@ -102,6 +102,15 @@ const JETS = [
         limited: true      // Marks it as a limited jet
     },
     { 
+        id: 'reindeer-festive2025', 
+        name: 'Reindeer Festive 2025', 
+        price: 150000, 
+        img: 'rec/motor/festive25.png', 
+        logo: 'rec/motor/festive25.png',
+        available: true,
+        limited: true
+    },
+    { 
         id: 'breadtime', 
         name: 'Bread Time', 
         price: 40000, 
@@ -113,7 +122,7 @@ const JETS = [
     { 
         id: 'leaf', 
         name: 'Leaf', 
-        price: 5000, 
+        price: 90000, 
         img: 'rec/motor/leaf.png', 
         logo: 'rec/motor/leaf.png',
         available: true,   // Set to false when the event ends
@@ -122,7 +131,7 @@ const JETS = [
     { 
         id: 'ghostleaf', 
         name: 'Ghost Leaf', 
-        price: 2000, 
+        price: 120000, 
         img: 'rec/motor/ghost-leaf.png', 
         logo: 'rec/motor/ghost-leaf.png',
         available: false,   // Set to false when the event ends
@@ -131,7 +140,7 @@ const JETS = [
     { 
         id: 'sego', 
         name: 'SEGO', 
-        price: 15000, 
+        price: 50000, 
         img: 'rec/motor/sego.png', 
         logo: 'rec/motor/sego.png',
         available: true,   // Set to false when the event ends
@@ -140,7 +149,7 @@ const JETS = [
     { 
         id: 'birthday-clowns', 
         name: 'Birthday Clowns', 
-        price: 13000, 
+        price: 35000, 
         img: 'rec/motor/cicero.png', 
         logo: 'rec/motor/cicero.png',
         available: true,   // Set to false when the event ends
@@ -158,7 +167,7 @@ const JETS = [
     { 
         id: 'sort', 
         name: 'Space-Or-Treat', 
-        price: 30000, 
+        price: 150000, 
         img: 'rec/motor/sort.png', 
         logo: 'rec/motor/sort.png',
         available: false,   // Set to false when the event ends
@@ -185,7 +194,7 @@ const JETS = [
     { 
         id: 'gold_wing', 
         name: 'Golden Wing', 
-        price: 150000, 
+        price: 500000, 
         img: 'rec/motor/premium-jet.png', 
         logo: 'rec/motor/premium-jet.png',
         available: true,

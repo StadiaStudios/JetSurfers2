@@ -1,3 +1,6 @@
+V1.4.4 (11/8/25) - - - 
+Price Changes to Jets and Upgrades. Bug Fixes, Adds back plank jet to shop (accidental removal). Performance enhancments. Revive Price now doubles every time you use it. 
+
 V1.3.3 (11/6/25) - - - 
 Shop tweaks, Bug Fixes,
 

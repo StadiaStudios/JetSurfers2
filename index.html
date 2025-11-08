@@ -241,7 +241,7 @@
             top: 110px; /* Below the jetpack bar */
         }
         #repairKitProgressBar {
-            background: linear-gradient(90deg, rgb(247, 244, 62), #5eff00)); /* Cyan gradient */
+            background: linear-gradient(90deg, rgb(1, 196, 255), #ff5e59); /* Cyan gradient */
         }
 
 
@@ -513,7 +513,7 @@
                      onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZHRoPSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSIjRkRFNCA0NyI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiLz48cGF0aCBmaWxsPSIjMDAwIiBkPSJNMTEgMTVIMTNWMTdIMTF6TTExIDdIMTNWMTNIMTF6Ii8+PC9zdmc+'; this.onerror=null;">
             </a>
             <button id="settingsButton" class="menu-button">SETTINGS</button>
-            <p class="text-xs text-gray-500 mt-6">Game Version: v1.3.3</p>
+            <p class="text-xs text-gray-500 mt-6">Game Version: v1.4.4</p>
         </div>
         
         <!-- NEW: Settings Menu Modal -->
@@ -545,7 +545,7 @@
 
             <!-- Game Version Display -->
             <div class="text-center text-gray-400 mt-6">
-                <p>Game Version: v1.3.3</p>
+                <p>Game Version: v1.4.4</p>
             </div>
 
             <button id="settingsBackButton" class="menu-button mt-8">BACK</button>
@@ -891,9 +891,9 @@
         const SPEED_INCREMENT_AMOUNT = 0.02;
         
         // Headstart Constants (NEW)
-        const HEADSTART_SCORE = 100000;
+        const HEADSTART_SCORE = 50000;
         const HEADSTART_DURATION_SECONDS = 10;
-        const HEADSTART_SPEED_MULTIPLIER = 30;
+        const HEADSTART_SPEED_MULTIPLIER = 5;
         
         // Magnet State Variables and Constants
         const MAGNET_DURATION_SECONDS_BASE = 10; // Base duration
@@ -973,6 +973,10 @@
         const SHAKE_MAGNITUDE = 10;
         const SHAKE_DURATION = 300;
         
+        // NEW: Revive cost constants
+        const INITIAL_REVIVE_COST = 300;
+        let currentReviveCost = INITIAL_REVIVE_COST;
+
         let boostEndTime = 0; // NEW: Headstart/Jetpack tracking
 
         // --- Background Styles (Updated for Red Theme) ---
@@ -1809,6 +1813,7 @@
             playerX = getLaneCenterX(currentLane);
             
             // Re-load data to ensure current magnet/jetpack level and jet are used
+            currentReviveCost = INITIAL_REVIVE_COST; // NEW: Reset revive cost
             loadGameData(); 
             updateMagnetDuration();
             updateJetpackDuration(); // NEW
@@ -1888,22 +1893,22 @@
         // NEW function for Headstart button
         function startWithHeadstart() {
             // Can't use both powerups at once
-            if (spendHeadstart()) {
+            if (spendHeadstart()) { 
                 initializeGame(true); // Headstart
             } else {
                 console.error("Cannot use headstart: None left.");
             }
-        }
+        } 
 
 
         // NEW: Function to handle reviving the player
         function revivePlayer() {
             initAudio(); // NEW: Call to unlock audio
-            if (spendCoins(300)) {
+            if (spendCoins(currentReviveCost)) {
                 // --- NEW: Track money spent ---
                 const storedSpent = localStorage.getItem(MONEY_SPENT_KEY);
                 let moneySpent = storedSpent ? parseInt(storedSpent, 10) : 0;
-                moneySpent += 300;
+                moneySpent += currentReviveCost;
                 localStorage.setItem(MONEY_SPENT_KEY, moneySpent);
                 // --- END: Track money spent ---
 
@@ -1922,6 +1927,9 @@
                 // A revive counts as continuing the game, but let's count it as a "play"
                 updateQuestProgress('play_game', 1);
                 // --- End Quest Update ---
+
+                // NEW: Double the revive cost for the next use
+                currentReviveCost *= 2;
 
                 // Resume the game
                 gameState = 'PLAYING';
@@ -1982,7 +1990,8 @@
             loadGameData(); 
             
             // --- NEW: Revive Button Logic ---
-            if (totalCoins >= 300) {
+            reviveButton.innerHTML = `REVIVE ($${currentReviveCost.toLocaleString()})`;
+            if (totalCoins >= currentReviveCost) {
                 reviveButton.classList.remove('hidden');
             } else {
                 reviveButton.classList.add('hidden');
