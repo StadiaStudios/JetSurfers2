@@ -170,10 +170,45 @@
             border-radius: 6px;
             border: 1px solid #4b5563;
         }
+
+        /* NEW: Star purchase effect */
+        .star-particle {
+            position: fixed; /* Use fixed positioning to place relative to viewport */
+            z-index: 1000;
+            width: 15px;
+            height: 15px;
+            background-color: #ffffff; /* White color */
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+            pointer-events: none;
+            opacity: 0;
+            animation: star-burst 0.8s ease-out forwards;
+        }
+
+        @keyframes star-burst {
+            0% {
+                opacity: 1;
+                transform: translate(0, 0) scale(0.5) rotate(0deg);
+            }
+            100% {
+                opacity: 0;
+                transform: var(--transform-end) scale(1) rotate(360deg);
+            }
+        }
+
         /* --- END: Jet Shop Styles --- */
     </style>
 </head>
 <body>
+
+    <!-- NEW: Offline Screen -->
+    <div id="offline-screen" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(17, 24, 39, 0.95); z-index: 50; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: white;">
+        <svg class="w-24 h-24 text-red-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width: 6rem; height: 6rem; color: #ef4444;">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m-12.728 0a9 9 0 010-12.728m12.728 0L5.636 18.364m0-12.728L18.364 18.364"></path>
+        </svg>
+        <h2 class="text-4xl font-extrabold text-white mt-4 mb-2" style="font-size: 2.25rem; font-weight: 800; margin-top: 1rem; margin-bottom: 0.5rem;">Connection Lost</h2>
+        <p class="text-xl text-gray-300" style="font-size: 1.25rem; color: #d1d5db;">Please connect to the internet to access the Jet Shop.</p>
+    </div>
+
 
     <div class="shop-container">
         <h2 class="text-3xl font-extrabold mb-4 text-white">JET SHOP</h2>
@@ -201,6 +236,9 @@
     // BUNDLES array is now defined in jets-data.js
     
     let totalCoins = 0;
+    // --- NEW: Audio Setup ---
+    const purchaseAudio = new Audio('sfx/purchase.mp3');
+
     let ownedJets = [DEFAULT_JET_ID];
     let selectedJetId = DEFAULT_JET_ID;
 
@@ -209,6 +247,48 @@
     const jetShopGrid = document.getElementById('jetShopGrid');
     const bundleShopGrid = document.getElementById('bundleShopGrid'); // NEW
     
+    // --- NEW: Star Purchase Effect ---
+    /**
+     * Creates a burst of star particles from a clicked button.
+     * @param {HTMLElement} buttonElement The button that was clicked.
+     */
+    function createStarEffect(buttonElement) {
+        const rect = buttonElement.getBoundingClientRect();
+        const startX = rect.left + rect.width / 2;
+        const startY = rect.top + rect.height / 2;
+        const particleCount = 15;
+
+        for (let i = 0; i < particleCount; i++) {
+            const star = document.createElement('div');
+            star.className = 'star-particle';
+
+            // Set initial position
+            star.style.left = `${startX}px`;
+            star.style.top = `${startY}px`;
+
+            // Set random end transform for the animation
+            const angle = Math.random() * 360;
+            const distance = Math.random() * 100 + 50;
+            const endX = Math.cos(angle * (Math.PI / 180)) * distance;
+            const endY = Math.sin(angle * (Math.PI / 180)) * distance;
+            star.style.setProperty('--transform-end', `translate(${endX}px, ${endY}px)`);
+
+            document.body.appendChild(star);
+
+            // Remove the particle after the animation finishes
+            setTimeout(() => {
+                star.remove();
+            }, 800); // Must match animation duration
+        }
+    }
+
+    /**
+     * Plays the purchase sound effect.
+     */
+    function playPurchaseSound() {
+        purchaseAudio.currentTime = 0;
+        purchaseAudio.play().catch(e => console.error("Purchase audio play failed:", e));
+    }
     // --- Data Functions ---
 
     function loadShopData() {
@@ -335,6 +415,9 @@
 
         const bundleId = button.dataset.bundleId;
         buyBundle(bundleId);
+        // NEW: Trigger effect
+        playPurchaseSound();
+        createStarEffect(button);
     }
 
     // Event handler for clicks inside the jet shop grid
@@ -351,6 +434,9 @@
         if (action === 'buy') {
             if (spendCoins(jet.price)) {
                 // Purchase successful
+                // NEW: Trigger effect
+                playPurchaseSound();
+                createStarEffect(button);
 
                 // --- NEW: Track money spent ---
                 const storedSpent = localStorage.getItem(MONEY_SPENT_KEY);
@@ -389,6 +475,10 @@
             // Purchase successful
             const newJets = bundle.jetIds.filter(jetId => !ownedJets.includes(jetId));
             
+            // NEW: Trigger effect (moved here to avoid playing sound on failure)
+            playPurchaseSound();
+            createStarEffect(document.querySelector(`[data-bundle-id="${bundleId}"]`));
+            
             // Add new jets to owned list
             ownedJets.push(...newJets);
             saveOwnedJets();
@@ -412,10 +502,32 @@
     jetShopGrid.addEventListener('click', handleJetShopClick);
     bundleShopGrid.addEventListener('click', handleBundleShopClick); // NEW
 
+    // --- NEW: Offline Detection ---
+    function handleConnectionChange() {
+        const offlineScreen = document.getElementById('offline-screen');
+        const shopContainer = document.querySelector('.shop-container');
+
+        if (navigator.onLine) {
+            // We are online
+            offlineScreen.style.display = 'none';
+            shopContainer.style.display = 'block';
+            // Refresh data in case we came back online
+            loadShopData();
+            populateJetShop();
+            populateBundleShop();
+        } else {
+            // We are offline
+            offlineScreen.style.display = 'flex';
+            shopContainer.style.display = 'none';
+        }
+    }
+
+    window.addEventListener('online', handleConnectionChange);
+    window.addEventListener('offline', handleConnectionChange);
+
     window.onload = function() {
-        loadShopData();
-        populateJetShop();
-        populateBundleShop(); // NEW
+        // Initial check on page load
+        handleConnectionChange();
     };
 
 </script>

@@ -417,6 +417,16 @@
 </head>
 <body>
 
+<!-- NEW: Offline Screen -->
+<div id="offline-screen" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(17, 24, 39, 0.95); z-index: 1001; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: white;">
+    <svg class="w-24 h-24 text-red-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width: 6rem; height: 6rem; color: #ef4444;">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m-12.728 0a9 9 0 010-12.728m12.728 0L5.636 18.364m0-12.728L18.364 18.364"></path>
+    </svg>
+    <h2 class="text-4xl font-extrabold text-white mt-4 mb-2" style="font-size: 2.25rem; font-weight: 800; margin-top: 1rem; margin-bottom: 0.5rem;">Connection Lost</h2>
+    <p class="text-xl text-gray-300" style="font-size: 1.25rem; color: #d1d5db;">Please connect to the internet to play JetSurfers 2.</p>
+</div>
+
+
 <div id="gameContainer">
 
     <canvas id="gameCanvas"></canvas>
@@ -513,7 +523,7 @@
                      onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZHRoPSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSIjRkRFNCA0NyI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiLz48cGF0aCBmaWxsPSIjMDAwIiBkPSJNMTEgMTVIMTNWMTdIMTF6TTExIDdIMTNWMTNIMTF6Ii8+PC9zdmc+'; this.onerror=null;">
             </a>
             <button id="settingsButton" class="menu-button">SETTINGS</button>
-            <p class="text-xs text-gray-500 mt-6">Game Version: v1.4.4</p>
+            <p class="text-xs text-gray-500 mt-6">Game Version: v1.5.4</p>
         </div>
         
         <!-- NEW: Settings Menu Modal -->
@@ -545,7 +555,7 @@
 
             <!-- Game Version Display -->
             <div class="text-center text-gray-400 mt-6">
-                <p>Game Version: v1.4.4</p>
+                <p>Game Version: v1.5.4</p>
             </div>
 
             <button id="settingsBackButton" class="menu-button mt-8">BACK</button>
@@ -569,6 +579,30 @@
 <script>
     // Start initialization and game loop on load
     window.onload = function() {
+        // --- NEW: Offline Detection ---
+        function handleConnectionChange() {
+            const offlineScreen = document.getElementById('offline-screen');
+            const gameContainer = document.getElementById('gameContainer');
+            const loadingScreen = document.getElementById('loadingScreen');
+
+            if (navigator.onLine) {
+                // We are online
+                offlineScreen.style.display = 'none';
+                gameContainer.style.display = 'block';
+                loadingScreen.style.display = 'flex'; // Show loading screen if it was hidden
+                // Refresh data in case we came back online
+                loadGameData();
+                checkQuestCompletion();
+            } else {
+                // We are offline
+                offlineScreen.style.display = 'flex';
+                gameContainer.style.display = 'none';
+                loadingScreen.style.display = 'none'; // Hide loading screen if offline
+            }
+        }
+
+        window.addEventListener('online', handleConnectionChange);
+        window.addEventListener('offline', handleConnectionChange);
         // === NEW: First Visit Loading Screen Logic ===
         const VISITED_KEY = 'jetSurfersVisited';
         // === Jets data and storage keys are now loaded from jets-data.js ===
@@ -1259,7 +1293,7 @@
                     // Coin
                     // --- NEW: Add gold glow effect ---
                     ctx.save(); // Save current context state
-                    ctx.shadowColor = '#ffd700'; // Gold color
+                    ctx.shadowColor = 'white'; // Gold color
                     ctx.shadowBlur = 15; // The blur radius for the glow
 
                     if (coinImg.isLoaded) {
@@ -1274,7 +1308,7 @@
                 } else if (this.type === 'magnet') {
                      // Magnet Power-up
                     ctx.save();
-                    ctx.shadowColor = '#9333ea'; // Purple glow
+                    ctx.shadowColor = 'orange'; // Purple glow
                     ctx.shadowBlur = 15;
 
                     if (magnetImg.isLoaded) {
@@ -1294,7 +1328,7 @@
                 } else if (this.type === 'jetpack') { // NEW: Draw Jetpack
                      // Jetpack Power-up
                     ctx.save();
-                    ctx.shadowColor = '#f97316'; // Orange glow
+                    ctx.shadowColor = 'gold'; // Orange glow
                     ctx.shadowBlur = 15;
 
                     if (jetpackImg.isLoaded) {
@@ -1412,7 +1446,7 @@
             if (coinRoll < 0.3) { // 30% chance of an item spawn
                 const itemRoll = Math.random();
                 // Only spawn a power-up if one isn't already active
-                if (itemRoll < JETPACK_SPAWN_CHANCE && !isJetpackActive && !isMagnetActive && currentTime > jetpackCooldownEndTime) { // NEW: Check cooldown
+                if (itemRoll < JETPACK_SPAWN_CHANCE && !isJetpackActive && currentTime > jetpackCooldownEndTime) { // NEW: Check cooldown & allow spawn during magnet
                     type = 'jetpack';
                 } else if (itemRoll < (JETPACK_SPAWN_CHANCE + MAGNET_SPAWN_CHANCE) && !isMagnetActive && !isJetpackActive) { 
                     type = 'magnet';
@@ -1497,6 +1531,7 @@
             jetpackProgressContainer.classList.remove('opacity-0'); // Show progress bar
             playPowerupSound();
 
+            if (isMagnetActive) deactivateMagnet(); // NEW: Deactivate magnet if one is active
             // Remove all enemies and other power-ups from the screen
             obstacles = obstacles.filter(obstacle => obstacle.type === 'coin');
         }
@@ -1678,7 +1713,7 @@
                         blur = maxBlur;
                     }
                     
-                    ctx.shadowColor = 'red'; // This was the original glow color
+                    ctx.shadowColor = 'orange'; // This was the original glow color
                     ctx.shadowBlur = blur;
                 }
 
@@ -1692,7 +1727,7 @@
                          blur = maxBlur * (0.5 + Math.abs(Math.sin(performance.now() / 50))); // Flicker
                     }
                     
-                    ctx.shadowColor = 'rgba(255, 234, 0)'; // Cyan
+                    ctx.shadowColor = 'cyan'; // Cyan
                     ctx.shadowBlur = blur;
                 }
 
@@ -2293,7 +2328,13 @@
             }
             
             // 3. Score Update
-            score += currentEffectiveGameSpeed * 10 * deltaTime; 
+            let scoreIncrement = currentEffectiveGameSpeed * 10 * deltaTime;
+            // NEW: Add a massive score multiplier when the jetpack is active
+            if (isJetpackActive) {
+                scoreIncrement *= 10; // Make the score go insanely fast!
+            }
+            score += scoreIncrement;
+
 
             // 4. Update Player Position
             const targetX = getLaneCenterX(targetLane);
@@ -2510,6 +2551,9 @@
         // --- This is the content that was originally at the bottom ---
         loadGameData(); // Load all persistent data (coins, magnet level, jets, and headstarts)
         updateMagnetDuration(); // Ensure the duration is correct on startup
+
+        handleConnectionChange(); // Initial check on page load
+
         updateJetpackDuration(); // NEW
         setupCanvas();
         

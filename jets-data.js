@@ -120,6 +120,15 @@ const JETS = [
         limited: false      // Marks it as a limited jet
     },
     { 
+        id: 'xmas-hovercraft', 
+        name: 'XMAS Hovercraft', 
+        price: 80000, 
+        img: 'rec/motor/xmas-hovercraft.png', 
+        logo: 'rec/motor/xmas-hovercraft.png',
+        available: true,   // Set to false when the event ends
+        limited: true      // Marks it as a limited jet
+    },
+    { 
         id: 'leaf', 
         name: 'Leaf', 
         price: 90000, 
@@ -193,7 +202,7 @@ const JETS = [
     },
     { 
         id: 'youngdollazz', 
-        name: 'youngdollazz', 
+        name: 'YoungDollazz', 
         price: 999999999, 
         img: 'rec/motor/youngdollazz.png', 
         logo: 'rec/motor/youngdollazz.png',
@@ -208,6 +217,24 @@ const JETS = [
         logo: 'rec/motor/premium-jet.png',
         available: true,
         limited: false
+    },
+    { 
+        id: 'pressure-3000', 
+        name: 'Pressure 3000', 
+        price: 35000, 
+        img: 'rec/motor/pressure3000.png', 
+        logo: 'rec/motor/pressure3000.png',
+        available: true,
+        limited: false
+    },
+    { 
+        id: 'deathractor', 
+        name: 'Deathractor', 
+        price: 150000, 
+        img: 'rec/motor/deathractor.png', 
+        logo: 'rec/motor/deathractor.png',
+        available: true,
+        limited: true
     }
 ];
 
@@ -232,9 +259,9 @@ const BUNDLES = [
         id: 'festive2025pack',
         name: 'Festive 2025 Pack (-30% OFF)',
         // flake-tron, leaf, hovercraft (all limited)
-        jetIds: ['flake-tron', 'reindeer-festive2025', 'festive-star'],
-        price: 143500
-    }
+        jetIds: ['flake-tron', 'reindeer-festive2025', 'xmas-hovercraft'],
+        price: 213000
+    },
 ];
 
 
