@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jet Surfers 2 - Installer</title>
+
+    <!--
+    The external dependencies (Tailwind CDN and Google Fonts) have been removed
+    to ensure the page loads correctly even without internet access.
+    All required styling is now inlined below.
+    -->
+
+    <style>
+        /* Define CSS Variables for easy color management */
+        :root {
+            --color-cyan-base: #22d3ee; /* Original cyan-400 */
+            --color-cyan-dark: #0891b2; /* Original cyan-600 */
+            --color-cyan-hover: #06b6d4; /* Original cyan-500 */
+            --color-orange-base: #f97316; /* Original orange-600 */
+            --color-orange-hover: #f59e0b; /* Original orange-500 */
+            --color-gray-dark: #1f2937;
+            --color-gray-vdark: #0c0a09;
+            --color-text-light: #d1d5db; /* gray-300 */
+            --color-text-muted: #6b7280; /* gray-500 */
+        }
+        
+        body {
+            /* Fallback Font: Inter (if local), then a standard sans-serif stack */
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, var(--color-gray-dark) 0%, var(--color-gray-vdark) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 1rem;
+            color: white;
+            overflow: hidden;
+        }
+
+        /* Container (Mimics w-full max-w-4xl p-4 sm:p-6 lg:p-8) */
+        .main-container {
+            width: 100%;
+            max-width: 56rem; /* max-w-4xl */
+            padding: 1rem; /* Base p-4 */
+        }
+        @media (min-width: 640px) { /* sm breakpoint */
+            .main-container { padding: 1.5rem; }
+        }
+        @media (min-width: 1024px) { /* lg breakpoint */
+            .main-container { padding: 2rem; }
+        }
+
+        /* Content Box (Mimics p-6 md:p-12) */
+        .content-box {
+            padding: 1.5rem; /* p-6 */
+            text-align: center;
+        }
+        @media (min-width: 768px) { /* md breakpoint */
+            .content-box {
+                padding: 3rem; /* md:p-12 */
+            }
+        }
+
+        /* Title Styling */
+        .main-title {
+            font-size: 3rem; /* Default for 6xl */
+            font-weight: 900; /* font-extrabold */
+            color: var(--color-cyan-base);
+            margin-bottom: 0.5rem; /* mb-2 */
+            letter-spacing: -0.05em; /* tracking-tight */
+        }
+        @media (min-width: 640px) {
+            .main-title {
+                font-size: 4.5rem; /* Equivalent to 7xl on small screens */
+            }
+        }
+
+        .glow-text {
+            text-shadow: 0 0 8px rgba(103, 232, 249, 0.9), 0 0 15px rgba(6, 182, 212, 0.7);
+        }
+        
+        .subtitle {
+            font-size: 1.25rem; /* text-xl */
+            font-weight: 300; /* font-light */
+            color: var(--color-text-light);
+            margin-bottom: 2.5rem; /* mb-10 */
+        }
+        @media (min-width: 640px) {
+            .subtitle {
+                font-size: 1.5rem; /* text-2xl */
+            }
+        }
+
+        /* Button Container (Mimics flex flex-col sm:flex-row justify-center gap-6) */
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 1.5rem; /* gap-6 */
+        }
+        @media (min-width: 640px) {
+            .button-group {
+                flex-direction: row;
+            }
+        }
+
+        /* Base Button Style */
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            padding: 1rem 2.5rem; /* py-4 px-10 */
+            border-radius: 0.5rem; /* rounded-lg */
+            font-size: 1.125rem; /* text-lg */
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: white;
+            white-space: nowrap;
+            box-sizing: border-box;
+        }
+        
+        .btn svg {
+            height: 1.5rem;
+            width: 1.5rem;
+            margin-right: 0.75rem;
+        }
+
+        /* Primary Button: Play */
+        .btn-primary {
+            background-color: var(--color-cyan-dark);
+            box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4);
+        }
+        .btn-primary:hover {
+            background-color: var(--color-cyan-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(6, 182, 212, 0.6);
+        }
+
+        /* Secondary Button: Download */
+        .btn-secondary {
+            background-color: var(--color-orange-base);
+            box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);
+        }
+        .btn-secondary:hover {
+            background-color: var(--color-orange-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(249, 115, 22, 0.6);
+        }
+
+        /* Footer (Mimics mt-12 text-gray-500 text-sm) */
+        .footer-text {
+            margin-top: 3rem;
+            color: var(--color-text-muted);
+            font-size: 0.875rem;
+        }
+
+        .footer-text a {
+            color: var(--color-text-muted);
+            transition: color 0.3s;
+            text-decoration: none;
+        }
+        
+        .footer-text a:hover {
+            color: var(--color-cyan-base);
+        }
+    </style>
+</head>
+<body>
+
+    <main class="main-container">
+        <div class="content-box">
+            
+            <!-- Game Logo/Title -->
+            <h1 class="main-title glow-text">
+                JET SURFERS 2
+            </h1>
+            <p class="subtitle">
+                High Speed Jet Surfing with active updates!
+            </p>
+
+            <!-- Call to Action Buttons -->
+            <div class="button-group">
+                
+                <!-- Play in Browser Button -->
+                <a href="https://stadiastudios.github.io/JetSurfers2/" target="_blank"
+                   class="btn btn-primary">
+                    <!-- Icon for Play (Inline SVG) -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M6 3L18 12L6 21V3Z" />
+                    </svg>
+                    Play in Browser
+                </a>
+
+                <!-- Download on GitHub Button -->
+                <a href="https://github.com/StadiaStudios/JetSurfers2" target="_blank"
+                   class="btn btn-secondary">
+                    <!-- Icon for GitHub (Inline SVG) -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3" viewBox="0 0 24 24" fill="currentColor">
+                        <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.418 2.867 8.134 6.83 9.48.5.092.682-.217.682-.483 0-.237-.008-.865-.013-1.7c-2.782.604-3.37-1.341-3.37-1.341-.454-1.156-1.11-1.464-1.11-1.464-.908-.619.069-.607.069-.607 1.004.072 1.531 1.032 1.531 1.032.892 1.529 2.341 1.088 2.91.83.092-.647.35-1.088.636-1.338-2.22-.25-4.555-1.11-4.555-4.939 0-1.088.389-1.979 1.029-2.677-.103-.252-.446-1.266.098-2.631 0 0 .84-.268 2.75 1.022A9.624 9.624 0 0 1 12 6.845c.85.004 1.703.111 2.503.328 1.908-1.29 2.747-1.022 2.747-1.022.546 1.365.202 2.379.1 2.631.641.698 1.028 1.589 1.028 2.677 0 3.83-2.339 4.685-4.562 4.931.359.369.678.918.678 1.846 0 1.338-.012 2.417-.012 2.747 0 .267.18.577.688.484C20.134 20.142 23 16.425 23 12.017 23 6.484 18.522 2 13 2h-1Z" clip-rule="evenodd" />
+                    </svg>
+                    Download on GitHub
+                </a>
+            </div>
+
+            <!-- Game Info / Footer -->
+            <p class="footer-text">
+                Stadia Installer for Itch.io | <a href="https://stadiastudios.github.io/stadia/">StadiaStudios</a>
+            </p>
+
+        </div>
+    </main>
+</body>
+</html>
