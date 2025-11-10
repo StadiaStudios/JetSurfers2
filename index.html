@@ -100,7 +100,7 @@
             flex-shrink: 0; /* Prevent flex items from shrinking */
         }
         .score-box {
-            background: #008cff;
+            background: #000000e0;
             padding: 8px 12px;
             border-radius: 8px;
             display: flex;
@@ -116,9 +116,9 @@
         }
         .coin-icon {
             /* Now an image, not a star text */
-            width: 18px; 
-            height: 18px;
-            margin-right: 6px;
+            width: 30px; 
+            height: 30px;
+            margin-right: 8px;
             /* Added object-fit for visual consistency */
             object-fit: contain; 
         }
@@ -216,7 +216,7 @@
             position: absolute;
             left: 8px;
             color: white;
-            font-size: 0.9rem;
+            font-size: 1.1rem;
             z-index: 2;
         }
 
@@ -248,7 +248,7 @@
         /* --- Pause Button Styles --- */
         .pause-button {
             pointer-events: auto; /* Allow clicks */
-            background: #008cff;
+            background: #000000e0;
             padding: 8px;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
@@ -261,12 +261,12 @@
         }
 
         .pause-button:hover {
-            background-color: rgba(0, 0, 0, 0.8);
+            background-color: rgb(170, 163, 64);
         }
 
         .pause-button img {
-            width: 20px;
-            height: 20px;
+            width: 30px;
+            height: 30px;
             display: block;
             margin: 0;
         }
@@ -369,7 +369,7 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            background: #8db1ff; /* Dark background */
+            background: #0f0f0f; /* Dark background */
             z-index: 1000; /* Highest z-index */
             display: flex;
             justify-content: center;
@@ -542,6 +542,17 @@
                 <span id="settingsJetsOwnedValue" class="stat-value">0/0</span>
             </div>
 
+            <!-- NEW: Disable Loading Screen Toggle -->
+            <div class="stat-item">
+                <span class="stat-label">Disable Loading Screen</span>
+                <!-- Tailwind CSS Toggle Switch -->
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="disableLoadingScreenToggle" class="sr-only peer">
+                    <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                </label>
+            </div>
+
+
             <!-- NEW: What's New Button -->
             <a href="changelog.txt" class="menu-button mt-4">WHAT'S NEW</a>
 
@@ -572,7 +583,8 @@
     <div class="loading-content">
         <!-- Using the same icon as the favicon for consistency -->
         <img src="rec/xmas-icon.jpg" alt="JetSurfers Logo" onerror="this.style.display='none'">
-        <h1>JetSurfers</h1>
+        <h1>JetSurfers 2</h1>
+        <p>StadiaStudios Presents</p>
     </div>
 </div>
 
@@ -611,6 +623,9 @@
         // Make sure to define REPAIR_KIT_COUNT_KEY if it's not in jets-data.js
         const REPAIR_KIT_COUNT_KEY = 'jetSurferRepairKitCount'; // DEFINED HERE
         const JETPACK_LEVEL_KEY = 'jetSurferJetpackLevel'; // NEW KEY
+
+        // --- NEW: Settings Storage Keys ---
+        const LOADING_SCREEN_DISABLED_KEY = 'jetSurferLoadingScreenDisabled';
 
         const ALL_STORAGE_KEYS = [
             COIN_STORAGE_KEY, MAGNET_LEVEL_KEY, JET_OWNED_KEY, 
@@ -892,6 +907,7 @@
         const settingsModal = document.getElementById('settingsModal'); // NEW
         const settingsBackButton = document.getElementById('settingsBackButton'); // NEW
         const quitButton = document.getElementById('quitButton');
+        const disableLoadingScreenToggle = document.getElementById('disableLoadingScreenToggle'); // NEW
         const settingsHighScoreValue = document.getElementById('settingsHighScoreValue'); // NEW
         
         // --- NEW: Settings Export/Import Elements ---
@@ -1117,14 +1133,14 @@
         const backgroundMusic = new Audio('sfx/ambience/wind.mp3');
         
 
-        coinSound.volume = 0.6; 
-        deathSound.volume = 1.0;
-        powerupSound.volume = 0.6;
+        coinSound.volume = 0.4; 
+        deathSound.volume = 0.3;
+        powerupSound.volume = 0.3;
         rainSound.loop = true;
-        rainSound.volume = 1.0; // Set rain volume to be ambient
+        rainSound.volume = 0.3; // Set rain volume to be ambient
         backgroundMusic.loop = true;
-        backgroundMusic.volume = 1.0; // Lower volume so it's not overpowering
-        boostSound.volume = 1.0;
+        backgroundMusic.volume = 0.3; // Lower volume so it's not overpowering
+        boostSound.volume = 0.3;
         boostSound.loop = false; // FIX: Set boost sound loop to false
 
         let audioInitialized = false;
@@ -2436,6 +2452,15 @@
             // This correctly counts all owned jets and the total number of jets from jets-data.js
             const jetsOwnedCount = ownedJets.length;
             const totalJetsCount = JETS.length;
+            
+            // --- NEW: Load and set the loading screen toggle state ---
+            const isLoadingDisabled = localStorage.getItem(LOADING_SCREEN_DISABLED_KEY) === 'true';
+            disableLoadingScreenToggle.checked = isLoadingDisabled;
+
+            disableLoadingScreenToggle.addEventListener('change', () => {
+                localStorage.setItem(LOADING_SCREEN_DISABLED_KEY, disableLoadingScreenToggle.checked);
+            });
+            // --- END ---
 
             document.getElementById('settingsJetsOwnedValue').textContent = `${jetsOwnedCount}/${totalJetsCount}`;
 
@@ -2570,15 +2595,20 @@
         animationFrameId = requestAnimationFrame(gameLoop);
 
         // --- NEW: Handle Loading Screen Visibility ---
-        // Always show the loading screen
         const loadingScreen = document.getElementById('loadingScreen');
-        loadingScreen.style.display = 'flex'; // Make sure it's visible
-        setTimeout(() => {
-            loadingScreen.classList.add('hidden');
+        const isDisabled = localStorage.getItem(LOADING_SCREEN_DISABLED_KEY) === 'true';
+
+        if (isDisabled) {
+            // If disabled, hide it immediately and don't show it.
+            loadingScreen.style.display = 'none';
+        } else {
+            // Otherwise, show it and then fade it out.
+            loadingScreen.style.display = 'flex';
             setTimeout(() => {
-                loadingScreen.style.display = 'none';
-            }, 500); // CSS transition duration
-        }, 2500); // Show for 2.5 seconds
+                loadingScreen.classList.add('hidden');
+                setTimeout(() => { loadingScreen.style.display = 'none'; }, 500); // CSS transition duration
+            }, 2500); // Show for 2.5 seconds
+        }
     }
 
 </script>
