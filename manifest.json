@@ -1,27 +1,21 @@
 {
-  "name": "JetSurfers 2",
-  "short_name": "JetSurfers 2",
-  "description": "Surf Through space, Collect Coins! Buy Upgrades!",
+  "name": "PassPro",
+  "short_name": "PassPro",
+  "description": "A simple password manager",
   "start_url": "index.html",
   "display": "standalone",
   "background_color": "#111",
   "theme_color": "#111",
   "icons": [
     {
-      "src": "rec/game-icon.jpg",
+      "src": "assets/favicon.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "rec/game-icon.jpg",
+      "src": "assets/favicon.png",
       "sizes": "512x512",
       "type": "image/png"
-    },
-    {
-      "src": "rec/game-icon.jpg",
-      "sizes": "180x180",
-      "type": "image/png",
-      "purpose": "apple touch icon"
     }
   ]
 }
