@@ -369,13 +369,13 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            background: #0f0f0f; /* Dark background */
+            background: #ff0000; /* Dark background */
             z-index: 1000; /* Highest z-index */
             display: flex;
             justify-content: center;
             align-items: center;
             flex-direction: column;
-            color: white;
+            color: rgb(98, 231, 255);
             transition: opacity 0.5s ease-out;
             text-align: center;
         }
@@ -398,7 +398,7 @@
         .loading-content h1 {
             font-size: 2.5rem;
             font-weight: 900;
-            text-shadow: 0 0 10px #398bff;
+            text-shadow: 0 0 30px rgb(136, 136, 255);
         }
 
         .loading-content p {
@@ -524,7 +524,7 @@
             </a>
             <a href="mapselect.html"><button class="menu-button">MAPS</button></a>
             <button id="settingsButton" class="menu-button">SETTINGS</button>
-            <p class="text-xs text-gray-500 mt-6">Game Version: v1.5.4</p>
+            <p class="text-xs text-gray-500 mt-6">Game Version: v1.6.5</p>
         </div>
         
         <!-- NEW: Settings Menu Modal -->
@@ -567,7 +567,7 @@
 
             <!-- Game Version Display -->
             <div class="text-center text-gray-400 mt-6">
-                <p>Game Version: v1.5.4</p>
+                <p>Game Version: v1.6.5</p>
             </div>
 
             <button id="settingsBackButton" class="menu-button mt-8">BACK</button>
@@ -583,9 +583,9 @@
 <div id="loadingScreen">
     <div class="loading-content">
         <!-- Using the same icon as the favicon for consistency -->
-        <img src="rec/xmas-icon.jpg" alt="JetSurfers Logo" onerror="this.style.display='none'">
+        <img src="rec/game-icon.jpg" alt="JetSurfers Logo" onerror="this.style.display='none'">
         <h1>JetSurfers 2</h1>
-        <p>StadiaStudios Presents</p>
+        <p>A StadiaStudios Production</p>
     </div>
 </div>
 

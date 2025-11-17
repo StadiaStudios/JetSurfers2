@@ -57,6 +57,33 @@ const JETS = [
         limited: true
     },
     { 
+        id: 'marecrow', 
+        name: 'Mare-crow', 
+        price: 90000, 
+        img: 'rec/motor/marecrow.png', 
+        logo: 'rec/motor/marecrow.png',
+        available: true,
+        limited: true
+    },
+    { 
+        id: 'Reiny', 
+        name: 'Reiny', 
+        price: 150000, 
+        img: 'rec/motor/reiny.png', 
+        logo: 'rec/motor/reiny.png',
+        available: true,
+        limited: true
+    },
+    { 
+        id: 'santa-jet', 
+        name: 'Santa Jet', 
+        price: 150000, 
+        img: 'rec/motor/santa-jet.png', 
+        logo: 'rec/motor/santa-jet.png',
+        available: true,
+        limited: true
+    },
+    { 
         id: 'shardship', 
         name: 'Shard Ship', 
         price: 20000, 

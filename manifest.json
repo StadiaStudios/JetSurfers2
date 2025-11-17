@@ -4,8 +4,8 @@
   "description": "Surf Through space, Collect Coins! Buy Upgrades!",
   "start_url": "index.html",
   "display": "standalone",
-  "background_color": "#111",
-  "theme_color": "#111",
+  "background_color": "#111111",
+  "theme_color": "#111111",
   "icons": [
     {
       "src": "rec/game-icon.jpg",

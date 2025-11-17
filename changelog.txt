@@ -1,8 +1,10 @@
-V1.6.4 (11/11/25) - - - 
-Adds New Maps and a Map Selection, Changes move speed to classic speed. Revive costs are now $100 with $20+ each time you die,
+V1.6.5 (11/17/25) - - - 
+Adds New Maps and a Map Selection, Changes move speed to classic speed. Revive costs are now $100 with $20+ each time you die, Winter Updates and New Jets, Bug fixes to Web URL. Bug fixes to loading screen.
 
 Maps Added Include: 
 Frostbite Freeway
+Classic City
+Neon City
 
 Version Notes:
 The new maps implemented may take time on major updates like adding new collectibles etc. As they are just a seperate page instead of all being in the same one. However options will remain the same and all progress gained will still remain to work correctly. The "Map Game Version: V?.?.??" Reveals the game version last updated on that map. However the initial loaded map is always the default.
