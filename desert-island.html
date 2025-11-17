@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-g">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JetSurfers 2</title>
+    <title>JetSurfers 2 - Frostbite Freeway</title>
     <!-- Assuming these scripts exist in the folder structure -->
     <!-- <script src="weather/snowfall_effect.js"></script> -->
     <!-- <script src="weather/rain_effect.js"></script> -->
@@ -19,17 +19,18 @@
         /* Custom Styles for Game Canvas and UI */
         body {
             font-family: 'Inter', sans-serif;
-            /* Default background, will be set by JS on load using DEFAULT_BACKGROUND constant */
-            background: linear-gradient(180deg, #9b9292 0%, #887575 100%); /* Initial Red Gradient */
+            /* Background image for the page */
+            background-image: url('https://images.pexels.com/photos/994605/pexels-photo-994605.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1');
+            background-size: cover; /* Cover the entire viewport */
+            background-position: center; /* Center the image */
+            background-repeat: no-repeat; /* Do not repeat the image */
+            background-attachment: fixed; /* Keep the background fixed during scroll */
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             margin: 0;
             user-select: none;
-            overflow: hidden; /* Prevent scrolling */
-            /* Added transition for smooth background color change */
-            transition: background 0.8s ease;
         }
         #gameContainer {
             width: 100%;
@@ -524,7 +525,7 @@
             </a>
             <a href="mapselect.html"><button class="menu-button">MAPS</button></a>
             <button id="settingsButton" class="menu-button">SETTINGS</button>
-            <p class="text-xs text-gray-500 mt-6">Game Version: v1.5.4</p>
+            <p class="text-xs text-gray-500 mt-6">Map Game Version: v1.5.4</p>
         </div>
         
         <!-- NEW: Settings Menu Modal -->
@@ -567,7 +568,7 @@
 
             <!-- Game Version Display -->
             <div class="text-center text-gray-400 mt-6">
-                <p>Game Version: v1.5.4</p>
+                <p>Map Game Version: v1.5.4</p>
             </div>
 
             <button id="settingsBackButton" class="menu-button mt-8">BACK</button>
@@ -936,7 +937,7 @@
         const PLAYER_SIZE = 60;
         const COLLISION_SIZE_RATIO = 0.7;
         const PLAYER_Y_POS_RATIO = 0.8;
-        const PLAYER_MOVE_SPEED = 0.06;
+        const PLAYER_MOVE_SPEED = 0.05;
         const INITIAL_GAME_SPEED = 4;
         const SPEED_INCREMENT_SCORE = 1000;
         const SPEED_INCREMENT_AMOUNT = 0.02;
@@ -1065,13 +1066,13 @@
             }
         }
         // Default background (Red)
-        const DEFAULT_BACKGROUND = 'linear-gradient(315deg, #1b2845 0%, #000f89 98%)'; 
+        const DEFAULT_BACKGROUND = "url('https://images.pexels.com/photos/994605/pexels-photo-994605.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1')"; 
         // Darker, stormy, spaceous red gradient
-        const RAIN_BACKGROUND = 'linear-gradient(315deg, #003366 0%, #242124 74%)'; 
+        const RAIN_BACKGROUND = "url('https://images.pexels.com/photos/39811/pexels-photo-39811.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1')"; 
 
         // --- Canvas Background Styles (NEW) ---
-        const SNOW_CANVAS_BACKGROUND = 'linear-gradient(315deg, #1b2845 0%, #000f89 74%)'; /* Light Blue Sky Gradient */
-        const DARK_CANVAS_BACKGROUND = 'linear-gradient(315deg, #003366 0%, #242124 74%)'; 
+        const SNOW_CANVAS_BACKGROUND = 'linear-gradient(317deg,rgba(181, 181, 181, 1) 0%, rgba(209, 209, 209, 1) 50%, rgba(209, 209, 209, 1) 100%)'; /* Light Blue Sky Gradient */
+        const DARK_CANVAS_BACKGROUND = 'linear-gradient(317deg,rgba(184, 184, 184, 1) 0%, rgba(161, 166, 161, 1) 50%, rgba(204, 212, 203, 1) 93%)'; 
         
         // --- Rain State Variables ---
         let rainTimer = 0;
@@ -1291,11 +1292,11 @@
                 if (this.type === 'enemy') {
                     // --- NEW: Add red glow effect ---
                     ctx.save();
-                    ctx.shadowColor = 'blue';
+                    ctx.shadowColor = 'white';
                     ctx.shadowBlur = 15;
 
                     // Enemy Plane (Red/Black)
-                    ctx.fillStyle = this.isHit ? 'blue' : 'blue';
+                    ctx.fillStyle = this.isHit ? 'white' : 'gray';
                     ctx.beginPath();
                     // Simple delta wing shape
                     ctx.moveTo(xCenter, y);
@@ -1310,7 +1311,7 @@
                     // Coin
                     // --- NEW: Add gold glow effect ---
                     ctx.save(); // Save current context state
-                    ctx.shadowColor = 'blue'; // Gold color
+                    ctx.shadowColor = 'white'; // Gold color
                     ctx.shadowBlur = 15; // The blur radius for the glow
 
                     if (coinImg.isLoaded) {
@@ -1325,7 +1326,7 @@
                 } else if (this.type === 'magnet') {
                      // Magnet Power-up
                     ctx.save();
-                    ctx.shadowColor = 'blue'; // Purple glow
+                    ctx.shadowColor = 'orange'; // Purple glow
                     ctx.shadowBlur = 15;
 
                     if (magnetImg.isLoaded) {
@@ -1335,7 +1336,7 @@
                         // Fallback to a purple square with an icon
                         ctx.fillStyle = '#9333ea'; // Deep Purple
                         ctx.fillRect(xCenter - this.size / 2, y, this.size, this.size);
-                        ctx.fillStyle = 'blue';
+                        ctx.fillStyle = 'white';
                         ctx.font = `${this.size * 0.6}px sans-serif`;
                         ctx.textAlign = 'center';
                         ctx.textBaseline = 'middle';
@@ -1345,7 +1346,7 @@
                 } else if (this.type === 'jetpack') { // NEW: Draw Jetpack
                      // Jetpack Power-up
                     ctx.save();
-                    ctx.shadowColor = 'blue'; // Orange glow
+                    ctx.shadowColor = 'gold'; // Orange glow
                     ctx.shadowBlur = 15;
 
                     if (jetpackImg.isLoaded) {
@@ -1355,7 +1356,7 @@
                         // Fallback to an orange square with an icon
                         ctx.fillStyle = '#f97316'; // Orange
                         ctx.fillRect(xCenter - this.size / 2, y, this.size, this.size);
-                        ctx.fillStyle = 'blue';
+                        ctx.fillStyle = 'white';
                         ctx.font = `${this.size * 0.6}px sans-serif`;
                         ctx.textAlign = 'center';
                         ctx.textBaseline = 'middle';
@@ -1697,7 +1698,7 @@
                     const flameFlickerWidth = baseFlameWidth + (Math.random() * 10 - 5);
 
                     // Outer flame (yellow/orange)
-                    ctx.fillStyle = `rgba(255, ${180 + Math.random() * 55}, 0, 0.7)`;
+                    ctx.fillStyle = `white`;
                     ctx.beginPath();
                     ctx.moveTo(playerX - flameFlickerWidth / 2, flameBaseY);
                     ctx.lineTo(playerX + flameFlickerWidth / 2, flameBaseY);
@@ -1730,7 +1731,7 @@
                         blur = maxBlur;
                     }
                     
-                    ctx.shadowColor = 'blue'; // This was the original glow color
+                    ctx.shadowColor = 'orange'; // This was the original glow color
                     ctx.shadowBlur = blur;
                 }
 
@@ -1751,7 +1752,7 @@
                 // NEW: Draw a white shield/glow if invincible after reviving
                 if (performance.now() < reviveInvincibilityEndTime) {
                     const invincibilityProgress = (reviveInvincibilityEndTime - performance.now()) / 2000; // 2-second duration
-                    ctx.shadowColor = `blue ${0.8 * invincibilityProgress})`; // Fade out effect
+                    ctx.shadowColor = `rgba(255, 234, 0, ${0.8 * invincibilityProgress})`; // Fade out effect
                     ctx.shadowBlur = 30 * invincibilityProgress;
                 }
 
@@ -2230,8 +2231,8 @@
                     isRaining = true; // Set state to raining
                     rainEffect.start();
                     playRainSound(); // Start rain sound
-                    stopBackgroundMusic(); // Stop music when rain starts
-                    document.body.style.background = RAIN_BACKGROUND; // Change body to Dark Red
+                stopBackgroundMusic();
+                document.body.style.backgroundImage = RAIN_BACKGROUND;
                     canvas.style.background = DARK_CANVAS_BACKGROUND; // Change canvas to Dark Red/Black
                 }
             } else {
@@ -2241,7 +2242,7 @@
                     rainEffect.stop();
                     stopRainSound(); // Stop rain sound
                     if (gameState === 'PLAYING') playBackgroundMusic(); // Start music when rain stops during gameplay
-                    document.body.style.background = DEFAULT_BACKGROUND; // Revert body to Bright Red
+                document.body.style.backgroundImage = DEFAULT_BACKGROUND;
                     canvas.style.background = SNOW_CANVAS_BACKGROUND; // Revert canvas to Snow Color
                 }
             }
@@ -2584,7 +2585,7 @@
         setupCanvas();
         
         // Initialize background to default state on load
-        document.body.style.background = DEFAULT_BACKGROUND; 
+        document.body.style.backgroundImage = DEFAULT_BACKGROUND; 
         canvas.style.background = SNOW_CANVAS_BACKGROUND;
         
         checkQuestCompletion(); // NEW: Check for quest notifications

@@ -8,17 +8,17 @@
   "theme_color": "#111",
   "icons": [
     {
-      "src": "rec/xmas-icon.jpg",
+      "src": "rec/game-icon.jpg",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "rec/xmas-icon.jpg",
+      "src": "rec/game-icon.jpg",
       "sizes": "512x512",
       "type": "image/png"
     },
     {
-      "src": "rec/xmas-icon.jpg",
+      "src": "rec/game-icon.jpg",
       "sizes": "180x180",
       "type": "image/png",
       "purpose": "apple touch icon"

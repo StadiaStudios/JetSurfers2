@@ -1,5 +1,16 @@
+V1.6.4 (11/11/25) - - - 
+Adds New Maps and a Map Selection, Changes move speed to classic speed. Revive costs are now $100 with $20+ each time you die,
+
+Maps Added Include: 
+Frostbite Freeway
+
+Version Notes:
+The new maps implemented may take time on major updates like adding new collectibles etc. As they are just a seperate page instead of all being in the same one. However options will remain the same and all progress gained will still remain to work correctly. The "Map Game Version: V?.?.??" Reveals the game version last updated on that map. However the initial loaded map is always the default.
+
 V1.5.4 (11/8/25) - - - 
 Animations in Store, New Jets, No Internet Connection Popup, New Coin icons. Shadow color changes, Jetpacks can now spawn while using magnets, JetPacks boost score more,
+Loading screen is now black, Jetshop now matches Upgrades Shop theme, Display color theme changed, Icons are now bigger, Can now disable the loading screen on every visit to the
+main play state.
 
 V1.4.4 (11/8/25) - - - 
 Price Changes to Jets and Upgrades. Bug Fixes, Adds back plank jet to shop (accidental removal). Performance enhancments. Revive Price now doubles every time you use it. 

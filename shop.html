@@ -6,7 +6,7 @@
     <title>JetSurfers 2 - Upgrades Shop</title>
     <link rel="manifest" href="manifest.json">
     <script src="weather/snowfall_effect.js"></script>
-    <link rel="icon" href="rec/xmas-icon.jpg" type="image/png">
+    <link rel="icon" href="rec/game-icon.jpg" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Removed: Tone.js library -->
     <style>
@@ -393,14 +393,10 @@
     // IMPORTANT: You MUST replace these placeholder paths with the actual paths to your MP3 files.
     const SHOP_CHIME_URL = 'sfx/shop_load_chime.mp3';
     const PURCHASE_SOUND_URL = 'sfx/purchase.mp3';
-    const BGM_URL = 'sfx/shop.mp3'; // Placeholder for Background Music
 
     // Create Audio objects
     const chimeAudio = new Audio(SHOP_CHIME_URL);
     const purchaseAudio = new Audio(PURCHASE_SOUND_URL);
-    const backgroundMusic = new Audio(BGM_URL);
-    backgroundMusic.loop = true;
-    backgroundMusic.volume = 0.4; // Set background music volume lower
 
     let audioEnabled = false; // Flag to track if the initial user interaction has occurred
 
@@ -419,16 +415,6 @@
         // 1. Play the initial chime sound
         chimeAudio.play().catch(e => {
              console.warn("Chime sound play failed on first click:", e);
-        });
-
-        // 2. Start the background music loop
-        backgroundMusic.play().then(() => {
-            console.log("Audio successfully enabled and BGM started.");
-            audioEnabled = true;
-            // Remove the listener once audio is successfully enabled
-            document.removeEventListener('click', enableAudio);
-        }).catch(e => {
-            console.warn("BGM play failed, keeping listener active for next interaction:", e);
         });
     }
 
