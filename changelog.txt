@@ -1,3 +1,6 @@
+V1.7.8 (01/01/25) - - - 
+Visual Changes. Icons normal instead of xmas. Desert themed default map. Minor Fixes. New Icons added to resources. Store updates, Upgrades shop updates, Map Selection Removal (Return in Future update), Leveling system added to Quests. Quests refresh every 1 Hour, 
+
 V1.6.5 (11/17/25) - - - 
 Adds New Maps and a Map Selection, Changes move speed to classic speed. Revive costs are now $100 with $20+ each time you die, Winter Updates and New Jets, Bug fixes to Web URL. Bug fixes to loading screen.
 

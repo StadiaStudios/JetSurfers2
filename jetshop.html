@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JetSurfers 2 - Jet Shop</title>
     <link rel="icon" href="rec/game-icon.jpg" type="image/png">
-    <script src="weather/snowfall_effect.js"></script>
     <link rel="manifest" href="manifest.json">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="jets-data.js"></script>
@@ -13,90 +12,138 @@
         /* Styles copied from index.html for consistency */
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(180deg, #07063a 0%, #161616 100%); /* Dark background */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            background: #333; /* Changed background color as requested */
             margin: 0;
             user-select: none;
-            padding: 20px;
+            /* Fullscreen layout adjustments */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         /* Use modal style as the main container for the shop */
         .shop-container {
-            background: #222;
-            padding: 30px 40px;
-            border-radius: 15px;
-            text-align: center;
-            box-shadow: 0 0 30px rgb(94, 145, 255);
-            border: 2px solid rgb(0, 140, 255);
-            pointer-events: auto;
-            max-width: 90%; /* Ensure it always respects 90% margin */
-            width: 100%; /* Allow it to fill up to max-width */
-            max-width: 700px; /* INCREASED MAXIMUM WIDTH for better desktop/tablet view */
-            max-height: 90vh;
-            overflow-y: auto;
+            /* Fullscreen Override */
+            background: transparent; /* Allow body gradient to show */
+            width: 100%;
+            min-height: 100vh;
+            padding: 40px 20px;
+            box-sizing: border-box;
+
+            /* Remove card styling */
+            border-radius: 0;
+            box-shadow: none;
+            border: none;
+            max-width: none;
+            max-height: none;
+            overflow-y: visible; /* Let the page scroll */
+            
+            /* Center content */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             color: white;
+            text-align: center;
         }
 
-        /* --- Custom Scrollbar Styles --- */
-        .shop-container::-webkit-scrollbar {
+        /* Wrapper to keep content readable on wide screens */
+        .content-wrapper {
+            width: 100%;
+            max-width: 1200px; /* Increased width to accommodate side-by-side layout */
+        }
+
+        /* --- Layout Logic for PC Screens --- */
+        .shop-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        /* Desktop view: Side by side */
+        @media (min-width: 1024px) {
+            .shop-layout {
+                flex-direction: row;
+                align-items: flex-start;
+                text-align: left; /* Align text left for better reading in columns */
+            }
+            
+            .shop-main {
+                flex: 1; /* Takes up remaining space */
+            }
+
+            .shop-sidebar {
+                width: 380px; /* Fixed width for the bundles sidebar */
+                flex-shrink: 0;
+                margin-top: 0;
+                padding-left: 2rem;
+                border-left: 2px solid #555; /* Vertical separator */
+            }
+
+            /* Remove the top border from the bundle header on desktop since we have a left border */
+            .shop-sidebar h3 {
+                border-top: none !important;
+                padding-top: 0 !important;
+                margin-top: 0 !important;
+            }
+        }
+
+        /* --- Custom Scrollbar Styles (Global) --- */
+        ::-webkit-scrollbar {
             width: 12px;
         }
-        .shop-container::-webkit-scrollbar-track {
+        ::-webkit-scrollbar-track {
             background: #111827; /* Dark background for the track */
-            border-radius: 10px;
         }
-        .shop-container::-webkit-scrollbar-thumb {
-            background-color: #ef4444; /* Bright red */
+        ::-webkit-scrollbar-thumb {
+            background-color: #0E7A0D; /* Bright red */
             border-radius: 10px;
             border: 2px solid #111827; /* Padding around thumb */
-            box-shadow: 0 0 10px #ef4444, 0 0 20px #ef4444; /* Red glow */
+            box-shadow: 0 0 10px #0E7A0D, 0 0 20px #0E7A0D; /* Red glow */
         }
-        .shop-container::-webkit-scrollbar-thumb:hover {
+        ::-webkit-scrollbar-thumb:hover {
             background-color: #f87171; /* Lighter red on hover */
-            box-shadow: 0 0 15px #f87171, 0 0 30px #f87171; /* Brighter glow on hover */
+            box-shadow: 0 0 15px #0E7A0D, 0 0 30px #0E7A0D; /* Brighter glow on hover */
         }
         /* For Firefox */
-        .shop-container {
+        html {
             scrollbar-width: thin;
-            scrollbar-color: #ef4444 #111827;
+            scrollbar-color: #0E7A0D #333;
         }
         
         /* Menu button style for the "Back" link */
         .menu-button {
             display: block;
             width: 100%;
-            padding: 12px 0;
-            margin: 8px 0;
+            padding: 16px 0;
+            margin-top: 30px;
             font-size: 1.2rem;
             font-weight: 600;
             color: #f3f4f6;
-            background-color: #0099ffee;
-            border: 2px solid #e0e2e600;
-            border-radius: 8px;
+            background-color: #333;
+            border: 2px solid #0E7A0D;
+            border-radius: 12px;
             cursor: pointer;
-            transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
-            box-shadow: 0 4px #4f83f5;
+            transition: all 0.2s;
+            box-shadow: 0 4px #0E7A0D;
             text-decoration: none;
             text-align: center;
         }
         .menu-button:hover {
-            background-color: #374151;
+            background-color: #0E7A0D;
         }
         .menu-button:active {
             transform: translateY(2px);
-            box-shadow: 0 2px #111827;
+            box-shadow: 0 2px #0E7A0D;
         }
 
         /* --- START: Jet Shop Styles --- */
         .jet-item {
-            background: #2f2f30; /* Darker blue/gray */
-            border: 2px solid #ff8e8e;
-            border-radius: 8px;
-            padding: 10px;
+            background: hsl(44, 100%, 37%); /* Semi-transparent dark bg */
+            border: 2px solid #0E7A0D;
+            border-radius: 12px;
+            padding: 15px;
             text-align: center;
+            backdrop-filter: blur(5px);
         }
         .jet-logo {
             position: absolute;
@@ -150,11 +197,13 @@
 
         /* --- START: Bundle Styles --- */
         .bundle-item {
-            background: #1f2937; /* Darker blue/gray */
-            border: 2px solid #3b82f6; /* Blue border for bundles */
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 20px;
+            background: orange;
+            border: 2px solid #0E7A0D; /* Blue border for bundles */
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 0; /* Reset margin since grid handles gap */
+            backdrop-filter: blur(5px);
+            text-align: center;
         }
         .bundle-jet-images {
             display: flex;
@@ -211,24 +260,34 @@
 
 
     <div class="shop-container">
-        <h2 class="text-3xl font-extrabold mb-4 text-white">JET SHOP</h2>
-        <div class="text-lg mb-6">
-            Total Coins: <span id="jetShopCoinsValue" class="font-bold text-yellow-400">0</span> <img src="rec/items/coin.png" alt="Coin" class="coin-image" style="width: 20px; height: 20px; margin-left: 5px;">
-        </div>
-        
-        <!-- Grid for Jet Items -->
-        <div id="jetShopGrid" class="grid grid-cols-2 gap-4">
-            <!-- Jet items will be populated by JavaScript -->
-        </div>
+        <div class="content-wrapper">
+            <!-- Header Section -->
+            <h2 class="text-3xl font-extrabold mb-4 text-white text-center">JET SHOP</h2>
+            <div class="text-lg mb-8 text-center">
+                Total Coins: <span id="jetShopCoinsValue" class="font-bold text-yellow-400">0</span> <img src="rec/items/coin.png" alt="Coin" class="coin-image" style="width: 20px; height: 20px; margin-left: 5px;">
+            </div>
+            
+            <div class="shop-layout">
+                <!-- Left Column: Main Jet Shop -->
+                <div class="shop-main">
+                     <!-- Grid for Jet Items -->
+                    <div id="jetShopGrid" class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        <!-- Jet items will be populated by JavaScript -->
+                    </div>
+                </div>
 
-        <!-- NEW: Grid for Bundle Items -->
-        <h3 class="text-2xl font-bold mt-8 mb-4 text-cyan-400 border-t-2 border-gray-700 pt-4">JET BUNDLES</h3>
-        <div id="bundleShopGrid" class="grid grid-cols-1 gap-4">
-            <!-- Bundles will be populated by JavaScript -->
-        </div>
+                <!-- Right Column: Jet Bundles -->
+                <div class="shop-sidebar">
+                    <h3 class="text-2xl font-bold mb-4 text-cyan-400 border-t-2 border-gray-700 pt-4 md:text-center lg:text-left">JET BUNDLES</h3>
+                    <div id="bundleShopGrid" class="grid grid-cols-1 gap-4">
+                        <!-- Bundles will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
 
-        <!-- This is now a link back to the game -->
-        <a href="index.html" id="jetShopBackButton" class="menu-button mt-6">BACK TO GAME</a>
+            <!-- This is now a link back to the game -->
+            <a href="index.html" id="jetShopBackButton" class="menu-button">BACK TO GAME</a>
+        </div>
     </div>
 
 <script>

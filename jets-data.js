@@ -22,7 +22,7 @@ const QUEST_STORAGE_KEY = 'jetSurferQuests';
 const JETS = [
     { 
         id: 'default', 
-        name: 'PILOT-XMAS 25', 
+        name: 'Default Jet', 
         price: 0, 
         img: 'rec/motor/default.png', 
         logo: 'rec/motor/default.png',
@@ -62,7 +62,7 @@ const JETS = [
         price: 90000, 
         img: 'rec/motor/marecrow.png', 
         logo: 'rec/motor/marecrow.png',
-        available: true,
+        available: false,
         limited: true
     },
     { 
@@ -71,7 +71,7 @@ const JETS = [
         price: 150000, 
         img: 'rec/motor/reiny.png', 
         logo: 'rec/motor/reiny.png',
-        available: true,
+        available: false,
         limited: true
     },
     { 
@@ -80,7 +80,7 @@ const JETS = [
         price: 150000, 
         img: 'rec/motor/santa-jet.png', 
         logo: 'rec/motor/santa-jet.png',
-        available: true,
+        available: false,
         limited: true
     },
     { 
@@ -98,7 +98,7 @@ const JETS = [
         price: 0, 
         img: 'rec/motor/plank-jet.png', 
         logo: 'rec/motor/plank-jet.png',
-        available: true,   // Set to false when the event ends
+        available: false,   // Set to false when the event ends
         limited: true      // Marks it as a limited jet
     },
     { 
@@ -116,7 +116,7 @@ const JETS = [
         price: 0, 
         img: 'rec/motor/festive-star.png', 
         logo: 'rec/motor/festive-star.png',
-        available: true,   // Set to false when the event ends
+        available: false,   // Set to false when the event ends
         limited: true      // Marks it as a limited jet
     },
     { 
@@ -125,7 +125,7 @@ const JETS = [
         price: 75000, 
         img: 'rec/motor/flake-tron.png', 
         logo: 'rec/motor/flake-tron.png',
-        available: true,   // Set to false when the event ends
+        available: false,   // Set to false when the event ends
         limited: true      // Marks it as a limited jet
     },
     { 
@@ -134,7 +134,7 @@ const JETS = [
         price: 150000, 
         img: 'rec/motor/festive25.png', 
         logo: 'rec/motor/festive25.png',
-        available: true,
+        available: false,
         limited: true
     },
     { 
@@ -152,7 +152,7 @@ const JETS = [
         price: 80000, 
         img: 'rec/motor/xmas-hovercraft.png', 
         logo: 'rec/motor/xmas-hovercraft.png',
-        available: true,   // Set to false when the event ends
+        available: false,   // Set to false when the event ends
         limited: true      // Marks it as a limited jet
     },
     { 
@@ -260,7 +260,7 @@ const JETS = [
         price: 150000, 
         img: 'rec/motor/deathractor.png', 
         logo: 'rec/motor/deathractor.png',
-        available: true,
+        available: false,
         limited: true
     }
 ];
@@ -281,13 +281,6 @@ const BUNDLES = [
         // spiderjet, breadtime, sego
         jetIds: ['spiderjet', 'breadtime', 'sego'],
         price: 91000
-    },
-    {
-        id: 'festive2025pack',
-        name: 'Festive 2025 Pack (-30% OFF)',
-        // flake-tron, leaf, hovercraft (all limited)
-        jetIds: ['flake-tron', 'reindeer-festive2025', 'xmas-hovercraft'],
-        price: 213000
     },
 ];
 

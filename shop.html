@@ -1,26 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-g">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JetSurfers 2 - Upgrades Shop</title>
     <link rel="manifest" href="manifest.json">
-    <script src="weather/snowfall_effect.js"></script>
     <link rel="icon" href="rec/game-icon.jpg" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Removed: Tone.js library -->
     <style>
-        /* Custom Styles for Shop Page */
+        /* Custom Styles for Fullscreen Shop Page */
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(180deg, #07063a 0%, #161616 100%); /* Same as index body for consistency */
+            background: #111;
+            background: linear-gradient(180deg, #333 0%, #333 100%);
             color: white;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start; /* Align to the top, not center (for scrolling) */
             min-height: 100vh;
             margin: 0;
-            padding: 20px 0;
+            padding: 0;
+            display: block; /* Removed flex centering */
         }
         
         /* --- Custom Scrollbar Styles --- */
@@ -28,19 +25,17 @@
             width: 12px;
         }
         html::-webkit-scrollbar-track {
-            background: #111827; /* Dark background for the track */
+            background: #111827;
         }
         html::-webkit-scrollbar-thumb {
-            background-color: #ef4444; /* Bright red */
+            background-color: #ef4444;
             border-radius: 10px;
-            border: 2px solid #111827; /* Padding around thumb */
-            box-shadow: 0 0 10px #ef4444, 0 0 20px #ef4444; /* Red glow */
+            border: 2px solid #111827;
+            box-shadow: 0 0 10px #ef4444;
         }
         html::-webkit-scrollbar-thumb:hover {
-            background-color: #f87171; /* Lighter red on hover */
-            box-shadow: 0 0 15px #f87171, 0 0 30px #f87171; /* Brighter glow on hover */
+            background-color: #f87171;
         }
-        /* For Firefox */
         html {
             scrollbar-width: thin;
             scrollbar-color: #ef4444 #111827;
@@ -48,59 +43,75 @@
 
         .shop-container {
             width: 100%;
-            max-width: 600px;
-            background: #111827;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 0 30px rgb(154, 161, 255);
-            border: 2px solid rgb(0, 119, 255);
+            max-width: 100%; /* Make it fullscreen width */
+            min-height: 100vh;
+            background: transparent; /* Remove the card background */
+            padding: 40px 20px;
+            box-sizing: border-box;
             text-align: center;
+            /* Container for the content to prevent it from being too wide on ultra-wide screens */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .content-wrapper {
+            width: 100%;
+            max-width: 800px; /* Limits width slightly for readability on desktops */
         }
 
         .section-title {
             font-size: 1.5rem;
             font-weight: bold;
             color: white;
-            margin-top: 30px;
-            margin-bottom: 15px;
+            margin-top: 40px;
+            margin-bottom: 20px;
             border-bottom: 2px solid rgba(59, 130, 246, 0.3);
-            padding-bottom: 5px;
+            padding-bottom: 10px;
+            text-align: left;
         }
 
         .upgrade-card {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: #333;
-            padding: 15px;
+            background: rgba(255, 255, 255, 0.05); /* Subtle dark glass effect */
+            backdrop-filter: blur(5px);
+            padding: 20px;
             margin-bottom: 15px;
-            border-radius: 0px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        
+        .upgrade-card:hover {
+            border-color: rgba(59, 130, 246, 0.5);
+            background: rgba(255, 255, 255, 0.08);
         }
 
         .upgrade-logo {
-            width: 50px;
-            height: 50px;
-            margin-right: 15px;
+            width: 60px;
+            height: 60px;
+            margin-right: 20px;
             object-fit: contain;
-            flex-shrink: 0; /* Prevent logo from shrinking */
+            flex-shrink: 0;
         }
 
         .coin-image {
-            width: 20px; /* Adjust size as needed */
+            width: 20px;
             height: 20px;
-            vertical-align: middle; /* Align with the text */
-            margin-right: 5px; /* Space between coin and amount */
-            display: inline-block; /* Ensure it aligns properly */
+            vertical-align: middle;
+            margin-right: 5px;
+            display: inline-block;
         }
 
         .upgrade-info {
             text-align: left;
-            flex-grow: 1; /* Allow info to take available space */
+            flex-grow: 1;
         }
 
         .upgrade-name {
-            font-size: 1.25rem;
+            font-size: 1.3rem;
             font-weight: 700;
             color: #f3f4f6;
         }
@@ -111,131 +122,96 @@
         }
         
         .upgrade-description {
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             color: #d1d5db;
             margin-top: 4px;
         }
 
         .upgrade-action button {
-            padding: 10px 20px;
+            padding: 12px 24px;
             font-size: 1rem;
             font-weight: bold;
             color: white;
             border: none;
-            border-radius: 0px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.2s, transform 0.1s;
-            box-shadow: 0 3px #1e40af;
+            transition: all 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
-            min-width: 140px; /* Give buttons a consistent min-width */
+            min-width: 140px;
         }
 
         .upgrade-action .can-buy {
-            background-color: #10b981; /* Green */
-            box-shadow: 0 3px #059669;
+            background-color: #10b981;
+            box-shadow: 0 4px 0 #059669;
         }
         .upgrade-action .can-buy:hover {
             background-color: #059669;
+            transform: translateY(-2px);
         }
         .upgrade-action .can-buy:active {
-            transform: translateY(1px);
-            box-shadow: 0 2px #059669;
+            transform: translateY(2px);
+            box-shadow: 0 0px 0 #059669;
         }
 
         .upgrade-action .disabled, .upgrade-action .max-level {
-            background-color: #4b5563; /* Gray */
+            background-color: #4b5563;
             cursor: not-allowed;
-            box-shadow: none;
-            opacity: 0.7;
-        }
-
-        .upgrade-action .max-level {
-            background-color: #3b82f6; /* Blue for Max */
-            color: #e5e7eb;
-            font-size: 0.9rem;
+            opacity: 0.6;
         }
 
         .current-coins {
-            font-size: 1.2rem;
+            font-size: 1.5rem;
             font-weight: bold;
             color: #f59e0b;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            /* Align coin icon with text */
+            margin-bottom: 30px;
             display: flex;
             align-items: center;
             justify-content: center;
+            background: rgba(0,0,0,0.3);
+            padding: 10px 20px;
+            border-radius: 50px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+            border: 1px solid rgba(245, 158, 11, 0.3);
         }
 
         .back-button {
             display: inline-block;
-            margin-top: 25px;
-            padding: 10px 20px;
-            font-size: 1rem;
+            margin-top: 40px;
+            padding: 12px 30px;
+            font-size: 1.1rem;
             font-weight: bold;
             color: white;
-            background-color: #333; /* Red */
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background-color 0.2s;
+            background-color: #444;
+            border-radius: 8px;
             text-decoration: none;
-            box-shadow: 0 3px #25a8ff;
+            transition: all 0.2s;
+            box-shadow: 0 4px 0 #0E7A0D;
         }
         .back-button:hover {
-            background-color: #147ef7;
+            background-color: #0E7A0D;
+            transform: translateY(-2px);
         }
         .back-button:active {
-            transform: translateY(1px);
-            box-shadow: 0 2px #147ef7;
+            transform: translateY(2px);
+            box-shadow: 0 0px 0 #0E7A0D;
         }
         
-        /* New Style for Headstart Buy Button */
-        #buyHeadstartButton {
-            background-color: #057401; /* Green */
-            box-shadow: 0 3px #024b00;
-        }
-        #buyHeadstartButton:hover {
-            background-color: #045a01;
-        }
-        #buyHeadstartButton:active {
-            box-shadow: 0 2px #024b00;
-        }
+        /* Custom Colors for specific buttons */
+        #buyHeadstartButton { background-color: #16a34a; box-shadow: 0 4px 0 #15803d; }
+        #buyRepairKitButton { background-color: #0891b2; box-shadow: 0 4px 0 #0e7490; }
+        #buyJetpackDurationButton { background-color: #ea580c; box-shadow: 0 4px 0 #c2410c; }
 
-        /* NEW Style for Repair Kit Buy Button */
-        #buyRepairKitButton {
-            background-color: #06b6d4; /* Cyan */
-            box-shadow: 0 3px #0e7490;
-        }
-        #buyRepairKitButton:hover {
-            background-color: #0891b2;
-        }
-        #buyRepairKitButton:active {
-            box-shadow: 0 2px #0e7490;
-        }
-
-        /* NEW Style for Jetpack Buy Button */
-        #buyJetpackDurationButton {
-            background-color: #f97316; /* Orange */
-            box-shadow: 0 3px #ea580c;
-        }
-        #buyJetpackDurationButton:hover {
-            background-color: #ea580c;
-        }
-        #buyJetpackDurationButton:active {
-            box-shadow: 0 2px #c2410c;
-        }
-
-        /* NEW: Star purchase effect */
+        /* Star purchase effect */
         .star-particle {
-            position: fixed; /* Use fixed positioning to place relative to viewport */
+            position: fixed;
             z-index: 1000;
             width: 15px;
             height: 15px;
-            background-color: #ffffff; /* Yellow color */
+            background-color: #ffffff;
             clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
             pointer-events: none;
             opacity: 0;
@@ -243,557 +219,259 @@
         }
 
         @keyframes star-burst {
-            0% {
-                opacity: 1;
-                transform: translate(0, 0) scale(0.5) rotate(0deg);
-            }
-            100% {
-                opacity: 0;
-                transform: var(--transform-end) scale(1) rotate(360deg);
-            }
+            0% { opacity: 1; transform: translate(0, 0) scale(0.5) rotate(0deg); }
+            100% { opacity: 0; transform: var(--transform-end) scale(1) rotate(360deg); }
         }
 
     </style>
 </head>
 <body>
 
-<!-- NEW: Offline Screen -->
-<div id="offline-screen" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(17, 24, 39, 0.95); z-index: 50; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: white;">
-    <svg class="w-24 h-24 text-red-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width: 6rem; height: 6rem; color: #ef4444;">
+<div id="offline-screen" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(7, 6, 58, 0.98); z-index: 100; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: white;">
+    <svg class="w-24 h-24 text-red-500 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m-12.728 0a9 9 0 010-12.728m12.728 0L5.636 18.364m0-12.728L18.364 18.364"></path>
     </svg>
-    <h2 class="text-4xl font-extrabold text-white mt-4 mb-2" style="font-size: 2.25rem; font-weight: 800; margin-top: 1rem; margin-bottom: 0.5rem;">Connection Lost</h2>
-    <p class="text-xl text-gray-300" style="font-size: 1.25rem; color: #d1d5db;">Please connect to the internet to access the Upgrades Shop.</p>
+    <h2 class="text-4xl font-extrabold mb-2">Connection Lost</h2>
+    <p class="text-xl text-gray-400">Please connect to the internet to access the shop.</p>
 </div>
 
-
 <div class="shop-container">
-    <h1 class="text-3xl font-extrabold mb-4 text-cyan-400">UPGRADES SHOP</h1>
-    
-    <div class="current-coins">
-        <img src="rec/items/coin.png" alt="Coin" class="coin-image"><span id="totalCoinsValue">0</span>
-    </div>
+    <div class="content-wrapper">
+        <h1 class="text-5xl font-black mb-8 text-[gold] tracking-tighter">UPGRADES SHOP</h1>
+        
+        <div class="current-coins">
+            <img src="rec/items/coin.png" alt="Coin" class="coin-image"><span id="totalCoinsValue">0</span>
+        </div>
 
-    <!-- Inventory / Power-Up Section (New) -->
-    <div class="section-title">Power-Ups Inventory</div>
-    
-    <!-- Headstart Card -->
-    <div class="upgrade-card">
-        <img src="rec/items/headstart.png" alt="Headstart" class="upgrade-logo" onerror="this.src='https://placehold.co/50x50/333/FFF?text=🚀'">
-        <div class="upgrade-info">
-            <div class="upgrade-name">Headstart</div>
-            <div class="upgrade-description">
-                Boosts your score to <b class="text-yellow-400">50,000</b> at the start of a run. <br>
-                <span class="text-sm text-gray-400">Current Stock: <span id="headstartCount">0</span></span>
+        <div class="section-title">Power-Ups Inventory</div>
+        
+        <div class="upgrade-card">
+            <img src="rec/items/headstart.png" alt="Headstart" class="upgrade-logo" onerror="this.src='https://placehold.co/60x60/333/FFF?text=🚀'">
+            <div class="upgrade-info">
+                <div class="upgrade-name">Headstart</div>
+                <div class="upgrade-description">
+                    Boosts score to <b class="text-yellow-400">50,000</b> instantly. <br>
+                    <span class="text-sm text-gray-400">Owned: <span id="headstartCount">0</span></span>
+                </div>
+            </div>
+            <div class="upgrade-action">
+                <button id="buyHeadstartButton" data-cost="100">
+                    100 <img src="rec/items/coin.png" alt="Coin" class="coin-image">
+                </button>
             </div>
         </div>
-        <div class="upgrade-action">
-            <button id="buyHeadstartButton" data-cost="100">
-                100 <img src="rec/items/coin.png" alt="Coin" class="coin-image">
-            </button>
-        </div>
-    </div>
-    
-    <!-- NEW: Repair Kit Card -->
-    <div class="upgrade-card">
-        <img src="rec/items/repairkit.png" alt="Repair Kit" class="upgrade-logo" onerror="this.src='https://placehold.co/50x50/333/06b6d4?text=🛡️'">
-        <div class="upgrade-info">
-            <div class="upgrade-name">Repair Kit</div>
-            <div class="upgrade-description">
-                Lasts for 30s. Automatically revives you from one crash. Single use.<br>
-                <span class="text-sm text-gray-400">Current Stock: <span id="repairKitCount">0</span></span>
+        
+        <div class="upgrade-card">
+            <img src="rec/items/repairkit.png" alt="Repair Kit" class="upgrade-logo" onerror="this.src='https://placehold.co/60x60/333/06b6d4?text=🛡️'">
+            <div class="upgrade-info">
+                <div class="upgrade-name">Repair Kit</div>
+                <div class="upgrade-description">
+                    Lasts 30s. Auto-revives you once. <br>
+                    <span class="text-sm text-gray-400">Owned: <span id="repairKitCount">0</span></span>
+                </div>
+            </div>
+            <div class="upgrade-action">
+                <button id="buyRepairKitButton" data-cost="200">
+                    200 <img src="rec/items/coin.png" alt="Coin" class="coin-image">
+                </button>
             </div>
         </div>
-        <div class="upgrade-action">
-            <button id="buyRepairKitButton" data-cost="200">
-                200 <img src="rec/items/coin.png" alt="Coin" class="coin-image">
-            </button>
+
+        <div class="section-title">Permanent Upgrades</div>
+
+        <div class="upgrade-card">
+            <img src="rec/collectible/magnet.png" alt="Magnet" class="upgrade-logo" onerror="this.src='https://placehold.co/60x60/333/FFF?text=🧲'">
+            <div class="upgrade-info">
+                <div class="upgrade-name">Magnet Duration</div>
+                <div class="upgrade-level">Level <span id="magnetLevelValue">0</span> / 5</div>
+                <div class="upgrade-description">Keeps magnets active for longer durations.</div>
+            </div>
+            <div class="upgrade-action">
+                <button id="buyMagnetDurationButton" class="can-buy">
+                    <span id="magnetCostValue">300</span> <img src="rec/items/coin.png" alt="Coin" class="coin-image">
+                </button>
+            </div>
         </div>
+
+        <div class="upgrade-card">
+            <img src="rec/collectible/jetpack.png" alt="Jetpack" class="upgrade-logo" onerror="this.src='https://placehold.co/60x60/333/f97316?text=🔥'">
+            <div class="upgrade-info">
+                <div class="upgrade-name">Jetpack Duration</div>
+                <div class="upgrade-level">Level <span id="jetpackLevelValue">0</span> / 5</div>
+                <div class="upgrade-description">Stay in the air longer with upgraded fuel.</div>
+            </div>
+            <div class="upgrade-action">
+                <button id="buyJetpackDurationButton" class="can-buy">
+                    <span id="jetpackCostValue">3000</span> <img src="rec/items/coin.png" alt="Coin" class="coin-image">
+                </button>
+            </div>
+        </div>
+        
+        <div class="upgrade-card">
+            <img src="rec/items/coin.png" alt="Coin" class="upgrade-logo" onerror="this.src='https://placehold.co/60x60/333/FFF?text=$'">
+            <div class="upgrade-info">
+                <div class="upgrade-name">Coin Multiplier</div>
+                <div class="upgrade-level">Level <span id="coinMultiplierLevelValue">0</span> / 5</div>
+                <div class="upgrade-description">Earn more coins for every pickup.</div>
+            </div>
+            <div class="upgrade-action">
+                <button id="buyCoinMultiplierButton" class="can-buy">
+                    <span id="coinMultiplierCostValue">100</span> <img src="rec/items/coin.png" alt="Coin" class="coin-image">
+                </button>
+            </div>
+        </div>
+        
+        <a href="index.html" class="back-button">Back to Game</a>
     </div>
-
-
-    <!-- Permanent Upgrade Section -->
-    <div class="section-title">Permanent Upgrades</div>
-
-    <!-- Magnet Duration Upgrade Card -->
-    <div class="upgrade-card">
-        <img src="rec/collectible/magnet.png" alt="Magnet" class="upgrade-logo" onerror="this.src='https://placehold.co/50x50/333/FFF?text=🧲'">
-        <div class="upgrade-info">
-            <div class="upgrade-name">Magnet Duration</div>
-            <div class="upgrade-level">Level <span id="magnetLevelValue">0</span> / 5</div>
-            <div class="upgrade-description">Increases the time a magnet power-up lasts.</div>
-        </div>
-        <div class="upgrade-action">
-            <button id="buyMagnetDurationButton" class="can-buy">
-                <span id="magnetCostValue">300</span> <img src="rec/items/coin.png" alt="Coin" class="coin-image">
-            </button>
-        </div>
-    </div>
-
-    <!-- NEW: Jetpack Duration Upgrade Card -->
-    <div class="upgrade-card">
-        <img src="rec/collectible/jetpack.png" alt="Jetpack" class="upgrade-logo" onerror="this.src='https://placehold.co/50x50/333/f97316?text=🔥'">
-        <div class="upgrade-info">
-            <div class="upgrade-name">Jetpack Duration</div>
-            <div class="upgrade-level">Level <span id="jetpackLevelValue">0</span> / 5</div>
-            <div class="upgrade-description">Increases the time a jetpack power-up lasts.</div>
-        </div>
-        <div class="upgrade-action">
-            <button id="buyJetpackDurationButton" class="can-buy">
-                <span id="jetpackCostValue">3000</span> <img src="rec/items/coin.png" alt="Coin" class="coin-image">
-            </button>
-        </div>
-    </div>
-    
-    <!-- NEW: Coin Multiplier Upgrade Card -->
-    <div class="upgrade-card">
-        <img src="rec/items/coin.png" alt="Coin" class="upgrade-logo" onerror="this.src='https://placehold.co/50x50/333/FFF?text=$'">
-        <div class="upgrade-info">
-            <div class="upgrade-name">Coin Multiplier</div>
-            <div class="upgrade-level">Level <span id="coinMultiplierLevelValue">0</span> / 5</div>
-            <div class="upgrade-description">Adds +1 coin per pickup for each level.</div>
-        </div>
-        <div class="upgrade-action">
-            <button id="buyCoinMultiplierButton" class="can-buy">
-                <span id="coinMultiplierCostValue">100</span> <img src="rec/items/coin.png" alt="Coin" class="coin-image">
-            </button>
-        </div>
-    </div>
-    
-    <a href="index.html" class="back-button">Back to Game</a>
-
 </div>
 
 <script>
-    // --- Double-Tap Zoom Fix for Mobile Browsers (iOS/Safari) ---
-    /**
-     * Prevents the browser's default double-tap behavior (zooming) on elements
-     * that are designed to handle rapid single taps.
-     * @param {Event} e The touch event.
-     */
-    function suppressDoubleTapZoom(e) {
-        // Only run for touch events
-        if (e.type === 'touchstart') {
-            const now = new Date().getTime();
-            const lastTouch = e.currentTarget.lastTouch || 0;
-            const delta = now - lastTouch;
-
-            // Define a reasonable time limit for a 'double tap' (e.g., 500ms)
-            if (delta < 500 && delta > 0) {
-                // It's a double tap, prevent the default zoom behavior
-                e.preventDefault();
-            }
-            // Update the last touch time for the next check
-            e.currentTarget.lastTouch = now;
-        }
-    }
-
-
-    // --- Audio Setup (Using HTML5 Audio for MP3 files) ---
-    // IMPORTANT: You MUST replace these placeholder paths with the actual paths to your MP3 files.
-    const SHOP_CHIME_URL = 'sfx/shop_load_chime.mp3';
-    const PURCHASE_SOUND_URL = 'sfx/purchase.mp3';
-
-    // Create Audio objects
-    const chimeAudio = new Audio(SHOP_CHIME_URL);
-    const purchaseAudio = new Audio(PURCHASE_SOUND_URL);
-
-    let audioEnabled = false; // Flag to track if the initial user interaction has occurred
-
-    /**
-     * Attempts to enable and start all audio (chime and BGM).
-     * This function is attached to the first user interaction event (e.g., a click)
-     * to bypass browser autoplay restrictions.
-     */
-    function enableAudio() {
-        if (audioEnabled) {
-            // Already enabled, remove the listener just in case
-            document.removeEventListener('click', enableAudio);
-            return;
-        }
-
-        // 1. Play the initial chime sound
-        chimeAudio.play().catch(e => {
-             console.warn("Chime sound play failed on first click:", e);
-        });
-    }
-
-    /**
-     * Plays the purchase sound effect.
-     */
-    function playPurchaseSound() {
-        if (!audioEnabled) return; // Only play SFX after the initial interaction
-        // Reset and play to allow rapid, overlapping clicks
-        purchaseAudio.currentTime = 0;
-        purchaseAudio.play().catch(e => console.error("Purchase audio play failed:", e));
-    }
-
-    // --- NEW: Star Purchase Effect ---
-    /**
-     * Creates a burst of star particles from a clicked button.
-     * @param {HTMLElement} buttonElement The button that was clicked.
-     */
-    function createStarEffect(buttonElement) {
-        const rect = buttonElement.getBoundingClientRect();
-        const startX = rect.left + rect.width / 2;
-        const startY = rect.top + rect.height / 2;
-        const particleCount = 15;
-
-        for (let i = 0; i < particleCount; i++) {
-            const star = document.createElement('div');
-            star.className = 'star-particle';
-
-            // Set initial position
-            star.style.left = `${startX}px`;
-            star.style.top = `${startY}px`;
-
-            // Set random end transform for the animation
-            const angle = Math.random() * 360;
-            const distance = Math.random() * 100 + 50;
-            const endX = Math.cos(angle * (Math.PI / 180)) * distance;
-            const endY = Math.sin(angle * (Math.PI / 180)) * distance;
-            star.style.setProperty('--transform-end', `translate(${endX}px, ${endY}px)`);
-
-            document.body.appendChild(star);
-
-            // Remove the particle after the animation finishes
-            setTimeout(() => {
-                star.remove();
-            }, 800); // Must match animation duration
-        }
-    }
-
-    // --- Local Storage Setup (Shared Keys) ---
     const COIN_STORAGE_KEY = 'jetSurferTotalCoins';
     const MAGNET_LEVEL_KEY = 'jetSurferMagnetLevel';
     const HEADSTART_COUNT_KEY = 'jetSurferHeadstartCount';
-    const COIN_MULTIPLIER_LEVEL_KEY = 'jetSurferCoinMultiplierLevel'; // NEW KEY
-    const REPAIR_KIT_COUNT_KEY = 'jetSurferRepairKitCount'; // NEW KEY
-    const JETPACK_LEVEL_KEY = 'jetSurferJetpackLevel'; // NEW KEY
+    const COIN_MULTIPLIER_LEVEL_KEY = 'jetSurferCoinMultiplierLevel';
+    const REPAIR_KIT_COUNT_KEY = 'jetSurferRepairKitCount';
+    const JETPACK_LEVEL_KEY = 'jetSurferJetpackLevel';
 
-    // --- Upgrade Constants ---
     const MAGNET_UPGRADE_COST = 2000;
     const MAGNET_MAX_LEVEL = 5;
-    const HEADSTART_COST = 2000; // Cost for one Headstart
-    const REPAIR_KIT_COST = 2000; // NEW: Cost for one Repair Kit
-    const COIN_MULTIPLIER_UPGRADE_COST = 3000; // UPDATED
-    const COIN_MULTIPLIER_MAX_LEVEL = 5; // NEW
-    const JETPACK_UPGRADE_COST = 1500; // NEW
-    const JETPACK_MAX_LEVEL = 5; // NEW
+    const HEADSTART_COST = 2000;
+    const REPAIR_KIT_COST = 2000;
+    const COIN_MULTIPLIER_UPGRADE_COST = 3000;
+    const COIN_MULTIPLIER_MAX_LEVEL = 5;
+    const JETPACK_UPGRADE_COST = 1500;
+    const JETPACK_MAX_LEVEL = 5;
 
-    // --- State Variables ---
     let totalCoins = 0;
     let magnetLevel = 0;
     let headstartCount = 0;
-    let coinMultiplierLevel = 0; // NEW State variable
-    let repairKitCount = 0; // NEW State variable
-    let jetpackLevel = 0; // NEW State variable
+    let coinMultiplierLevel = 0;
+    let repairKitCount = 0;
+    let jetpackLevel = 0;
 
-    // --- UI Elements ---
     const totalCoinsValueElement = document.getElementById('totalCoinsValue');
     const magnetLevelValueElement = document.getElementById('magnetLevelValue');
     const buyMagnetDurationButton = document.getElementById('buyMagnetDurationButton');
-    const magnetCostValueElement = document.getElementById('magnetCostValue');
     const headstartCountElement = document.getElementById('headstartCount');
     const buyHeadstartButton = document.getElementById('buyHeadstartButton');
-    
-    // NEW UI Elements
     const coinMultiplierLevelValueElement = document.getElementById('coinMultiplierLevelValue');
     const buyCoinMultiplierButton = document.getElementById('buyCoinMultiplierButton');
     const repairKitCountElement = document.getElementById('repairKitCount');
     const buyRepairKitButton = document.getElementById('buyRepairKitButton');
-    const jetpackLevelValueElement = document.getElementById('jetpackLevelValue'); // NEW
-    const buyJetpackDurationButton = document.getElementById('buyJetpackDurationButton'); // NEW
-
-    // --- Data Management Functions ---
+    const jetpackLevelValueElement = document.getElementById('jetpackLevelValue');
+    const buyJetpackDurationButton = document.getElementById('buyJetpackDurationButton');
 
     function loadGameData() {
-        const storedCoins = localStorage.getItem(COIN_STORAGE_KEY);
-        totalCoins = storedCoins ? parseInt(storedCoins, 10) : 0;
-        
-        const storedMagnetLevel = localStorage.getItem(MAGNET_LEVEL_KEY);
-        magnetLevel = storedMagnetLevel ? parseInt(storedMagnetLevel, 10) : 0;
-        
-        const storedHeadstartCount = localStorage.getItem(HEADSTART_COUNT_KEY);
-        headstartCount = storedHeadstartCount ? parseInt(storedHeadstartCount, 10) : 0;
-        
-        // NEW: Load Coin Multiplier Level
-        const storedCoinMultiplierLevel = localStorage.getItem(COIN_MULTIPLIER_LEVEL_KEY);
-        coinMultiplierLevel = storedCoinMultiplierLevel ? parseInt(storedCoinMultiplierLevel, 10) : 0;
-
-        // NEW: Load Repair Kit Count
-        const storedRepairKitCount = localStorage.getItem(REPAIR_KIT_COUNT_KEY);
-        repairKitCount = storedRepairKitCount ? parseInt(storedRepairKitCount, 10) : 0;
-
-        // NEW: Load Jetpack Level
-        const storedJetpackLevel = localStorage.getItem(JETPACK_LEVEL_KEY);
-        jetpackLevel = storedJetpackLevel ? parseInt(storedJetpackLevel, 10) : 0;
+        totalCoins = parseInt(localStorage.getItem(COIN_STORAGE_KEY) || '0', 10);
+        magnetLevel = parseInt(localStorage.getItem(MAGNET_LEVEL_KEY) || '0', 10);
+        headstartCount = parseInt(localStorage.getItem(HEADSTART_COUNT_KEY) || '0', 10);
+        coinMultiplierLevel = parseInt(localStorage.getItem(COIN_MULTIPLIER_LEVEL_KEY) || '0', 10);
+        repairKitCount = parseInt(localStorage.getItem(REPAIR_KIT_COUNT_KEY) || '0', 10);
+        jetpackLevel = parseInt(localStorage.getItem(JETPACK_LEVEL_KEY) || '0', 10);
     }
 
-    function saveGameData() { // Consolidated save function
-        localStorage.setItem(COIN_STORAGE_KEY, totalCoins);
-        localStorage.setItem(MAGNET_LEVEL_KEY, magnetLevel);
-        localStorage.setItem(HEADSTART_COUNT_KEY, headstartCount);
-        localStorage.setItem(COIN_MULTIPLIER_LEVEL_KEY, coinMultiplierLevel);
-        localStorage.setItem(REPAIR_KIT_COUNT_KEY, repairKitCount); // NEW
-        localStorage.setItem(JETPACK_LEVEL_KEY, jetpackLevel); // NEW
-    }
-    
-    function saveCoins() {
-        localStorage.setItem(COIN_STORAGE_KEY, totalCoins);
-    }
-
-    function saveMagnetLevel(newLevel) {
-        magnetLevel = newLevel;
-        localStorage.setItem(MAGNET_LEVEL_KEY, newLevel);
-    }
-    
-    function saveHeadstartCount(newCount) {
-        headstartCount = newCount;
-        localStorage.setItem(HEADSTART_COUNT_KEY, newCount);
-    }
-
-    // NEW: Save Repair Kit Count
-    function saveRepairKitCount(newCount) {
-        repairKitCount = newCount;
-        localStorage.setItem(REPAIR_KIT_COUNT_KEY, newCount);
-    }
-
-    // NEW: Save Coin Multiplier Level
-    function saveCoinMultiplierLevel(newLevel) {
-        coinMultiplierLevel = newLevel;
-        localStorage.setItem(COIN_MULTIPLIER_LEVEL_KEY, newLevel);
-    }
-
-    // NEW: Save Jetpack Level
-    function saveJetpackLevel(newLevel) {
-        jetpackLevel = newLevel;
-        localStorage.setItem(JETPACK_LEVEL_KEY, newLevel);
-    }
-
-    // --- UI Update Function ---
+    function saveCoins() { localStorage.setItem(COIN_STORAGE_KEY, totalCoins); }
+    function saveMagnetLevel(l) { localStorage.setItem(MAGNET_LEVEL_KEY, l); }
+    function saveHeadstartCount(c) { localStorage.setItem(HEADSTART_COUNT_KEY, c); }
+    function saveRepairKitCount(c) { localStorage.setItem(REPAIR_KIT_COUNT_KEY, c); }
+    function saveCoinMultiplierLevel(l) { localStorage.setItem(COIN_MULTIPLIER_LEVEL_KEY, l); }
+    function saveJetpackLevel(l) { localStorage.setItem(JETPACK_LEVEL_KEY, l); }
 
     function updateShopUI() {
-        // Update Coin Display
         totalCoinsValueElement.textContent = totalCoins.toLocaleString();
-        
-        // Update Headstart Count Display
         headstartCountElement.textContent = headstartCount.toLocaleString();
-
-        // NEW: Update Repair Kit Count Display
         repairKitCountElement.textContent = repairKitCount.toLocaleString();
 
-        // --- Magnet UI ---
+        const updateBtn = (btn, current, max, cost, label = '') => {
+            btn.classList.remove('can-buy', 'disabled', 'max-level');
+            if (max !== null && current >= max) {
+                btn.textContent = 'MAX LEVEL';
+                btn.classList.add('max-level');
+                btn.disabled = true;
+            } else if (totalCoins >= cost) {
+                btn.innerHTML = `${cost.toLocaleString()} <img src="rec/items/coin.png" class="coin-image">`;
+                btn.classList.add('can-buy');
+                btn.disabled = false;
+            } else {
+                btn.innerHTML = `${cost.toLocaleString()} <img src="rec/items/coin.png" class="coin-image">`;
+                btn.classList.add('disabled');
+                btn.disabled = true;
+            }
+        };
+
         magnetLevelValueElement.textContent = magnetLevel;
-        const cost = MAGNET_UPGRADE_COST;
-
-        buyMagnetDurationButton.classList.remove('can-buy', 'disabled', 'max-level');
-        buyMagnetDurationButton.disabled = true;
-
-        if (magnetLevel >= MAGNET_MAX_LEVEL) {
-            buyMagnetDurationButton.textContent = 'MAX LEVEL';
-            buyMagnetDurationButton.classList.add('max-level');
-        } else if (totalCoins >= cost) {
-            buyMagnetDurationButton.innerHTML = `${cost.toLocaleString()} <img src="rec/items/coin.png" alt="Coin" class="coin-image">`;
-            buyMagnetDurationButton.classList.add('can-buy');
-            buyMagnetDurationButton.disabled = false;
-        } else {
-            buyMagnetDurationButton.innerHTML = `${cost.toLocaleString()} <img src="rec/items/coin.png" alt="Coin" class="coin-image">`;
-            buyMagnetDurationButton.classList.add('disabled');
-        }
+        updateBtn(buyMagnetDurationButton, magnetLevel, MAGNET_MAX_LEVEL, MAGNET_UPGRADE_COST);
+        updateBtn(buyHeadstartButton, headstartCount, null, HEADSTART_COST);
+        updateBtn(buyRepairKitButton, repairKitCount, null, REPAIR_KIT_COST);
         
-        // --- Headstart UI ---
-        buyHeadstartButton.classList.remove('can-buy', 'disabled');
-        buyHeadstartButton.disabled = true;
-        
-        if (totalCoins >= HEADSTART_COST) {
-            buyHeadstartButton.innerHTML = `${HEADSTART_COST.toLocaleString()} <img src="rec/items/coin.png" alt="Coin" class="coin-image">`;
-            buyHeadstartButton.classList.add('can-buy');
-            buyHeadstartButton.disabled = false;
-        } else {
-            buyHeadstartButton.innerHTML = `${HEADSTART_COST.toLocaleString()} <img src="rec/items/coin.png" alt="Coin" class="coin-image">`;
-            buyHeadstartButton.classList.add('disabled');
-        }
-
-        // --- NEW: Repair Kit UI ---
-        buyRepairKitButton.classList.remove('can-buy', 'disabled');
-        buyRepairKitButton.disabled = true;
-        
-        if (totalCoins >= REPAIR_KIT_COST) {
-            buyRepairKitButton.innerHTML = `${REPAIR_KIT_COST.toLocaleString()} <img src="rec/items/coin.png" alt="Coin" class="coin-image">`;
-            buyRepairKitButton.classList.add('can-buy');
-            buyRepairKitButton.disabled = false;
-        } else {
-            buyRepairKitButton.innerHTML = `${REPAIR_KIT_COST.toLocaleString()} <img src="rec/items/coin.png" alt="Coin" class="coin-image">`;
-            buyRepairKitButton.classList.add('disabled');
-        }
-        
-        // --- NEW: Coin Multiplier UI ---
         coinMultiplierLevelValueElement.textContent = coinMultiplierLevel;
-        const multiplierCost = COIN_MULTIPLIER_UPGRADE_COST; 
-
-        buyCoinMultiplierButton.classList.remove('can-buy', 'disabled', 'max-level');
-        buyCoinMultiplierButton.disabled = true;
-
-        if (coinMultiplierLevel >= COIN_MULTIPLIER_MAX_LEVEL) {
-            buyCoinMultiplierButton.textContent = 'MAX LEVEL';
-            buyCoinMultiplierButton.classList.add('max-level');
-        } else if (totalCoins >= multiplierCost) {
-            buyCoinMultiplierButton.innerHTML = `${multiplierCost.toLocaleString()} <img src="rec/items/coin.png" alt="Coin" class="coin-image">`;
-            buyCoinMultiplierButton.classList.add('can-buy');
-            buyCoinMultiplierButton.disabled = false;
-        } else {
-            buyCoinMultiplierButton.innerHTML = `${multiplierCost.toLocaleString()} <img src="rec/items/coin.png" alt="Coin" class="coin-image">`;
-            buyCoinMultiplierButton.classList.add('disabled');
-        }
-
-        // --- NEW: Jetpack UI ---
+        updateBtn(buyCoinMultiplierButton, coinMultiplierLevel, COIN_MULTIPLIER_MAX_LEVEL, COIN_MULTIPLIER_UPGRADE_COST);
+        
         jetpackLevelValueElement.textContent = jetpackLevel;
-        const jetpackCost = JETPACK_UPGRADE_COST; 
+        updateBtn(buyJetpackDurationButton, jetpackLevel, JETPACK_MAX_LEVEL, JETPACK_UPGRADE_COST);
+    }
 
-        buyJetpackDurationButton.classList.remove('can-buy', 'disabled', 'max-level');
-        buyJetpackDurationButton.disabled = true;
-
-        if (jetpackLevel >= JETPACK_MAX_LEVEL) {
-            buyJetpackDurationButton.textContent = 'MAX LEVEL';
-            buyJetpackDurationButton.classList.add('max-level');
-        } else if (totalCoins >= jetpackCost) {
-            buyJetpackDurationButton.innerHTML = `${jetpackCost.toLocaleString()} <img src="rec/items/coin.png" alt="Coin" class="coin-image">`;
-            buyJetpackDurationButton.classList.add('can-buy');
-            buyJetpackDurationButton.disabled = false;
-        } else {
-            buyJetpackDurationButton.innerHTML = `${jetpackCost.toLocaleString()} <img src="rec/items/coin.png" alt="Coin" class="coin-image">`;
-            buyJetpackDurationButton.classList.add('disabled');
+    function createStarEffect(btn) {
+        const rect = btn.getBoundingClientRect();
+        for (let i = 0; i < 12; i++) {
+            const star = document.createElement('div');
+            star.className = 'star-particle';
+            star.style.left = `${rect.left + rect.width/2}px`;
+            star.style.top = `${rect.top + rect.height/2}px`;
+            const angle = Math.random() * 360;
+            const dist = Math.random() * 100 + 50;
+            star.style.setProperty('--transform-end', `translate(${Math.cos(angle)*dist}px, ${Math.sin(angle)*dist}px)`);
+            document.body.appendChild(star);
+            setTimeout(() => star.remove(), 800);
         }
     }
 
-    // --- Purchase Logic Functions ---
-    
-    function buyMagnetDuration() {
-        if (magnetLevel >= MAGNET_MAX_LEVEL) return;
-        const cost = MAGNET_UPGRADE_COST;
+    function buy(type) {
+        let cost = 0;
+        let success = false;
+        if (type === 'magnet' && magnetLevel < MAGNET_MAX_LEVEL) {
+            cost = MAGNET_UPGRADE_COST;
+            if (totalCoins >= cost) {
+                magnetLevel++; totalCoins -= cost; saveMagnetLevel(magnetLevel); success = true;
+            }
+        } else if (type === 'headstart') {
+            cost = HEADSTART_COST;
+            if (totalCoins >= cost) {
+                headstartCount++; totalCoins -= cost; saveHeadstartCount(headstartCount); success = true;
+            }
+        } else if (type === 'repair') {
+            cost = REPAIR_KIT_COST;
+            if (totalCoins >= cost) {
+                repairKitCount++; totalCoins -= cost; saveRepairKitCount(repairKitCount); success = true;
+            }
+        } else if (type === 'multiplier' && coinMultiplierLevel < COIN_MULTIPLIER_MAX_LEVEL) {
+            cost = COIN_MULTIPLIER_UPGRADE_COST;
+            if (totalCoins >= cost) {
+                coinMultiplierLevel++; totalCoins -= cost; saveCoinMultiplierLevel(coinMultiplierLevel); success = true;
+            }
+        } else if (type === 'jetpack' && jetpackLevel < JETPACK_MAX_LEVEL) {
+            cost = JETPACK_UPGRADE_COST;
+            if (totalCoins >= cost) {
+                jetpackLevel++; totalCoins -= cost; saveJetpackLevel(jetpackLevel); success = true;
+            }
+        }
 
-        if (totalCoins >= cost) {
-            totalCoins -= cost;
+        if (success) {
             saveCoins();
-            saveMagnetLevel(magnetLevel + 1);
             updateShopUI();
-            playPurchaseSound(); // Play sound on success
-            createStarEffect(buyMagnetDurationButton); // NEW: Trigger effect
-        } else {
-            console.error("Not enough coins to purchase!");
-        }
-    }
-    
-    function buyHeadstart() {
-        const cost = HEADSTART_COST;
-        
-        if (totalCoins >= cost) {
-            totalCoins -= cost;
-            saveCoins();
-            saveHeadstartCount(headstartCount + 1);
-            updateShopUI();
-            playPurchaseSound(); // Play sound on success
-            createStarEffect(buyHeadstartButton); // NEW: Trigger effect
-        } else {
-            console.error("Not enough coins to purchase Headstart!");
+            createStarEffect(document.activeElement);
         }
     }
 
-    // NEW: Logic for purchasing Repair Kit
-    function buyRepairKit() {
-        const cost = REPAIR_KIT_COST;
-        
-        if (totalCoins >= cost) {
-            totalCoins -= cost;
-            saveCoins();
-            saveRepairKitCount(repairKitCount + 1);
-            updateShopUI();
-            playPurchaseSound(); // Play sound on success
-            createStarEffect(buyRepairKitButton); // NEW: Trigger effect
-        } else {
-            console.error("Not enough coins to purchase Repair Kit!");
-        }
-    }
-
-    // NEW: Logic for purchasing Coin Multiplier
-    function buyCoinMultiplier() {
-        if (coinMultiplierLevel >= COIN_MULTIPLIER_MAX_LEVEL) return;
-        const cost = COIN_MULTIPLIER_UPGRADE_COST;
-
-        if (totalCoins >= cost) {
-            totalCoins -= cost;
-            saveCoins();
-            saveCoinMultiplierLevel(coinMultiplierLevel + 1);
-            updateShopUI();
-            playPurchaseSound(); // Play sound on success
-            createStarEffect(buyCoinMultiplierButton); // NEW: Trigger effect
-        } else {
-            console.error("Not enough coins to purchase!");
-        }
-    }
-
-    // NEW: Logic for purchasing Jetpack Duration
-    function buyJetpackDuration() {
-        if (jetpackLevel >= JETPACK_MAX_LEVEL) return;
-        const cost = JETPACK_UPGRADE_COST;
-
-        if (totalCoins >= cost) {
-            totalCoins -= cost;
-            saveCoins();
-            saveJetpackLevel(jetpackLevel + 1);
-            updateShopUI();
-            playPurchaseSound(); // Play sound on success
-            createStarEffect(buyJetpackDurationButton); // NEW: Trigger effect
-        } else {
-            console.error("Not enough coins to purchase!");
-        }
-    }
-
-    // --- NEW: Offline Detection ---
-    function handleConnectionChange() {
-        const offlineScreen = document.getElementById('offline-screen');
-        const shopContainer = document.querySelector('.shop-container');
-
-        if (navigator.onLine) {
-            // We are online
-            offlineScreen.style.display = 'none';
-            shopContainer.style.display = 'block';
-            // Refresh data in case we came back online
-            loadGameData();
-            updateShopUI();
-        } else {
-            // We are offline
-            offlineScreen.style.display = 'flex';
-            shopContainer.style.display = 'none';
-        }
-    }
-
-    window.addEventListener('online', handleConnectionChange);
-    window.addEventListener('offline', handleConnectionChange);
-
-    // Initialization and Event Listeners
-    window.onload = function() {
-        handleConnectionChange(); // Initial check on page load
-        
-        // Attach the audio enablement function to the first click event on the document
-        document.addEventListener('click', enableAudio);
-
-        // Add the double-tap zoom suppression listener to all relevant buttons
-        buyMagnetDurationButton.addEventListener('touchstart', suppressDoubleTapZoom);
-        buyHeadstartButton.addEventListener('touchstart', suppressDoubleTapZoom);
-        buyRepairKitButton.addEventListener('touchstart', suppressDoubleTapZoom);
-        buyCoinMultiplierButton.addEventListener('touchstart', suppressDoubleTapZoom);
-        buyJetpackDurationButton.addEventListener('touchstart', suppressDoubleTapZoom); // NEW
-        
-        // Add click listeners
-        buyMagnetDurationButton.addEventListener('click', buyMagnetDuration);
-        buyHeadstartButton.addEventListener('click', buyHeadstart);
-        buyRepairKitButton.addEventListener('click', buyRepairKit); // NEW Listener
-        buyCoinMultiplierButton.addEventListener('click', buyCoinMultiplier); // NEW Listener
-        buyJetpackDurationButton.addEventListener('click', buyJetpackDuration); // NEW Listener
+    window.onload = () => {
+        loadGameData();
+        updateShopUI();
+        buyMagnetDurationButton.onclick = () => buy('magnet');
+        buyHeadstartButton.onclick = () => buy('headstart');
+        buyRepairKitButton.onclick = () => buy('repair');
+        buyCoinMultiplierButton.onclick = () => buy('multiplier');
+        buyJetpackDurationButton.onclick = () => buy('jetpack');
     };
-
 </script>
 </body>
 </html>

@@ -4,12 +4,7 @@
     <meta charset="UTF-g">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JetSurfers 2</title>
-    <!-- Assuming these scripts exist in the folder structure -->
-    <!-- <script src="weather/snowfall_effect.js"></script> -->
-    <!-- <script src="weather/rain_effect.js"></script> -->
-    <!-- Mock scripts for rain/snow effects to prevent console errors if missing -->
     <script src="weather/rain_effect.js"></script>
-    <script src="weather/snowfall_effect.js"></script>
     <link rel="icon" href="rec/game-icon.jpg" type="image/png">
     <link rel="manifest" href="manifest.json">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -123,11 +118,11 @@
             object-fit: contain; 
         }
         .modal {
-            background: #111;
+            background: #333;
             padding: 30px 40px;
             border-radius: 15px;
             text-align: center;
-            box-shadow: 0 0 30px #0988ff;
+            box-shadow: 0 0 30px green;
             border: 2px solid rgba(255, 0, 0, 0);
             pointer-events: auto; /* Re-enable pointer events for the modal */
             max-width: 90%; /* Allow modal to be slightly wider for shop */
@@ -143,19 +138,19 @@
             font-size: 1.1rem;
             font-weight: bold;
             color: white;
-            background-color: #f63b3b;
+            background-color: #0E7A0D;
             border: none;
             border-radius: 8px;
             cursor: pointer;
             transition: background-color 0.2s, transform 0.1s;
-            box-shadow: 0 4px red;
+            box-shadow: 0 4px #0E7A0D;
         }
         .game-button:hover {
-            background-color: #ff0000;
+            background-color: #0E7A0D;
         }
         .game-button:active {
             transform: translateY(2px);
-            box-shadow: 0 2px red;
+            box-shadow: 0 2px #0E7A0D;
         }
         
         /* NEW Style for Headstart Button */
@@ -248,7 +243,7 @@
         /* --- Pause Button Styles --- */
         .pause-button {
             pointer-events: auto; /* Allow clicks */
-            background: #000000e0;
+            background: #111;
             padding: 8px;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
@@ -261,7 +256,7 @@
         }
 
         .pause-button:hover {
-            background-color: rgb(170, 163, 64);
+            background-color: #444;
         }
 
         .pause-button img {
@@ -280,19 +275,19 @@
             font-size: 1.2rem;
             font-weight: 600;
             color: #f3f4f6;
-            background-color: #398bff; /* Darker blue/gray */
-            border: 2px solid rgb(0, 0, 0);
+            background-color: #444; /* Darker blue/gray */
+            border: 2px solid #0E7A0D;
             border-radius: 8px;
             cursor: pointer;
             transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
-            box-shadow: 0 4px #4983ff;
+            box-shadow: 0 4px #0E7A0D;
             text-decoration: none; /* Added for <a> tag */
             text-align: center; /* Added for <a> tag */
             position: relative; /* NEW: For notification icon */
         }
 
         .menu-button:hover {
-            background-color: #374151;
+            background-color: #0E7A0D;
         }
 
         .menu-button:active {
@@ -302,22 +297,22 @@
         
         /* NEW: Button style for Export/Import */
         .menu-button.export {
-            background-color: #398bff; /* Green */
-            box-shadow: 0 4px #398bff;
+            background-color: #444; /* Green */
+            box-shadow: 0 4px #0E7A0D;
         }
         .menu-button.export:hover {
-            background-color: #374151;
+            background-color: #0E7A0D;
         }
         .menu-button.export:active {
-            box-shadow: 0 2px rgb(118, 192, 0);
+            box-shadow: 0 2px #0E7A0D;
         }
 
         .menu-button.import {
-            background-color: #398bff; /* Amber */
-            box-shadow: 0 4px #398bff;
+            background-color: #444; /* Amber */
+            box-shadow: 0 4px #0E7A0D;
         }
         .menu-button.import:hover {
-            background-color: #374151;
+            background-color: #0E7A0D;
         }
         .menu-button.import:active {
             box-shadow: 0 2px #f06800;
@@ -369,7 +364,7 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            background: #ff0000; /* Dark background */
+            background: #333; /* Dark background */
             z-index: 1000; /* Highest z-index */
             display: flex;
             justify-content: center;
@@ -522,9 +517,8 @@
                 <img src="rec/exclamation.png" id="questNotificationIcon" class="hidden absolute top-0 right-0 w-10 h-10 -mt-2 -mr-2" alt="!" 
                      onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZHRoPSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSIjRkRFNCA0NyI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiLz48cGF0aCBmaWxsPSIjMDAwIiBkPSJNMTEgMTVIMTNWMTdIMTF6TTExIDdIMTNWMTNIMTF6Ii8+PC9zdmc+'; this.onerror=null;">
             </a>
-            <a href="mapselect.html"><button class="menu-button">MAPS</button></a>
             <button id="settingsButton" class="menu-button">SETTINGS</button>
-            <p class="text-xs text-gray-500 mt-6">Game Version: v1.6.5</p>
+            <p class="text-xs text-gray-500 mt-6">Game Version: v1.7.8</p>
         </div>
         
         <!-- NEW: Settings Menu Modal -->
@@ -549,7 +543,7 @@
                 <!-- Tailwind CSS Toggle Switch -->
                 <label class="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" id="disableLoadingScreenToggle" class="sr-only peer">
-                    <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                    <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
                 </label>
             </div>
 
@@ -567,7 +561,7 @@
 
             <!-- Game Version Display -->
             <div class="text-center text-gray-400 mt-6">
-                <p>Game Version: v1.6.5</p>
+                <p>Game Version: v1.7.8</p>
             </div>
 
             <button id="settingsBackButton" class="menu-button mt-8">BACK</button>
@@ -585,7 +579,7 @@
         <!-- Using the same icon as the favicon for consistency -->
         <img src="rec/game-icon.jpg" alt="JetSurfers Logo" onerror="this.style.display='none'">
         <h1>JetSurfers 2</h1>
-        <p>A StadiaStudios Production</p>
+        <p>Loading Save...</p>
     </div>
 </div>
 
@@ -1065,13 +1059,13 @@
             }
         }
         // Default background (Red)
-        const DEFAULT_BACKGROUND = 'linear-gradient(315deg, #1b2845 0%, #000f89 98%)'; 
+        const DEFAULT_BACKGROUND = '#222'; 
         // Darker, stormy, spaceous red gradient
-        const RAIN_BACKGROUND = 'linear-gradient(315deg, #003366 0%, #242124 74%)'; 
+        const RAIN_BACKGROUND = '#222'; 
 
         // --- Canvas Background Styles (NEW) ---
-        const SNOW_CANVAS_BACKGROUND = 'linear-gradient(315deg, #1b2845 0%, #000f89 74%)'; /* Light Blue Sky Gradient */
-        const DARK_CANVAS_BACKGROUND = 'linear-gradient(315deg, #003366 0%, #242124 74%)'; 
+        const SNOW_CANVAS_BACKGROUND = 'linear-gradient(315deg, #BA9368 0%, #BA9368 74%)'; /* Light Blue Sky Gradient */
+        const DARK_CANVAS_BACKGROUND = 'linear-gradient(315deg, #70583E 0%, #70583E 74%)'; 
         
         // --- Rain State Variables ---
         let rainTimer = 0;
@@ -1131,7 +1125,7 @@
         const powerupSound = new Audio('sfx/powerup.mp3'); 
         const rainSound = new Audio('sfx/ambience/rain.mp3');
         const boostSound = new Audio('sfx/boost.mp3');
-        const backgroundMusic = new Audio('sfx/ambience/wind.mp3');
+        const backgroundMusic = new Audio('sfx/desert-island.mp3');
         
 
         coinSound.volume = 0.4; 
@@ -1291,11 +1285,11 @@
                 if (this.type === 'enemy') {
                     // --- NEW: Add red glow effect ---
                     ctx.save();
-                    ctx.shadowColor = 'blue';
+                    ctx.shadowColor = 'orange';
                     ctx.shadowBlur = 15;
 
                     // Enemy Plane (Red/Black)
-                    ctx.fillStyle = this.isHit ? 'blue' : 'blue';
+                    ctx.fillStyle = this.isHit ? '#587156' : '#2E6021';
                     ctx.beginPath();
                     // Simple delta wing shape
                     ctx.moveTo(xCenter, y);
@@ -1310,7 +1304,7 @@
                     // Coin
                     // --- NEW: Add gold glow effect ---
                     ctx.save(); // Save current context state
-                    ctx.shadowColor = 'blue'; // Gold color
+                    ctx.shadowColor = 'gold'; // Gold color
                     ctx.shadowBlur = 15; // The blur radius for the glow
 
                     if (coinImg.isLoaded) {
@@ -1325,7 +1319,7 @@
                 } else if (this.type === 'magnet') {
                      // Magnet Power-up
                     ctx.save();
-                    ctx.shadowColor = 'blue'; // Purple glow
+                    ctx.shadowColor = 'white'; // Purple glow
                     ctx.shadowBlur = 15;
 
                     if (magnetImg.isLoaded) {
@@ -1335,7 +1329,7 @@
                         // Fallback to a purple square with an icon
                         ctx.fillStyle = '#9333ea'; // Deep Purple
                         ctx.fillRect(xCenter - this.size / 2, y, this.size, this.size);
-                        ctx.fillStyle = 'blue';
+                        ctx.fillStyle = 'gold';
                         ctx.font = `${this.size * 0.6}px sans-serif`;
                         ctx.textAlign = 'center';
                         ctx.textBaseline = 'middle';
@@ -1345,7 +1339,7 @@
                 } else if (this.type === 'jetpack') { // NEW: Draw Jetpack
                      // Jetpack Power-up
                     ctx.save();
-                    ctx.shadowColor = 'blue'; // Orange glow
+                    ctx.shadowColor = 'white'; // Orange glow
                     ctx.shadowBlur = 15;
 
                     if (jetpackImg.isLoaded) {
@@ -1355,7 +1349,7 @@
                         // Fallback to an orange square with an icon
                         ctx.fillStyle = '#f97316'; // Orange
                         ctx.fillRect(xCenter - this.size / 2, y, this.size, this.size);
-                        ctx.fillStyle = 'blue';
+                        ctx.fillStyle = 'orange';
                         ctx.font = `${this.size * 0.6}px sans-serif`;
                         ctx.textAlign = 'center';
                         ctx.textBaseline = 'middle';
@@ -1730,7 +1724,7 @@
                         blur = maxBlur;
                     }
                     
-                    ctx.shadowColor = 'blue'; // This was the original glow color
+                    ctx.shadowColor = 'orange'; // This was the original glow color
                     ctx.shadowBlur = blur;
                 }
 
@@ -1751,7 +1745,7 @@
                 // NEW: Draw a white shield/glow if invincible after reviving
                 if (performance.now() < reviveInvincibilityEndTime) {
                     const invincibilityProgress = (reviveInvincibilityEndTime - performance.now()) / 2000; // 2-second duration
-                    ctx.shadowColor = `blue ${0.8 * invincibilityProgress})`; // Fade out effect
+                    ctx.shadowColor = `white ${0.8 * invincibilityProgress})`; // Fade out effect
                     ctx.shadowBlur = 30 * invincibilityProgress;
                 }
 

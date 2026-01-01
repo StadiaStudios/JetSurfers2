@@ -11,63 +11,76 @@
         body {
             font-family: 'Inter', sans-serif;
             background-color: #111; /* Dark background */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
             margin: 0;
             user-select: none;
-            padding: 20px;
+            /* Fullscreen layout adjustments */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         .quests-container {
-            background: rgba(17, 24, 39, 0.98);
-            padding: 30px 40px;
-            border-radius: 15px;
+            /* Fullscreen Override */
+            background: #222; /* Solid background instead of transparent */
+            width: 100%;
+            min-height: 100vh;
+            padding: 40px 20px;
+            box-sizing: border-box;
+            
+            /* Remove card styling */
+            border-radius: 0;
+            box-shadow: none;
+            border: none;
+            max-width: none;
+            max-height: none;
+            
+            /* Center content */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: white;
             text-align: center;
-            box-shadow: 0 0 30px rgb(0, 140, 255);
-            border: 2px solid rgb(0, 132, 255);
-            pointer-events: auto;
-            max-width: 90%;
+        }
+
+        /* Wrapper to keep content readable on wide screens */
+        .content-wrapper {
             width: 100%;
             max-width: 600px;
-            max-height: 90vh;
-            overflow-y: auto;
-            color: white;
         }
         
         /* Custom Scrollbar */
-        .quests-container::-webkit-scrollbar {
+        ::-webkit-scrollbar {
             width: 12px;
         }
-        .quests-container::-webkit-scrollbar-track {
+        ::-webkit-scrollbar-track {
             background: #111827;
-            border-radius: 10px;
         }
-        .quests-container::-webkit-scrollbar-thumb {
-            background-color: #5c9dff;
+        ::-webkit-scrollbar-thumb {
+            background-color: #0E7A0D;
             border-radius: 10px;
             border: 2px solid #111827;
-            box-shadow: 0 0 10px #447aef;
         }
 
         /* Quest item styling */
         .quest-item {
             background: #1f2937; /* Darker blue/gray */
-            border: 2px solid #ff8e8e;
-            border-radius: 8px;
-            padding: 16px;
+            border: 2px solid #0E7A0D; /* Keeping original accent */
+            border-radius: 12px;
+            padding: 20px;
             text-align: left;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
             display: flex;
             flex-direction: column;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            position: relative;
+            overflow: hidden;
         }
 
         .quest-desc {
-            font-size: 1.1rem;
-            font-weight: 600;
+            font-size: 1.2rem;
+            font-weight: 700;
             color: #f3f4f6;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
         }
 
         .quest-reward {
@@ -92,119 +105,244 @@
             width: 100%;
             background-color: #374151; /* Gray-blue */
             border-radius: 99px;
-            height: 10px;
+            height: 12px;
             overflow: hidden;
             margin-bottom: 8px;
         }
         .progress-bar {
             width: 0%; /* Will be set by JS */
             height: 100%;
-            background-color: #4983ff; /* Green */
+            background-color: #0E7A0D; /* Green */
             border-radius: 99px;
             transition: width 0.3s ease;
         }
         .progress-text {
-            font-size: 0.8rem;
-            color: #d1d5db; /* Light gray */
+            font-size: 0.9rem;
+            color: #9ca3af; /* Light gray */
             text-align: right;
+            font-weight: 500;
         }
 
         /* Claim Button */
         .quest-button {
             width: 100%;
-            padding: 10px 0;
-            margin-top: 8px;
+            padding: 12px 0;
+            margin-top: 12px;
             font-size: 1.1rem;
             font-weight: 700;
             color: #f3f4f6;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.2s, opacity 0.2s;
+            transition: all 0.2s;
         }
 
         .quest-button-claim {
-            background-color: #398bff; /* Green */
-            box-shadow: 0 4px #4983ff;
-            transition-duration: 0.3s;
+            background-color: #0E7A0D; /* Blue */
+            box-shadow: 0 4px #065005;
+            transform: translateY(0);
         }
         .quest-button-claim:hover {
-            background-color: #444;
-            transition-duration: 0.3s;
+            background-color: #129e11;
+            transform: translateY(-1px);
+            box-shadow: 0 5px #065005;
+        }
+        .quest-button-claim:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px #065005;
         }
 
         .quest-button-disabled {
             background-color: #4b5563; /* Gray */
-            opacity: 0.7;
+            opacity: 0.5;
             cursor: not-allowed;
+            box-shadow: none;
         }
 
         /* Menu button style for the "Back" link */
         .menu-button {
             display: block;
             width: 100%;
-            padding: 12px 0;
-            margin: 8px 0;
+            padding: 16px 0;
+            margin-top: 30px;
             font-size: 1.2rem;
-            font-weight: 600;
+            font-weight: 700;
             color: #f3f4f6;
-            background-color: #1f2937;
-            border: 2px solid #e0e2e6;
-            border-radius: 8px;
+            background-color: transparent;
+            border: 2px solid #0E7A0D;
+            border-radius: 12px;
             cursor: pointer;
-            transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
-            box-shadow: 0 4px #111827;
+            transition: all 0.2s;
             text-decoration: none;
             text-align: center;
         }
         .menu-button:hover {
-            background-color: #374151;
+            background-color: #0E7A0D;
+            border-color: #0E7A0D;
         }
         .menu-button:active {
-            transform: translateY(2px);
-            box-shadow: 0 2px #111827;
+            transform: scale(0.98);
+        }
+
+        /* Level Badge Styles */
+        .level-badge {
+            display: inline-flex;
+            align-items: center;
+            background: orange; /* Blue */
+            color: white;
+            padding: 4px 12px;
+            border-radius: 99px;
+            font-weight: 800;
+            font-size: 0.9rem;
+            margin-left: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            vertical-align: middle;
+        }
+        
+        .xp-bar-container {
+            width: 100%;
+            height: 6px;
+            background: #374151;
+            border-radius: 99px;
+            margin-top: 5px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .xp-bar-fill {
+            height: 100%;
+            background: orange; /* Light Blue */
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .stats-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        /* Header tweaks */
+        h2 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+        
+        .level-up-toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.5);
+            background: rgba(0,0,0,0.9);
+            border: 2px solid #fbbf24;
+            padding: 20px 40px;
+            border-radius: 16px;
+            text-align: center;
+            color: #fbbf24;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+        }
+        
+        .level-up-toast.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+        
+        .level-up-title {
+            font-size: 2rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        
+        .level-up-reward {
+            font-size: 1.2rem;
+            color: white;
         }
     </style>
 </head>
 <body>
 
-    <div class="quests-container">
-        <h2 class="text-3xl font-extrabold mb-4 text-white">DAILY QUESTS</h2>
-        <p class="text-lg mb-2">
-            Total Coins: <span id="totalCoinsValue" class="font-bold text-yellow-400">0</span> <img src="rec/items/coin.png" alt="Coin" class="coin-image" style="width: 20px; height: 20px; margin-left: 5px;">
-        </p>
-        <p id="timerText" class="text-sm text-gray-400 mb-6">New quests in: 00:00:00</p>
-        
-        <!-- Quests List -->
-        <div id="questsList" class="space-y-4">
-            <!-- Quests will be populated by JavaScript -->
-        </div>
-
-        <!-- This is a link back to the game -->
-        <a href="index.html" id="questsBackButton" class="menu-button mt-8">BACK TO GAME</a>
+    <!-- Level Up Notification -->
+    <div id="levelUpToast" class="level-up-toast">
+        <div class="level-up-title">Level Up!</div>
+        <div class="level-up-reward">+20,000 Coins</div>
     </div>
 
-<script src="weather/snowfall_effect.js"></script> 
+    <div class="quests-container">
+        <div class="content-wrapper">
+            <h2 class="text-3xl font-extrabold mb-4 text-white">DAILY QUESTS</h2>
+            
+            <!-- Stats Row: Coins & Level -->
+            <div class="stats-row mb-2">
+                <p class="text-lg m-0">
+                    Total Coins: <span id="totalCoinsValue" class="font-bold text-yellow-400">0</span> 
+                    <img src="rec/items/coin.png" alt="Coin" class="coin-image">
+                </p>
+                
+                <div class="flex flex-col items-center">
+                    <div class="level-badge">
+                        LEVEL <span id="levelValue" class="ml-1">1</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- XP Bar -->
+            <div class="w-full max-w-xs mx-auto mb-8">
+                <div class="xp-bar-container">
+                    <div id="xpBarFill" class="xp-bar-fill"></div>
+                </div>
+                <div class="text-xs text-gray-400 mt-1">XP Progress</div>
+            </div>
+
+            <p id="timerText" class="text-sm text-gray-400 mb-8">New quests in: 00:00:00</p>
+            
+            <!-- Quests List -->
+            <div id="questsList" class="space-y-4">
+                <!-- Quests will be populated by JavaScript -->
+            </div>
+
+            <!-- This is a link back to the game -->
+            <a href="index.html" id="questsBackButton" class="menu-button">BACK TO GAME</a>
+        </div>
+    </div>
+
 <script src="https://cdn.tailwindcss.com"></script>
 
 <script>
-    // --- Local Storage Keys (Shared with game files) ---
+    // --- Local Storage Keys ---
     const COIN_STORAGE_KEY = 'jetSurferTotalCoins';
     const QUEST_STORAGE_KEY = 'jetSurferQuests';
+    const LEVEL_STORAGE_KEY = 'jetSurferLevel';
+    const XP_STORAGE_KEY = 'jetSurferXP';
+
+    // --- Configuration ---
+    const MAX_LEVEL = 20;
+    const LEVEL_UP_REWARD = 20000;
+    const XP_TO_LEVEL_UP = 300; // XP needed for next level
+    const XP_PER_QUEST = 100;   // XP gained per quest
 
     // --- UI Elements ---
     const totalCoinsValue = document.getElementById('totalCoinsValue');
+    const levelValue = document.getElementById('levelValue');
+    const xpBarFill = document.getElementById('xpBarFill');
     const questsList = document.getElementById('questsList');
     const timerText = document.getElementById('timerText');
+    const levelUpToast = document.getElementById('levelUpToast');
 
-    // --- NEW: Audio for claiming reward ---
-    const claimSound = new Audio('sfx/purchase.mp3'); // Using the purchase sound for consistency
+    // --- Audio ---
+    const claimSound = new Audio('sfx/purchase.mp3');
     claimSound.volume = 0.7;
-
+    
+    // Simple level up sound (higher pitch version of claim or similar)
+    // We'll reuse claimSound for simplicity but maybe play it twice quickly or manipulate playbackRate if browser allows
+    
     // --- Quest Definitions ---
-    // id: Used to track progress from the game
-    // desc: Template for the description
-    // targets: Array of possible target values
     const QUEST_POOL = [
         { 
             id: 'score_run', 
@@ -238,12 +376,15 @@
         quests: []
     };
     
+    // --- State ---
+    let playerLevel = 1;
+    let playerXP = 0;
+
     // --- Utility Functions ---
 
     function getTodayDateString() {
-        // Use UTC to prevent issues with timezones changing the date
         const now = new Date();
-        return now.toISOString().split('T')[0]; // YYYY-MM-DD
+        return now.toISOString().split('T')[0];
     }
 
     function getRandomInt(min, max) {
@@ -254,40 +395,114 @@
 
     function updateTimer() {
         const now = new Date();
-        // Get the next day (UTC)
         const tomorrow = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1, 0, 0, 0);
-        // Get the current time (UTC)
         const nowUTC = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds());
         
         const diff = tomorrow.getTime() - nowUTC.getTime();
 
         if (diff <= 0) {
             timerText.textContent = "Refreshing quests...";
-            checkAndRefreshQuests(); // Time to refresh
+            checkAndRefreshQuests();
             return;
         }
 
-        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24).toString().padStart(2, '0');
+        const hours = Math.floor((diff / (1000 * 60 * 60)) % 1).toString().padStart(2, '0');
         const minutes = Math.floor((diff / 1000 / 60) % 60).toString().padStart(2, '0');
         const seconds = Math.floor((diff / 1000) % 60).toString().padStart(2, '0');
 
         timerText.textContent = `New quests in: ${hours}:${minutes}:${seconds}`;
     }
 
+    function loadLevelData() {
+        const storedLevel = localStorage.getItem(LEVEL_STORAGE_KEY);
+        const storedXP = localStorage.getItem(XP_STORAGE_KEY);
+        
+        playerLevel = storedLevel ? parseInt(storedLevel, 10) : 1;
+        playerXP = storedXP ? parseInt(storedXP, 10) : 0;
+        
+        updateLevelUI();
+    }
+
+    function saveLevelData() {
+        localStorage.setItem(LEVEL_STORAGE_KEY, playerLevel);
+        localStorage.setItem(XP_STORAGE_KEY, playerXP);
+    }
+
+    function updateLevelUI() {
+        levelValue.textContent = playerLevel;
+        
+        // If Max Level, full bar
+        if (playerLevel >= MAX_LEVEL) {
+            xpBarFill.style.width = '100%';
+            xpBarFill.style.backgroundColor = '#fbbf24'; // Gold for max level
+        } else {
+            const percentage = (playerXP / XP_TO_LEVEL_UP) * 100;
+            xpBarFill.style.width = `${percentage}%`;
+        }
+    }
+
+    function showLevelUpToast() {
+        levelUpToast.classList.add('show');
+        setTimeout(() => {
+            levelUpToast.classList.remove('show');
+        }, 3000);
+    }
+
+    function addXP(amount) {
+        if (playerLevel >= MAX_LEVEL) return; // Cap reached
+
+        playerXP += amount;
+        
+        // Check for Level Up
+        // Using a while loop in case multiple levels are gained at once (unlikely here but good practice)
+        while (playerXP >= XP_TO_LEVEL_UP && playerLevel < MAX_LEVEL) {
+            playerXP -= XP_TO_LEVEL_UP;
+            playerLevel++;
+            
+            // Grant Reward
+            grantCoins(LEVEL_UP_REWARD);
+            showLevelUpToast();
+            
+            // Play sound for level up
+            setTimeout(() => {
+                const lvlSound = new Audio('sfx/purchase.mp3');
+                lvlSound.playbackRate = 1.2; // Higher pitch
+                lvlSound.play().catch(()=>console.log("Audio play prevented"));
+            }, 300);
+        }
+        
+        // If we hit max level, cap XP
+        if (playerLevel >= MAX_LEVEL) {
+            playerXP = XP_TO_LEVEL_UP; // Visual "Full" bar
+        }
+
+        saveLevelData();
+        updateLevelUI();
+    }
+
+    function grantCoins(amount) {
+        const storedCoins = localStorage.getItem(COIN_STORAGE_KEY);
+        let totalCoins = storedCoins ? parseInt(storedCoins, 10) : 0;
+        totalCoins += amount;
+        
+        localStorage.setItem(COIN_STORAGE_KEY, totalCoins);
+        
+        // Update UI
+        totalCoinsValue.textContent = totalCoins.toLocaleString();
+    }
+
     // --- Quest Logic ---
 
     function generateNewQuests() {
         let newQuests = [];
-        let poolCopy = [...QUEST_POOL]; // Copy pool to avoid duplicates
+        let poolCopy = [...QUEST_POOL];
         
         for (let i = 0; i < 3; i++) {
-            if (poolCopy.length === 0) break; // In case pool is smaller than 3
+            if (poolCopy.length === 0) break;
 
-            // Pick a random quest type
             const questIndex = getRandomInt(0, poolCopy.length - 1);
-            const questType = poolCopy.splice(questIndex, 1)[0]; // Remove from pool
+            const questType = poolCopy.splice(questIndex, 1)[0];
 
-            // Pick a random target from that quest's targets
             const target = questType.targets[getRandomInt(0, questType.targets.length - 1)];
             
             const quest = {
@@ -297,7 +512,7 @@
                 progress: 0,
                 isComplete: false,
                 isClaimed: false,
-                reward: getRandomInt(1000, 1500) // Random reward
+                reward: getRandomInt(1000, 1500)
             };
             newQuests.push(quest);
         }
@@ -326,11 +541,10 @@
     }
 
     function displayQuests() {
-        // Load total coins
         const storedCoins = localStorage.getItem(COIN_STORAGE_KEY);
         totalCoinsValue.textContent = storedCoins ? parseInt(storedCoins, 10).toLocaleString() : '0';
         
-        questsList.innerHTML = ''; // Clear old quests
+        questsList.innerHTML = ''; 
         
         if (!currentQuests.quests || currentQuests.quests.length === 0) {
             questsList.innerHTML = '<p>No quests available. Check back tomorrow!</p>';
@@ -344,7 +558,8 @@
             if (quest.isClaimed) {
                 buttonHtml = `<button class="quest-button quest-button-disabled" disabled>Claimed</button>`;
             } else if (quest.isComplete) {
-                buttonHtml = `<button class="quest-button quest-button-claim" data-index="${index}">CLAIM REWARD</button>`;
+                // Show XP Reward in button or description
+                buttonHtml = `<button class="quest-button quest-button-claim" data-index="${index}">CLAIM REWARD (+${XP_PER_QUEST} XP)</button>`;
             } else {
                 buttonHtml = `<button class="quest-button quest-button-disabled" disabled>In Progress</button>`;
             }
@@ -355,16 +570,15 @@
                 <div class="quest-desc">${quest.desc}</div>
                 <div class="quest-reward">
                     <img src="rec/items/coin.png" alt="Coin" class="coin-image" onerror="this.style.display='none'">
-                    ${quest.reward.toLocaleString()}
+                    ${quest.reward.toLocaleString()} 
+                    <span class="text-blue-400 ml-2 text-xs font-bold">+${XP_PER_QUEST} XP</span>
                 </div>
                 
-                <!-- Progress Bar -->
                 <div class="progress-bar-container">
                     <div class="progress-bar" style="width: ${progressPercent}%"></div>
                 </div>
                 <div class="progress-text">${quest.progress.toLocaleString()} / ${quest.target.toLocaleString()}</div>
                 
-                <!-- Button -->
                 ${buttonHtml}
             `;
             questsList.appendChild(questElement);
@@ -373,16 +587,16 @@
 
     function handleQuestClick(e) {
         const button = e.target.closest('.quest-button-claim');
-        if (!button) return; // Clicked on something else
+        if (!button) return;
 
         const questIndex = parseInt(button.dataset.index, 10);
         const quest = currentQuests.quests[questIndex];
 
         if (!quest || quest.isClaimed || !quest.isComplete) {
-            return; // Safety check
+            return; 
         }
 
-        // --- NEW: Play sound effect ---
+        // --- Play sound effect ---
         claimSound.currentTime = 0;
         claimSound.play().catch(e => console.error("Claim sound failed to play:", e));
 
@@ -390,15 +604,15 @@
         quest.isClaimed = true;
 
         // 2. Add coins
-        const storedCoins = localStorage.getItem(COIN_STORAGE_KEY);
-        let totalCoins = storedCoins ? parseInt(storedCoins, 10) : 0;
-        totalCoins += quest.reward;
+        grantCoins(quest.reward);
+
+        // 3. Add XP (New Feature)
+        addXP(XP_PER_QUEST);
         
-        // 3. Save data
-        localStorage.setItem(COIN_STORAGE_KEY, totalCoins);
+        // 4. Save Quest data
         localStorage.setItem(QUEST_STORAGE_KEY, JSON.stringify(currentQuests));
         
-        // 4. Redraw UI
+        // 5. Redraw UI
         displayQuests();
     }
 
@@ -407,9 +621,10 @@
     questsList.addEventListener('click', handleQuestClick);
 
     window.onload = function() {
+        loadLevelData(); // Load level info first
         checkAndRefreshQuests();
-        setInterval(updateTimer, 1000); // Update timer every second
-        updateTimer(); // Initial call
+        setInterval(updateTimer, 1000); 
+        updateTimer(); 
     };
 
 </script>
